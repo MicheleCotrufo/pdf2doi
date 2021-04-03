@@ -71,7 +71,7 @@ def extract_doi_from_text(text,version=0):
 
     return None
 
-def pdf2doi(file,verbose=False):
+def find_doi_in_pdf(file,verbose=False):
     
      # Setup logging
     if verbose:
@@ -149,6 +149,34 @@ def pdf2doi(file,verbose=False):
 
 
 
+#a=validate_doi('10.1103/PhysRevA.98.023815')
+#print(a)
+
+#files = [f for f in os.listdir(folder) if os.path.isfile(f)]
+
+#for f in files:
+#    ext = os.path.splitext(f)[-1].lower()
+#    if ext == ".pdf":
+#        print("Opening the file: \"" + f + "\"")
+#        file = open(f, 'rb') 
+#        print("\tAttempting to find the DOI...")
+#        doi = find_doi_in_pdf(file)
+#        file.close()
+#        if doi:
+#            print(bcolors.OKGREEN + "Found and validated the DOI: " + doi+ bcolors.ENDC)
+#            print("\tLooking up the bibtex info...")
+#            data = doi2bib(doi)
+#            data = bibtexparser.loads(data)
+#            year = data.entries[0]['year']
+#            author = replace_bad_characters(data.entries[0]['author'])
+#            title = replace_bad_characters(data.entries[0]['title'])
+#            journal = data.entries[0]['journal']
+#            print("\tExtracted the info: "+ year+" "+author+" "+title+" "+journal)
+#            newname =  year + " - " + journal + " - " + author[:16] + " - " + title + ext
+#            os.rename(f,newname) 
+#        else:
+#            print(bcolors.WARNING + "\tIt was not possible to extract a valid doi from this file."+ bcolors.ENDC)
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser( 
                                     description = "Retrieve the DOI of a paper from a PDF file.",
@@ -167,5 +195,5 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
 
-    doi = pdf2doi(args.filename,args.verbose)
+    doi = find_doi_in_pdf(args.filename,args.verbose)
     print(doi)

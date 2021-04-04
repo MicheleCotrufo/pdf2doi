@@ -158,7 +158,8 @@ def pdf2doi(filename,verbose=False,nowebsearch=False,nowebvalidation=False):
 
     try:
         file.close()
-
+    except:
+        pass
     return None
 
 def main():

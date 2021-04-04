@@ -24,7 +24,6 @@ class bcolors:
     UNDERLINE = '\033[4m'
 
 
-
 def doi2bib(doi):
     """
     Return a bibTeX string of metadata for a given DOI.
@@ -71,7 +70,7 @@ def extract_doi_from_text(text,version=0):
 
     return None
 
-def pdf2doi(file,verbose=False):
+def pdf2doi(filename,verbose=False,nowebsearch=False,nowebvalidation=False):
     
     #The next 2 lines are needed to make sure that logging works also in Ipython
     from importlib import reload  # Not needed in Python 2
@@ -81,12 +80,21 @@ def pdf2doi(file,verbose=False):
     if verbose:
         loglevel = logging.INFO
     else:
-        loglevel = logging.CRITICAL
-
+        loglevel = logging.ERROR
     logging.basicConfig(format="%(message)s", level=loglevel)
 
-    file = open(file, 'rb') 
-    pdf = PdfFileReader(file,strict=False)
+    try:
+        file = open(filename, 'rb') 
+    except (FileNotFoundError, IOError):
+        logging.error("File not found.")
+        return
+
+    try:
+        pdf = PdfFileReader(file,strict=False)
+    except (FileNotFoundError, IOError):
+        logging.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
+        return
+    
     info = pdf.getDocumentInfo()
 
     #First method: we look for a string that can be a DOI in the values of the dictionary info.
@@ -99,7 +107,6 @@ def pdf2doi(file,verbose=False):
                 logging.info("\tA valid DOI was found in the document info labelled \'"+key+"\'.")
                 return doi
     logging.info("\tCould not find the DOI in the document info.")
-
 
     #Second method: we look in the plain text of the pdf and try to find something that matches a DOI. 
     #We look for progressively more looser matching patterns, corresponding to increasing values of the variable v.
@@ -120,8 +127,6 @@ def pdf2doi(file,verbose=False):
                 keep_looping_over_v = 0
                 break
         if keep_looping_over_v == 0: break
-
-
     logging.info("\tCould not find the DOI in the document text.")
 
     #Third method: we try to identify the title of paper in the info dictionary, do a google search, open the first result and look for DOI in the plain text.
@@ -132,19 +137,22 @@ def pdf2doi(file,verbose=False):
         if 'title' in key.lower():
             FoundAnyPossibleTitle = 1
             logging.info("\tA possible title \"" + value +  "\" was found in the document info labelled \'" + key + "\'.")
-            logging.info("\t\tDoing a google search, looking at the first " + str(NumbResults) + " results...")
-            i=1
-            for url in search(value, stop=NumbResults):
-                logging.info("\t\tTrying locating the DOI in the search result #" + str(i) + ": " + url)
-                i=i+1
-                response = requests.get(url)
-                text = response.text
-                for v in range(3):
-                    doi = extract_doi_from_text(text,version=v)
-                    if doi and validate_doi(doi): 
-                        logging.info("\t\tA valid DOI was found in this search result.")
-                        return doi
-            logging.info("\t\tNone of the search results contained a valid url.")
+            if nowebsearch==False:
+                logging.info("\t\tDoing a google search, looking at the first " + str(NumbResults) + " results...")
+                i=1
+                for url in search(value, stop=NumbResults):
+                    logging.info("\t\tTrying locating the DOI in the search result #" + str(i) + ": " + url)
+                    i=i+1
+                    response = requests.get(url)
+                    text = response.text
+                    for v in range(3):
+                        doi = extract_doi_from_text(text,version=v)
+                        if doi and validate_doi(doi): 
+                            logging.info("\t\tA valid DOI was found in this search result.")
+                            return doi
+                logging.info("\t\tNone of the search results contained a valid url.")
+            else:
+                logging.info("\t\tEnable the web search method if you want use this title for a qoogle query.")
     if FoundAnyPossibleTitle == 0:
         logging.info("\tNo title was found in the document infos.")
 
@@ -163,10 +171,24 @@ def main():
                         "--verbose",
                         help="Increase output verbosity.",
                         action="store_true")
+    parser.add_argument(
+                        "-nws",
+                        "--nowebsearch",
+                        help="Disable any DOI retrieval method which requires internet searches (e.g. queries to google).",
+                        action="store_true")
+    parser.add_argument(
+                        "-nwv",
+                        "--nowebvalidation",
+                        help="Disable the DOI online validation via query to http://dx.doi.org/.",
+                        action="store_true")
     args = parser.parse_args()
 
-    doi = pdf2doi(args.filename,args.verbose)
-    print(doi)
+    doi = pdf2doi(filename=args.filename,
+                  verbose=args.verbose,
+                  nowebsearch=args.nowebsearch,
+                  nowebvalidation=args.nowebvalidation)
+    if doi:
+        print(doi)
     return
 
 if __name__ == '__main__':

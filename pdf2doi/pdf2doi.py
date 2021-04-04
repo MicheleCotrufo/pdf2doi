@@ -73,7 +73,11 @@ def extract_doi_from_text(text,version=0):
 
 def pdf2doi(file,verbose=False):
     
-     # Setup logging
+    #The next 2 lines are needed to make sure that logging works also in Ipython
+    from importlib import reload  # Not needed in Python 2
+    reload(logging)
+
+    # Setup logging
     if verbose:
         loglevel = logging.INFO
     else:
@@ -146,15 +150,10 @@ def pdf2doi(file,verbose=False):
 
     return None
 
-
-
-
-if __name__ == '__main__':
+def main():
     parser = argparse.ArgumentParser( 
                                     description = "Retrieve the DOI of a paper from a PDF file.",
                                     epilog = "")
-
-    # TODO Specify your real parameters here.
     parser.add_argument(
                         "filename",
                         help = "Relative path of the pdf file.",
@@ -162,10 +161,13 @@ if __name__ == '__main__':
     parser.add_argument(
                         "-v",
                         "--verbose",
-                        help="increase output verbosity",
+                        help="Increase output verbosity.",
                         action="store_true")
     args = parser.parse_args()
 
-
     doi = pdf2doi(args.filename,args.verbose)
     print(doi)
+    return
+
+if __name__ == '__main__':
+    main()

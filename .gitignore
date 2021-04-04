@@ -1,6 +1,7 @@
 /env/
 /.vs/
 /build/
+/tests/
 # Compiled python modules.
 *.pyc
 

@@ -156,6 +156,9 @@ def pdf2doi(filename,verbose=False,nowebsearch=False,nowebvalidation=False):
     if FoundAnyPossibleTitle == 0:
         logging.info("\tNo title was found in the document infos.")
 
+    try:
+        file.close()
+
     return None
 
 def main():

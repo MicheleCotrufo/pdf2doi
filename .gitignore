@@ -2,6 +2,7 @@
 /.vs/
 /build/
 /tests/
+/examples/
 # Compiled python modules.
 *.pyc
 
@@ -12,3 +13,4 @@
 /*.egg-info
 
 .google-cookie
+test.py

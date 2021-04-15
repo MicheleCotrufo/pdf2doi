@@ -1,77 +1,18 @@
-from PyPDF2 import PdfFileReader
-import requests
-import os
-import re
-import bibtexparser
 import argparse
 import logging
-from googlesearch import search
+from os import path
+import pdf2doi.DOI_finders as DOI_finders
+import pdf2doi.config as config
 
-#folder = os.path.abspath(os.path.dirname(__file__))
-#folder = 'D:\Dropbox (Personal)\PythonScripts\PaperRenamer'
-#folder= folder + "/test/"
-#os.chdir(folder)
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-
-
-def doi2bib(doi):
-    """
-    Return a bibTeX string of metadata for a given DOI.
-    """
-    url = "http://dx.doi.org/" + doi
-    headers = {"accept": "application/x-bibtex"}
-    r = requests.get(url, headers = headers)
-    return r.text
-
-def validate_doi(doi,check_also_online=1):
-    """
-    Check that doi is a valid DOI by using a regular expression.
-    If check_also_online=true, it also checks that the doi is actually associate to a paper via a query to http://dx.doi.org/
-    """
-    if re.match(r'(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n]|$)',doi,re.I):
-        if check_also_online:
-            result = doi2bib(doi)
-            if (result.lower().find( "DOI Not Found".lower() ))==-1:
-                return True, result
-            else:
-                return False
-        else:
-            return True
-    return False
-
-def extract_doi_from_text(text,version=0):
-
-    if version == 0:
-        string = 'doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)' #version 0 looks for something like "DOI : 10.xxxxS[end characters]" 
-                                                                              # where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
-                                                                              # [end characters] is either space, newline, " or <. Or th end of the string
-                                                                              #The initial part could be either "DOI : ", "DOI", "DOI:", "DOI.:", ""DOI:." and with possible 
-                                                                              #spaces or lower cases
-    if version == 1:
-        string = '(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)'                #in version 1 the requirement of having "DOI : " in the beginning is removed
-
-    if version == 2:
-        string = '(10\.\d{4}[\:\.\-\/a-z]+[\:\.\-\d]+)(?:[\s\na-z\"<]|$)'    #version 2 is used for cases in which, in plain texts, the DOI is not followed by a space, newline or special characters,
-                                                                             #but is instead followed by other letters. We can still isolate the DOI
-                                                                             #by assumeing that DOI always ends up with numbers
-    regexDOI = re.search(string,text,re.I)
-    if regexDOI and validate_doi(regexDOI.group(1)):
-        return regexDOI.group(1)
-
-    return None
-
-def pdf2doi(filename,verbose=False,nowebsearch=False,nowebvalidation=False):
+def pdf2doi(filename,
+            verbose=False,
+            websearch=True,
+            webvalidation=True,
+            numb_results_google_search=config.numb_results_google_search):
     
+    config.check_online_to_validate = webvalidation
+    config.websearch = websearch
+    config.numb_results_google_search = numb_results_google_search
     #The next 2 lines are needed to make sure that logging works also in Ipython
     from importlib import reload  # Not needed in Python 2
     reload(logging)
@@ -83,83 +24,64 @@ def pdf2doi(filename,verbose=False,nowebsearch=False,nowebvalidation=False):
         loglevel = logging.ERROR
     logging.basicConfig(format="%(message)s", level=loglevel)
 
-    try:
-        file = open(filename, 'rb') 
-    except (FileNotFoundError, IOError):
-        logging.error("File not found.")
-        return
+    if not path.exists(filename):
+        logging.error("The file indicated does not exist.")
+        return None
 
-    try:
-        pdf = PdfFileReader(file,strict=False)
-    except (FileNotFoundError, IOError):
-        logging.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
-        return
+    if not filename.endswith('.pdf'):
+        logging.error("The file must have .pdf extension.")
+        return None
     
-    info = pdf.getDocumentInfo()
-
-    #First method: we look for a string that can be a DOI in the values of the dictionary info.
-    #We look into these fields with progressively looser and looser matching patterns, corresponding to increasing values of the variable v.
+    #First method: we look for a string that can be a DOI in the values of the dictionary info = pdf.getDocumentInfo()
+    #We first look for the elements with keys 'doi' or '/doi' (if the they exist, and then any other field of the dictionary info
     logging.info("Trying locating the DOI in the document infos...")
-    for v in range(3):
-        for key, value in info.items():
-            doi = extract_doi_from_text(value,version=v)
-            if doi and validate_doi(doi):
-                logging.info("\tA valid DOI was found in the document info labelled \'"+key+"\'.")
-                return doi
-    logging.info("\tCould not find the DOI in the document info.")
+    doi,desc = DOI_finders.find_doi_in_pdf_info(filename,keysToCheckFirst=['doi','/doi'])
+    if doi:
+        return doi
+    logging.info("Could not find the DOI in the document info.")
+    logging.basicConfig(format="%(message)s", level=loglevel)
 
-    #Second method: we look in the plain text of the pdf and try to find something that matches a DOI. 
+
+    #info = pdf.getDocumentInfo()
+    
+    #Second method: we look in the plain text of the pdf and try to find something that matches a DOI (or at least an arXiv ID). 
     #We look for progressively more looser matching patterns, corresponding to increasing values of the variable v.
-    logging.info("Trying locating the DOI in the document text...")
-    number_of_pages = pdf.getNumPages()
-    keep_looping_over_v = 1
-    for v in range(3):
-        for i in range(number_of_pages):
-            try:
-                pageObj = pdf.getPage(i)
-                text = pageObj.extractText()
-                doi = extract_doi_from_text(text,version=v)
-                if doi and validate_doi(doi): 
-                    logging.info("\tA valid DOI was found in the document text.")
-                    return doi
-            except Exception as e:
-                logging.info("\tAn error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
-                keep_looping_over_v = 0
-                break
-        if keep_looping_over_v == 0: break
-    logging.info("\tCould not find the DOI in the document text.")
+    logging.info("Trying locating the DOI (or an arXiv ID) in the document text by using PyPDF...")
+    doi,desc = DOI_finders.find_doi_in_pdf_text(filename, reader= 'pypdf')
+    if doi:
+        return doi
+    logging.info("Could not find the DOI (or an arXiv ID) in the document text by using PyPDF.")
+    
+    #We repeat the same test but now using text_extractor = 'textract', which uses the module 'textract' to
+    #extract text from the pdf. In certain istances textract seems to work better than PyPDF in extracting 
+    #text near the margin of a page
+    logging.info("Trying locating the DOI (or an arXiv ID) in the document text by using textract...")
+    doi,desc = DOI_finders.find_doi_in_pdf_text(filename, reader= 'textract')
+    if doi:
+        return doi
+    logging.info("Could not find the DOI (or an arXiv ID) in the document text by using textract.")
 
-    #Third method: we try to identify the title of paper in the info dictionary, do a google search, open the first result and look for DOI in the plain text.
-    NumbResults = 6
+
+    #Third method: we try to identify the title of the paper, do a google search with it, open the first results and look for DOI in the plain text.
+    doi = None
+
     logging.info("Trying locating a possible title in the document infos...")
+    titles = DOI_finders.find_possible_titles(filename)
     FoundAnyPossibleTitle = 0
-    for key, value in info.items():
-        if 'title' in key.lower():
-            FoundAnyPossibleTitle = 1
-            logging.info("\tA possible title \"" + value +  "\" was found in the document info labelled \'" + key + "\'.")
-            if nowebsearch==False:
-                logging.info("\t\tDoing a google search, looking at the first " + str(NumbResults) + " results...")
-                i=1
-                for url in search(value, stop=NumbResults):
-                    logging.info("\t\tTrying locating the DOI in the search result #" + str(i) + ": " + url)
-                    i=i+1
-                    response = requests.get(url)
-                    text = response.text
-                    for v in range(3):
-                        doi = extract_doi_from_text(text,version=v)
-                        if doi and validate_doi(doi): 
-                            logging.info("\t\tA valid DOI was found in this search result.")
-                            return doi
-                logging.info("\t\tNone of the search results contained a valid url.")
-            else:
-                logging.info("\t\tEnable the web search method if you want use this title for a qoogle query.")
-    if FoundAnyPossibleTitle == 0:
+    if titles:
+        if config.websearch==True:
+            logging.info("\tPossible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
+        else:
+            for title in titles:
+                logging.info(f"\tA possible title was found: \"{title}\"")
+                logging.info(f"\t\tDoing a google search, looking at the first {str(NumbResults)} results...")
+                doi,desc = DOI_finders.find_doi_via_google_search(title, config.numb_results_google_search )
+                if doi:
+                    return doi
+                logging.info("\t\tNone of the search results contained a valid DOI.")         
+    else:
         logging.info("\tNo title was found in the document infos.")
-
-    try:
-        file.close()
-    except:
-        pass
+    
     return None
 
 def main():
@@ -189,8 +111,8 @@ def main():
 
     doi = pdf2doi(filename=args.filename,
                   verbose=args.verbose,
-                  nowebsearch=args.nowebsearch,
-                  nowebvalidation=args.nowebvalidation)
+                  websearch=not(args.nowebsearch),
+                  webvalidation=not(args.nowebvalidation))
     if doi:
         print(doi)
     return

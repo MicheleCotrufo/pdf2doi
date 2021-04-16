@@ -45,7 +45,7 @@ Example of usage inside a python script:
 import pdf2doi
 #Try to identify the DOI/identifier of the file 'path/filename.pdf'
 result = pdf2doi.pdf2doi('path/filename.pdf',verbose=True)
-#the output is a list in the format
+#the output is a list with three strings
 #result = [identifier, type_identifier, file_name]
 
 #Try to identify the DOIs of all pdf files contained in the folder

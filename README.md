@@ -17,7 +17,7 @@ pdf2doi can be used either as a stand-alone application invoked from the command
 Example of usage from command line:
 
 ```
-pdf2doi 'path/filename.pdf' 
+pdf2doi 'path/filename.pdf'
 pdf2doi './folder'
 ```
 ```

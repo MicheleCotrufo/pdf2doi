@@ -119,7 +119,7 @@ def pdf2doi(filename,
 
 def main():
     parser = argparse.ArgumentParser( 
-                                    description = "Retrieve the DOI of a paper from a PDF file.",
+                                    description = "Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.",
                                     epilog = "")
     parser.add_argument(
                         "filename",

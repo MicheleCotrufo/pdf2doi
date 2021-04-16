@@ -1,4 +1,4 @@
-# Foobar
+# pdf2doi
 
 pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv) from a pdf file of a publication.
 

@@ -9,6 +9,7 @@ import logging
 from googlesearch import search
 from . import bibtex_makers
 import pdf2doi.config as config
+import os
 
 #The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are ordered from stricter to less and less strict
 doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # version 0 looks for something like "DOI : 10.xxxxS[end characters] where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
@@ -21,11 +22,11 @@ doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # ve
 #Similarly, arxiv_regexp is a list of regular expressions used to identify an arXiv identifier in a string. They are ordered from stricter to less and less strict. Moreover,
 #the regexp corresponding to older arXiv notations have less priority.
 #NOTE: currently only one regexp is implemented for arxiv. 
-arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+(?:v\d+){1})(?:[\s\n\"<]|$)']  #version 0 looks for something like "arXiv:YYMM.number(vn)" 
+arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+(?:v\d+)?)(?:[\s\n\"<]|$)',  #version 0 looks for something like "arXiv:YYMM.number(vn)" 
                                                                             #where YYMM are 4 digits, numbers are up to 5 digits and (vn) is
-                                                                            #an additional term specifying the version. n is an integer starting from 1
+                                                                            #an additional optional term specifying the version. n is an integer starting from 1
                                                                             #This is the official format for Arxiv indentifier starting from 1 April 2007
-
+                '(\d{4}\.\d+(?:v\d+)?)(?:\.pdf)'] 
 
 
 def validate(doi,what='doi'):
@@ -43,7 +44,7 @@ def validate(doi,what='doi'):
                 result = bibtex_makers.doi2bib(doi)
                 if (result.lower().find( "DOI Not Found".lower() ))==-1:
                     logging.info(f"DOI validated.")
-                    return True, result
+                    return True
                 else:
                     logging.info(f"DOI not valid.")
                     return False
@@ -51,16 +52,16 @@ def validate(doi,what='doi'):
                 logging.info(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential DOI on dx.doi.org).")
                 return True
     elif what=='arxiv':
-        if re.match(r'(\d{4}\.\d+(?:v\d+){1})',doi,re.I):
+        if re.match(r'(\d{4}\.\d+(?:v\d+)?)',doi,re.I):
             if config.check_online_to_validate:
                 logging.info(f"Validating the possible arxiv ID {doi} via a query to export.arxiv.org...")
                 result = bibtex_makers.arxiv2bib(doi)
-                if result==None:
-                    return True, result
+                if result:
+                    return True
                 else:
                     return False
             else:
-                logging.info(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential arxiv ID on export.arxiv.org).")
+                logging.warning(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential arxiv ID on export.arxiv.org).")
                 return True
     return False
 
@@ -226,10 +227,13 @@ def get_pdf_text(path,reader):
                 try:
                     text.append( (pdf.getPage(i)).extractText())
                 except Exception as e:
-                    logging.info("\tAn error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
+                    logging.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                     break 
     if reader == 'textract':
-        text = [textract.process(path).decode('utf-8')]
+        try:
+            text = [textract.process(path).decode('utf-8')]
+        except Exception as e:
+            logging.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
 
 
@@ -325,6 +329,28 @@ def find_doi_in_pdf_info(path,keysToCheckFirst=[],func_validate_doi=validate):
                 break
             del info[key]
 
+    return doi,desc
+
+def find_doi_in_filename(path, func_validate_doi=validate):
+    """ 
+    Parameters
+    ----------
+    path : a valid path to a pdf file
+    func_validate_doi : function, optional
+        The function func_validate_doi must take one argument and return True/False.
+        If func_validate_doi is specified, everytime that a possible DOI is identified the value 
+        returned by func_validate_doi(DOI) is used to check if DOI is valid.
+    Returns
+    -------
+    doi
+        A valid DOI if any is found, or None if no DOI was found.
+    """
+    text = os.path.basename(path)
+    doi,desc = find_doi_in_text([text],func_validate_doi)
+    if desc == 'doi':
+        logging.info("A valid DOI was found in the file name.")
+    if desc == 'arxiv':
+        logging.info("A valid arXiv ID was found in the file name.")
     return doi,desc
 
 

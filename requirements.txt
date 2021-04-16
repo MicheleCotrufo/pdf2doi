@@ -4,6 +4,6 @@ pyparsing>=2.4.7
 requests>=2.25.1
 pypdf2>=1.26
 textract>=1.6.3
-beautifulsoup4>=4.8.0
+beautifulsoup4==4.8.0
 feedparser>=6.0.2
-chardet>=3.0.4
+chardet==3.0.4

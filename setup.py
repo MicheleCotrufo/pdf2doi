@@ -1,10 +1,15 @@
 import setuptools
+from os import path
+
+this_directory = path.abspath(path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 with open("requirements.txt") as f:
     required_packages = f.read().splitlines()
 
 setuptools.setup(name='pdf2doi',
-      version='0.1.3a1',
+      version='0.1.4a1',
       description='A python library/command-line tool to retrieve the DOI of a paper from a pdf file.',
       url='https://github.com/MicheleCotrufo/pdf2doi',
       author='Michele Cotrufo',

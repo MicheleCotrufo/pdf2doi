@@ -1,6 +1,7 @@
 import requests
 import feedparser
 import bibtexparser
+import re
 
 def doi2bib(doi):
     """

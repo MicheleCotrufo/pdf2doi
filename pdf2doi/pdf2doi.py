@@ -138,10 +138,10 @@ def main():
     parser.add_argument(
                         "-nwv",
                         "--nowebvalidation",
-                        help="Disable the DOI online validation via query to http://dx.doi.org/.",
+                        help="Disable the DOI online validation via queries (e.g., to http://dx.doi.org/).",
                         action="store_true")
     parser.add_argument('-google_results', 
-                        "--numb_results_google_search",
+                        help=f"Set how many results should be considered when doing a google search for the DOI (default={str(config.numb_results_google_search)}).",
                         action="store", dest="google_results", type=int)
     args = parser.parse_args()
 

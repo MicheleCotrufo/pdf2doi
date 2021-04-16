@@ -17,10 +17,30 @@ pdf2doi can be used either as a stand-alone application invoked from the command
 Example of usage from command line:
 
 ```
-pdf2doi 'path/filename.pdf' -v 
+pdf2doi 'path/filename.pdf' 
 pdf2doi './folder'
 ```
+```
+pdf2doi --h
 
+usage: pdf2doi [-h] [-v] [-nws] [-nwv] [-google_results GOOGLE_RESULTS] filename
+
+Retrieve the DOI of a paper from a PDF file.
+
+positional arguments:
+  filename              Relative path of the pdf file or of a folder.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -v, --verbose         Increase output verbosity.
+  -nws, --nowebsearch   Disable any DOI retrieval method which requires internet searches (e.g. queries to google).
+  -nwv, --nowebvalidation
+                        Disable the DOI online validation via queries (e.g., to http://dx.doi.org/).
+  -google_results GOOGLE_RESULTS
+                        Set how many results should be considered when doing a google search for the DOI (default=6).
+
+```
+Example of usage inside a python script:
 ```python
 import pdf2doi
 #Try to identify the DOI/identifier of the file 'path/filename.pdf'

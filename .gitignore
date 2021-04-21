@@ -2,7 +2,7 @@
 /.vs/
 /build/
 /tests/
-/examples/
+/examples*
 # Compiled python modules.
 *.pyc
 

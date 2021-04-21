@@ -11,9 +11,13 @@ def doi2bib(doi):
         url = "http://dx.doi.org/" + doi
         headers = {"accept": "application/x-bibtex"}
         r = requests.get(url, headers = headers)
-        return r.text
+        text = r.text
+        if (text.lower().find( "DOI Not Found".lower() ))==-1:
+            return text
+        else:
+            return None
     except:
-        return ""
+        return -1
 
 def arxiv2bib(arxivID):
     """

@@ -8,13 +8,16 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it al
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv) to a pdf file can be either a very easy or a very difficult
-(something nearly impossible) task, depending on how much care was placed in crafting the file. 
+(sometimes nearly impossible) task, depending on how much care was placed in crafting the file. In the simplest case (which typically applies to most recent publications)
+it is enough to look into the file metadata. For older publications, the identifier is often found within the pdf text and it can be
+extracted with the help of regular expressions. In the unluckiest cases, the only method left is to google some details of the publication
+(e.g. the title or parts of the text) and hope that a valid identifier is contained in one of the first results.
 
-The ```pdf2doi``` library applies sequentially different methods (starting from the simpler one) until a valid identifier is found and validated.
+The ```pdf2doi``` library applies sequentially all these methods (starting from the simpler one) until a valid identifier is found and validated.
 Specifically, for a given .pdf file it will, in order,
 
 1. Look into the metadata of the .pdf file (extracted via the library [PyPDF2](https://github.com/mstamy2/PyPDF2)) and see if any string matches the pattern of 
-a DOI or an arXiv ID. Priority is given to the metadata which contain the words 'doi' in their name.
+a DOI or an arXiv ID. Priority is given to the metadata which contain the word 'doi' in their label.
 
 2. Check if the name of the pdf file contains any sub-string that matches the pattern of 
 a DOI or an arXiv ID.

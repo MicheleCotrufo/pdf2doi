@@ -143,24 +143,26 @@ The library can also be used directly from the command line, without having to o
 - Find and print the identifier of a single paper, outputting all logs:
 
 ```
->>pdf2doi '.\examples\PhysRevLett.116.061102.pdf' -v
+>>pdf2doi '.\examples\PhysRevLett.116.061102.pdf'
 ```
 
 - Find and print the identifiers of all pdf files contanined in a folder:
 ```
->>pdf2doi '.\examples\'
+>>pdf2doi '.\examples\' --no_verbose
 ```
 
 - Find the identifiers of all pdf files contanined in a folder and create a text file with all the bibtex entries:
 ```
->>pdf2doi '.\examples\' -b 'bibtex.txt'
+>>pdf2doi '.\examples\' -b 'bibtex.txt' --no_verbose
 ```
 
 The syntax for the command-line invokation follows closely the one for the call to the pdf2doi python function,
 
 ```
 >> pdf2doi --h
-usage: pdf2doi [-h] [-v] [-nws] [-nwv] [-google_results GOOGLE_RESULTS] [-s [FILENAME_IDENTIFIERS]] [-b [FILENAME_BIBTEX]] path
+usage: pdf2doi [-h] [-nv] [-nws] [-nwv] [-google_results GOOGLE_RESULTS] [-s [FILENAME_IDENTIFIERS]]
+               [-b [FILENAME_BIBTEX]]
+               path
 
 Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.
 
@@ -169,17 +171,19 @@ positional arguments:
 
 optional arguments:
   -h, --help            show this help message and exit
-  -v, --verbose         Increase output verbosity.
+  -nv, --no_verbose     Decrease verbosity.
   -nws, --nowebsearch   Disable any DOI retrieval method which requires internet searches (e.g. queries to google).
   -nwv, --nowebvalidation
                         Disable the DOI online validation via queries (e.g., to http://dx.doi.org/).
   -google_results GOOGLE_RESULTS
                         Set how many results should be considered when doing a google search for the DOI (default=6).
   -s [FILENAME_IDENTIFIERS], --save_identifiers [FILENAME_IDENTIFIERS]
-                        Save all the DOIs/identifiers found in the target folder in a .txt file inside the same folder (only available when a folder is targeted).
+                        Save all the DOIs/identifiers found in the target folder in a .txt file inside the same folder
+                        (only available when a folder is targeted).
   -b [FILENAME_BIBTEX], --make_bibtex [FILENAME_BIBTEX]
-                        Create a file with bibtex entries for each .pdf file in the targer folder (for which a valid identifier was found). This option is only available when a folder is targeted, and when the web validation is
-                        allowed.
+                        Create a file with bibtex entries for each .pdf file in the targer folder (for which a valid
+                        identifier was found). This option is only available when a folder is targeted, and when the
+                        web validation is allowed.
 ```
 
 

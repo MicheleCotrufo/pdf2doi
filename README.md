@@ -8,7 +8,7 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it al
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv) to a pdf file can be either a very easy or a very difficult
-(something nearly impossible) task, depening on how much care was placed in crafting the file. 
+(something nearly impossible) task, depending on how much care was placed in crafting the file. 
 
 The ```pdf2doi``` library applies sequentially different methods (starting from the simpler one) until a valid identifier is found and validated.
 Specifically, for a given .pdf file it will, in order,

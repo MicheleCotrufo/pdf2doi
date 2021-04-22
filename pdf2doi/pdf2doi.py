@@ -96,7 +96,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 
     # Setup logging
     if verbose: loglevel = logging.INFO
-    else: loglevel = logging.ERROR
+    else: loglevel = logging.CRITICAL
     logging.basicConfig(format="%(message)s", level=loglevel)
       
     #Check if target is a directory
@@ -198,9 +198,9 @@ def main():
                         help = "Relative path of the pdf file or of a folder.",
                         metavar = "path")
     parser.add_argument(
-                        "-v",
-                        "--verbose",
-                        help="Increase output verbosity.",
+                        "-nv",
+                        "--no_verbose",
+                        help="Decrease verbosity.",
                         action="store_true")
     parser.add_argument(
                         "-nws",
@@ -234,7 +234,7 @@ def main():
     
     args = parser.parse_args()
     results = pdf2doi(target=args.path,
-                  verbose=args.verbose,
+                  verbose=not(args.no_verbose),
                   websearch=not(args.nowebsearch),
                   webvalidation=not(args.nowebvalidation),
                   numb_results_google_search=args.google_results,
@@ -242,6 +242,8 @@ def main():
                   filename_bibtex = args.filename_bibtex
                   )
         
+    if not isinstance(results,list):
+        results = [results]
     for result in results:
         if result['identifier']:
             print('{:<15s} {:<40s} {:<10s}\n'.format(result['identifier_type'], result['identifier'],result['path']) ) 

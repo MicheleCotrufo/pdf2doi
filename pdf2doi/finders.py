@@ -238,7 +238,7 @@ def find_possible_titles(path):
         title = pdftitle.get_title_from_file(path)
     except:
         title = ''
-    if len(title)>5:#This is to check that the title found is neither empty nor just few characters
+    if len(title)>6:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)  
         
     # (2)
@@ -247,11 +247,11 @@ def find_possible_titles(path):
     
     for key, value in info.items():
         if 'title' in key.lower():
-            if isinstance(value,str) and len(value)>5: #This is to check that the title found is neither empty nor just few characters
+            if isinstance(value,str) and len(value)>6: #This is to check that the title found is neither empty nor just few characters
                 titles.append(value)         
     # (3)
     title = os.path.basename(path)
-    if len(title)>5:#This is to check that the title found is neither empty nor just few characters
+    if len(title)>10:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)
         
     return titles

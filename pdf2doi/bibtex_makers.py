@@ -2,6 +2,7 @@ import requests
 import feedparser
 import bibtexparser
 import re
+import logging
 
 def doi2bib(doi):
     """
@@ -10,12 +11,23 @@ def doi2bib(doi):
     try:
         url = "http://dx.doi.org/" + doi
         headers = {"accept": "application/x-bibtex"}
-        r = requests.get(url, headers = headers)
-        text = r.text
-        if (text.lower().find( "DOI Not Found".lower() ))==-1:
-            return text
-        else:
-            return None
+        NumberAttempts = 10
+        while NumberAttempts:
+            r = requests.get(url, headers = headers)
+            text = r.text
+            #logging.info("Text returned: " + text)
+            if (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
+                
+                NumberAttempts = NumberAttempts -1
+                logging.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
+                continue
+            else:
+                NumberAttempts = 0
+                
+            if (text.lower().find( "DOI Not Found".lower() ))==-1:
+                return text
+            else:
+                return None
     except:
         return -1
 

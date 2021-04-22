@@ -153,7 +153,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         logging.info(f"................") 
         logging.info(f"File: {filename}")  
         if not path.exists(filename):
-            logging.error("The file indicated does not exist.")
+            logging.error(f"'{filename}' is not a valid file or directory.")
             return None    
         if not filename.endswith('.pdf'):
             logging.error("The file must have .pdf extension.")

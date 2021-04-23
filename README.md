@@ -134,7 +134,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 The online validation of an identifier relies on performing queries to different online archives 
 (e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
 and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
-valid filename, the bibtex entries for all papers in the target directory will be saved in a file within the same directory.
+valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory.
 
 For example,
 ```python

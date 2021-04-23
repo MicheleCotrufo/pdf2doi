@@ -29,6 +29,9 @@ a DOI or an arXiv ID. The text is extracted with the libraries [PyPDF2](https://
 the library [pdftitle](https://github.com/metebalci/pdftitle "pdftitle"), and by the file name. For each possible title a google search 
 is performed and the plain text of the first results is scanned for valid identifiers.
 
+5. As a last desperate attempt, the first N=1000 characters of the pdf text are used as a query for
+a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
+
 
 ## Installation
 
@@ -159,7 +162,7 @@ The library can also be used directly from the command line, without having to o
 >>pdf2doi '.\examples\' -b 'bibtex.txt' --no_verbose
 ```
 
-The syntax for the command-line invokation follows closely the one for the call to the pdf2doi python function,
+The syntax for the command-line invokation follows closely the arguments that can be passed to the pdf2doi python function,
 
 ```
 >> pdf2doi --h

@@ -181,11 +181,17 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     
         
         #Fourth method: We look for possible titles of the paper, do a google search with them, 
-        # open the first results and look for identifiers in the plain text of the obtained by the results.
+        # open the first results and look for identifiers in the plain text of the searcg results.
         result =  finders.find_identifier(filename,method="title_google")
         if result['identifier']:
             return result
-    
+        
+        #Fifth method: We extract the first N characters from the file (where N is set by config.N_characters_in_pdf) and we use it as 
+        # a query for a google seaerch. We open the first results and look for identifiers in the plain text of the searcg results.
+        result =  finders.find_identifier(filename,method="first_N_characters_google")
+        if result['identifier']:
+            return result
+
         logging.error("It was not possible to find a valid identifier for this file.")
         return result #This will be a dictionary with all entries as None
 

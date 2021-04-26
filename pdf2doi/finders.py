@@ -311,15 +311,18 @@ def get_pdf_text(path,reader):
                 try:
                     text.append( (pdf.getPage(i)).extractText())
                 except Exception as e:
+                    logging.error(e)
                     logging.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                     break 
     if reader == 'textract':
         try:
             text = [textract.process(path,encoding='utf-8', errors='ignore').decode('utf-8')]
-        except:
+        except Exception as e:
+            logging.error(e)
             try:
                 text = [textract.process(path)]
-            except:   
+            except Exception as e:   
+                logging.error(e)
                 logging.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
 

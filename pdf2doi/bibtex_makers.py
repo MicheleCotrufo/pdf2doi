@@ -1,6 +1,5 @@
 import requests
 import feedparser
-import bibtexparser
 import re
 import logging
 

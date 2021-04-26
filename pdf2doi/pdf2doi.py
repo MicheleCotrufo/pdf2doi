@@ -88,7 +88,8 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     
     config.check_online_to_validate = webvalidation
     config.websearch = websearch
-    config.numb_results_google_search = numb_results_google_search
+    if numb_results_google_search:
+        config.numb_results_google_search = numb_results_google_search
     
     #The next 2 lines are needed to make sure that logging works also in Ipython
     from importlib import reload 

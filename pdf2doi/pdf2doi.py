@@ -97,7 +97,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     # Setup logging
     if verbose: loglevel = logging.INFO
     else: loglevel = logging.CRITICAL
-    logging.basicConfig(format="%(message)s", level=loglevel)
+    logging.basicConfig(format="pdf2doi: %(message)s", level=loglevel)
       
     #Check if target is a directory
     #If yes, we look for all the .pdf files inside it, and for each of them

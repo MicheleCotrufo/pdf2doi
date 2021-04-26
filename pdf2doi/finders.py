@@ -1,8 +1,8 @@
 """
-This module contains different functions to identify the DOI (or arXiv identifier) of a paper from a PDF file.
+This module contains different functions to identify the DOI (or arXiv identifier) of a paper starting from a PDF file.
 The module is divided in two parts. The first part contains low-level functions. These are functions that perform several small tasks 
 (e.g., find a DOI in a string of text, validating a DOI, etc.) and that are not supposed to be called directly by the user or by 
-any part of the main script pdf2doi.py. Instead they are called by the high-level finder functions, defined in the second part of 
+any part of the main script pdf2doi.py. Instead, they are called by the high-level finder functions, defined in the second part of 
 this module.
 """
 

@@ -311,7 +311,7 @@ def get_pdf_text(path,reader):
                 try:
                     text.append( (pdf.getPage(i)).extractText())
                 except Exception as e:
-                    logging.error(e)
+                    logging.error("Error from PyPDF2: " + str(e))
                     logging.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                     break 
     if reader == 'textract':
@@ -322,7 +322,7 @@ def get_pdf_text(path,reader):
             try:
                 text = [textract.process(path)]
             except Exception as e:   
-                logging.error(e)
+                logging.error("Error from textract: " + str(e))
                 logging.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
 
@@ -386,7 +386,7 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
     return result
 
 def find_identifier_by_googling_title(path, func_validate, numb_results=config.numb_results_google_search):
-    logging.info("Looking for a possible publication title in the document infos...")
+    logging.info("Looking for possible publication titles...")
     titles = find_possible_titles(path)
 
     if titles:
@@ -394,9 +394,10 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
             logging.warning("Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
+            logging.info(f"Found {len(titles)} possible title(s).")
             for title in titles:
-                logging.info(f"A possible title was found: \"{title}\"")
-                logging.info(f"Doing a google search, looking at the first {config.numb_results_google_search} results...")
+                logging.info(f"Doing a google search for \"{title}\",")
+                logging.info(f"looking at the first {config.numb_results_google_search} results...")
                 identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results)
                 if identifier:
                     logging.info(f"A valid {desc} was found with this google search.")
@@ -404,7 +405,7 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
             logging.info("None of the search results contained a valid identifier.")     
             return None, None, None
     else:
-        logging.error("It was not possible to find a title (for a google lookup) for this file.")
+        logging.error("It was not possible to find a title for this file.")
         return None, None, None
     
 def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.numb_results_google_search, numb_characters=config.N_characters_in_pdf):
@@ -415,20 +416,25 @@ def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, n
         return None, None, None
 
     for reader in reader_libraries:
-        logging.info(f"Extracting the first {numb_characters} characters from the pdf file (via the library {reader}) and removing any weird character...")
+        logging.info(f"Trying to extract the first {numb_characters} characters from the pdf file by using the library {reader}...")
         text = get_pdf_text(path,reader.lower())
         if text==[] or text=="":
             logging.error(f"The library {reader} could not extract any text from this file.")
             continue
+        
         if isinstance(text,list):
             text = "".join(text)
-        text = re.sub(r'[^\x00-\x7f]',r' ',text) 
+            
+        text = re.sub(r'[^\x00-\x7f]',r' ',text)    #Remove all non-text characters from the string text
         for r in ("\n","\r","\t"):
             text = text.replace(r," ")
-        text = text[0:numb_characters]
-        if text=="":
+         
+        if text=="":                                #Check tha the string is still not empty after removing non-text characters
             logging.error(f"The library {reader} could not extract any meaningful text from this file.")
             continue
+            
+        text = text[0:numb_characters]              #Select the first numb_characters characters
+
         logging.info(f"Doing a google search, looking at the first {config.numb_results_google_search} results...")
         identifier,desc,info = find_identifier_in_google_search(text,func_validate,numb_results)
         if identifier:
@@ -517,6 +523,7 @@ def find_identifier_in_pdf_text(path, func_validate):
         
         if not isinstance(texts,list):
             texts = [texts]
+        logging.info(f"Text extracted succesfully. Looking for an identifier in the text...")
         identifier,desc,info = find_identifier_in_text(texts,func_validate)
         if identifier: 
             logging.info(f"A valid {desc} was found in the document text.")

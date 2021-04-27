@@ -53,16 +53,21 @@ def arxiv2bib(arxivID):
         else:
             FirstWordTitle = ""
         
-        #parse the published data to get the year
+        #parse the published data to get the year, month and day
         if data_dict['published']:
             regexDate = re.search('(\d{4}\-\d{2}\-\d{2})',data_dict['published'],re.I)
             if regexDate:
                 date_list =  (regexDate.group(1)).split("-")
-                year = date_list[0]
-                
+                year = date_list[0] if len(date_list)>0 else '0000'
+                month = date_list[1] if len(date_list)>1 else '00'
+                day = date_list[2] if len(date_list)>2 else '00'
         else:
             year = '0000'
+            month = '00'
+            day = '00'
         data_dict['year'] = year
+        data_dict['month'] = month
+        data_dict['day'] = day
         
         #if authors are defined as list, create a string out of it. We also extract the last name
         #of first author for later use
@@ -87,6 +92,8 @@ def make_bibtex(data):
                 ("Eprint", data['eprint']),
                 ("DOI",  data['arxiv_doi']),
                 ("Year", data['year']),
+                ("Month", data['month']),
+                ("Day", data['day']),
                 ("Url", data['link']),
                 ]:
         if value:

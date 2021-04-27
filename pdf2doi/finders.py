@@ -16,10 +16,9 @@ from googlesearch import search
 from . import bibtex_makers
 import pdf2doi.config as config
 import os
-
+logger = logging.getLogger('pdf2doi')
 
 ######## Beginning first part, low-level functions ######## 
-
 
 #The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are ordered from stricter to less and less strict
 doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # version 0 looks for something like "DOI : 10.xxxxS[end characters] where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
@@ -61,35 +60,35 @@ def validate(identifier,what='doi'):
     if what=='doi':
         if re.match(doi_regexp[1],identifier,re.I):
             if config.check_online_to_validate:
-                logging.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
+                logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
                 result = bibtex_makers.doi2bib(identifier)
                 if result==-1:
-                    logging.error(f"Some error occured during connection to dx.doi.org.")
+                    logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
                 if result:
-                    logging.info(f"The DOI {identifier} is validated by dx.doi.org. A bibtex entry was also created.")
+                    logger.info(f"The DOI {identifier} is validated by dx.doi.org. A bibtex entry was also created.")
                     return result
                 else:
-                    logging.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
+                    logger.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
                     return False
             else:
-                logging.info(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential DOI on dx.doi.org).")
+                logger.info(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential DOI on dx.doi.org).")
                 return True
         else: return False
 
     elif what=='arxiv':
         if re.match(r'(\d{4}\.\d+(?:v\d+)?)',identifier,re.I):
             if config.check_online_to_validate:
-                logging.info(f"Validating the possible arxiv ID {identifier} via a query to export.arxiv.org...")
+                logger.info(f"Validating the possible arxiv ID {identifier} via a query to export.arxiv.org...")
                 result = bibtex_makers.arxiv2bib(identifier)
                 if result==-1:
-                    logging.error(f"Some error occured during connection to export.arxiv.org.")
+                    logger.error(f"Some error occured during connection to export.arxiv.org.")
                     return None
                 if result:
-                    logging.info(f"The Arxiv ID {identifier} is validated by export.arxiv.org. A bibtex entry was also created.")
+                    logger.info(f"The Arxiv ID {identifier} is validated by export.arxiv.org. A bibtex entry was also created.")
                     return result
                 else:
-                    logging.info(f"The Arxiv ID {identifier} is not valid according to export.arxiv.org.")
+                    logger.info(f"The Arxiv ID {identifier} is not valid according to export.arxiv.org.")
                     return False
             else:
                 logging.warning(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential arxiv ID on export.arxiv.org).")
@@ -153,12 +152,12 @@ def find_identifier_in_google_search(query,func_validate,numb_results=10):
         query_to_display = query[0:MaxLengthDisplay]  + " ...[query too long, the remaining part is suppressed in the logging]"
     else:
         query_to_display = query
-    logging.info(f"Performing google search with key \"" + query_to_display + "\"")
+    logger.info(f"Performing google search with key \"" + query_to_display + "\"")
     
     i=1
     try:
         for url in search(query, stop=numb_results):
-            logging.info(f"Looking for a valid identifier in the search result #{str(i)} : {url}")
+            logger.info(f"Looking for a valid identifier in the search result #{str(i)} : {url}")
             response = requests.get(url)
             text = response.text
             identifier,desc,info = find_identifier_in_text(text,func_validate)
@@ -232,12 +231,12 @@ def get_pdf_info(path):
     try:
         file = open(path, 'rb') 
     except (FileNotFoundError, IOError):
-        logging.error("File not found.")
+        logger.error("File not found.")
         return None
     try:
         pdf = PdfFileReader(path,strict=False)
     except:
-        logging.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
+        logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
         return None
     info = pdf.getDocumentInfo()
     return info
@@ -304,26 +303,26 @@ def get_pdf_text(path,reader):
             try:
                 pdf = PdfFileReader(f,strict=False)
             except:
-                logging.error("The input argument 'pdf' must be a valid path to a pdf file.")
+                logger.error("The input argument 'pdf' must be a valid path to a pdf file.")
                 return None
             number_of_pages = pdf.getNumPages()
             for i in range(number_of_pages):
                 try:
                     text.append( (pdf.getPage(i)).extractText())
                 except Exception as e:
-                    logging.error("Error from PyPDF2: " + str(e))
-                    logging.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
+                    logger.error("Error from PyPDF2: " + str(e))
+                    logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                     break 
     if reader == 'textract':
         try:
             text = [textract.process(path,encoding='utf-8', errors='ignore').decode('utf-8')]
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
             try:
                 text = [textract.process(path)]
             except Exception as e:   
-                logging.error("Error from textract: " + str(e))
-                logging.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
+                logger.error("Error from textract: " + str(e))
+                logger.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
 
 ######## End first part ######## 
@@ -386,7 +385,7 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
     return result
 
 def find_identifier_by_googling_title(path, func_validate, numb_results=config.numb_results_google_search):
-    logging.info("Looking for possible publication titles...")
+    logger.info("Looking for possible publication titles...")
     titles = find_possible_titles(path)
 
     if titles:
@@ -394,32 +393,32 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
             logging.warning("Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
-            logging.info(f"Found {len(titles)} possible title(s).")
+            logger.info(f"Found {len(titles)} possible title(s).")
             for title in titles:
-                logging.info(f"Doing a google search for \"{title}\",")
-                logging.info(f"looking at the first {config.numb_results_google_search} results...")
+                logger.info(f"Doing a google search for \"{title}\",")
+                logger.info(f"looking at the first {config.numb_results_google_search} results...")
                 identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results)
                 if identifier:
-                    logging.info(f"A valid {desc} was found with this google search.")
+                    logger.info(f"A valid {desc} was found with this google search.")
                     return identifier,desc,info
-            logging.info("None of the search results contained a valid identifier.")     
+            logger.info("None of the search results contained a valid identifier.")     
             return None, None, None
     else:
-        logging.error("It was not possible to find a title for this file.")
+        logger.error("It was not possible to find a title for this file.")
         return None, None, None
     
 def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.numb_results_google_search, numb_characters=config.N_characters_in_pdf):
-    logging.info(f"Trying to do a google search with the first {numb_characters} characters of this pdf file...")
+    logger.info(f"Trying to do a google search with the first {numb_characters} characters of this pdf file...")
     
     if config.websearch==False:
-        logging.warning("Web-search methods are currently disabled by the user. Enable it in order to use this method.")
+        logger.warning("Web-search methods are currently disabled by the user. Enable it in order to use this method.")
         return None, None, None
 
     for reader in reader_libraries:
-        logging.info(f"Trying to extract the first {numb_characters} characters from the pdf file by using the library {reader}...")
+        logger.info(f"Trying to extract the first {numb_characters} characters from the pdf file by using the library {reader}...")
         text = get_pdf_text(path,reader.lower())
         if text==[] or text=="":
-            logging.error(f"The library {reader} could not extract any text from this file.")
+            logger.error(f"The library {reader} could not extract any text from this file.")
             continue
         
         if isinstance(text,list):
@@ -430,18 +429,18 @@ def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, n
             text = text.replace(r," ")
          
         if text=="":                                #Check tha the string is still not empty after removing non-text characters
-            logging.error(f"The library {reader} could not extract any meaningful text from this file.")
+            logger.error(f"The library {reader} could not extract any meaningful text from this file.")
             continue
             
         text = text[0:numb_characters]              #Select the first numb_characters characters
 
-        logging.info(f"Doing a google search, looking at the first {config.numb_results_google_search} results...")
+        logger.info(f"Doing a google search, looking at the first {config.numb_results_google_search} results...")
         identifier,desc,info = find_identifier_in_google_search(text,func_validate,numb_results)
         if identifier:
-            logging.info(f"A valid {desc} was found with this google search.")
+            logger.info(f"A valid {desc} was found with this google search.")
             return identifier,desc,info
 
-    logging.info(f"Could not find a valid identifier by googling the first {numb_characters} characters extracted from the pdf file.")
+    logger.info(f"Could not find a valid identifier by googling the first {numb_characters} characters extracted from the pdf file.")
     return None, None, None
 
  
@@ -463,7 +462,7 @@ def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
     result : dictionary with identifier and other info (see above) 
     """
     
-    logging.info("Looking for a valid identifier in the document infos...")
+    logger.info("Looking for a valid identifier in the document infos...")
     pdfinfo = get_pdf_info(path)
     identifier, desc, info = None, None, None
     if pdfinfo:
@@ -474,13 +473,13 @@ def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
             if key in pdfinfo.keys():
                 identifier,desc,info = find_identifier_in_text(pdfinfo[key],func_validate)
                 if identifier: 
-                    logging.info(f"A valid {desc} was found in the document info labelled \'{key}\'.")
+                    logger.info(f"A valid {desc} was found in the document info labelled \'{key}\'.")
                     break
                 del pdfinfo[key]
     if identifier:
         return identifier,desc,info
     else:
-        logging.info("Could not find a valid identifier in the document info.")
+        logger.info("Could not find a valid identifier in the document info.")
         return None, None, None
     
 def find_identifier_in_filename(path, func_validate):
@@ -493,14 +492,14 @@ def find_identifier_in_filename(path, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    logging.info("Looking for a valid identifier in the file name...")
+    logger.info("Looking for a valid identifier in the file name...")
     text = os.path.basename(path)
     identifier,desc,info = find_identifier_in_text([text],func_validate)
     if identifier: 
-        logging.info(f"A valid {desc} was found in the file name.")
+        logger.info(f"A valid {desc} was found in the file name.")
         return identifier,desc,info
     else:
-        logging.info("Could not find a valid identifier in the file name.")
+        logger.info("Could not find a valid identifier in the file name.")
         return None, None, None
 
 
@@ -516,21 +515,21 @@ def find_identifier_in_pdf_text(path, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    logging.info("Looking for a valid identifier in the document text...")
+    logger.info("Looking for a valid identifier in the document text...")
     for reader in reader_libraries:
-        logging.info(f"Extracting text with the library {reader}...")
+        logger.info(f"Extracting text with the library {reader}...")
         texts = get_pdf_text(path,reader.lower())
         
         if not isinstance(texts,list):
             texts = [texts]
-        logging.info(f"Text extracted succesfully. Looking for an identifier in the text...")
+        logger.info(f"Text extracted succesfully. Looking for an identifier in the text...")
         identifier,desc,info = find_identifier_in_text(texts,func_validate)
         if identifier: 
-            logging.info(f"A valid {desc} was found in the document text.")
+            logger.info(f"A valid {desc} was found in the document text.")
             return identifier,desc,info
         else:
-            logging.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
-    logging.info("Could not find a valid identifier in the document text.")
+            logger.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
+    logger.info("Could not find a valid identifier in the document text.")
     return None, None, None
         
 

@@ -91,28 +91,26 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     if numb_results_google_search:
         config.numb_results_google_search = numb_results_google_search
     
-    #The next 2 lines are needed to make sure that logging works also in Ipython
-    from importlib import reload 
-    reload(logging)
-
     # Setup logging
     if verbose: loglevel = logging.INFO
     else: loglevel = logging.CRITICAL
-    logging.basicConfig(format="pdf2doi: %(message)s", level=loglevel)
+
+    logger = logging.getLogger("pdf2doi")
+    logger.setLevel(level=loglevel)
       
     #Check if target is a directory
     #If yes, we look for all the .pdf files inside it, and for each of them
     #we call again this function
     if  path.isdir(target):
-        logging.info(f"Looking for pdf files in the folder {target}...")
+        logger.info(f"Looking for pdf files in the folder {target}...")
         pdf_files = [f for f in listdir(target) if f.endswith('.pdf')]
         numb_files = len(pdf_files)
         
         if numb_files == 0:
-            logging.error("No pdf files found in this folder.")
+            logger.error("No pdf files found in this folder.")
             return None
         
-        logging.info(f"Found {numb_files} pdf files.")
+        logger.info(f"Found {numb_files} pdf files.")
         if not(target.endswith(config.separator)): #Make sure the path ends with "\" or "/" (according to the OS)
             target = target + config.separator
             
@@ -121,43 +119,43 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             file = target + f
             result = pdf2doi(file, verbose=verbose, websearch=websearch, webvalidation=webvalidation,
                     numb_results_google_search=numb_results_google_search)
-            logging.info(result['identifier'])
+            logger.info(result['identifier'])
             identifiers_found.append(result)
 
-        logging.info("................") 
+        logger.info("................") 
 
         #If a string was passed via the argument filename_identifiers, 
         #we save all found identifiers in a text file with name = filename_identifiers
         if isinstance(filename_identifiers,str):
             try:
                 make_file_identifiers(target+filename_identifiers, identifiers_found)
-                logging.info(f'All found identifiers were saved in the file {filename_identifiers}')
+                logger.info(f'All found identifiers were saved in the file {filename_identifiers}')
             except Exception as e:
-                logging.error(e)
-                logging.error(f'A problem occurred when trying to write into the file {filename_identifiers}')
+                logger.error(e)
+                logger.error(f'A problem occurred when trying to write into the file {filename_identifiers}')
                 
         #If a string was passed via the argument filename_bibtex, and if the online validation was used
         #we save all the bibtex entries collected during validation in a file with name = filename_bibtex
         if isinstance(filename_bibtex,str) and config.check_online_to_validate:
             try:
                 make_file_bibtex(target+filename_bibtex, identifiers_found)
-                logging.info(f'All available bibtex entries were stored in the file {filename_bibtex}')
+                logger.info(f'All available bibtex entries were stored in the file {filename_bibtex}')
             except Exception as e:
-                logging.error(e)
-                logging.error(f'A problem occurred when trying to write into the file {filename_bibtex}')
+                logger.error(e)
+                logger.error(f'A problem occurred when trying to write into the file {filename_bibtex}')
             
         return identifiers_found
     
     #If target is not a directory, we check that it is an existing file and that it ends with .pdf
     else:
         filename = target
-        logging.info(f"................") 
-        logging.info(f"File: {filename}")  
+        logger.info(f"................") 
+        logger.info(f"File: {filename}")  
         if not path.exists(filename):
-            logging.error(f"'{filename}' is not a valid file or directory.")
+            logger.error(f"'{filename}' is not a valid file or directory.")
             return None    
         if not filename.endswith('.pdf'):
-            logging.error("The file must have .pdf extension.")
+            logger.error("The file must have .pdf extension.")
             return None
         
         #Several methods are now applied to find a valid identifier in the .pdf file identified by filename
@@ -193,7 +191,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         if result['identifier']:
             return result
 
-        logging.error("It was not possible to find a valid identifier for this file.")
+        logger.error("It was not possible to find a valid identifier for this file.")
         return result #This will be a dictionary with all entries as None
 
 def main():

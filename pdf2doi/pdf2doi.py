@@ -233,16 +233,12 @@ def main():
     parser.add_argument(
                         "-s",
                         "--save_identifiers_file",
-                        nargs='?',
-                        const = False,
                         dest="filename_identifiers",
                         help="Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS (only available when a folder is targeted).",
                         action="store")
     parser.add_argument(
                         "-b",
                         "--make_bibtex_file",
-                        nargs='?',
-                        const = False,
                         dest="filename_bibtex",
                         help="Create a text file inside the target directory with name given by FILENAME_BIBTEX containing the bibtex entry of each pdf file in the target folder (if a valid identifier was found). This option is only available when a folder is targeted, and when the web validation is allowed.",
                         action="store")

@@ -219,15 +219,18 @@ optional arguments:
   -google_results GOOGLE_RESULTS
                         Set how many results should be considered when doing a
                         google search for the DOI (default=6).
-  -s [FILENAME_IDENTIFIERS], --save_identifiers_file [FILENAME_IDENTIFIERS]
-                        Save all the DOIs/identifiers found in the target
-                        folder in a .txt file inside the same folder (only
-                        available when a folder is targeted).
-  -b [FILENAME_BIBTEX], --make_bibtex_file [FILENAME_BIBTEX]
-                        Create a file with bibtex entries for each .pdf file
-                        in the targer folder (for which a valid identifier was
-                        found). This option is only available when a folder is
-                        targeted, and when the web validation is allowed.
+  -s FILENAME_IDENTIFIERS, --save_identifiers_file FILENAME_IDENTIFIERS
+                        Save all the identifiers found in the target folder in
+                        a text file inside the same folder with name specified
+                        by FILENAME_IDENTIFIERS (only available when a folder
+                        is targeted).
+  -b FILENAME_BIBTEX, --make_bibtex_file FILENAME_BIBTEX
+                        Create a text file inside the target directory with
+                        name given by FILENAME_BIBTEX containing the bibtex
+                        entry of each pdf file in the target folder (if a
+                        valid identifier was found). This option is only
+                        available when a folder is targeted, and when the web
+                        validation is allowed.
 ```
 
 

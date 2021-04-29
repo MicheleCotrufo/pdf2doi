@@ -104,8 +104,8 @@ produces the output
 10.1103/PhysRevLett.76.1055
 10.1038/s41586-019-1666-5
 ```
-Additional arguments can be passed to the function ```pdf2doi``` to control its behaviour, e.g. to specify if
-web-based methods should not be used (either to find an identifier and/or to validate it).
+Additional arguments can be passed to the function ```pdf2doi``` to control its behaviour, for example to specify if
+web-based methods (either to find an identifier and/or to validate it) should not be used.
 
 ```
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,

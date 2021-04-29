@@ -32,9 +32,9 @@ is performed and the plain text of the first results is scanned for valid identi
 5. As a last desperate attempt, the first N=1000 characters of the pdf text are used as a query for
 a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
 
-Whene a valid identifier is found with any method different than the first one, the identifier is also added to the metadata of
-the pdf file with key='/identifier'. In this way, any future analysis of this file will be able to extact the identifier with the 
-first method, speeding up the search. This feature can be disabled by the user, in case edits to the pdf file are not desired.
+When a valid identifier is found with any method different than the first one, the identifier is also added to the metadata of
+the pdf file with key='/identifier'. In this way future lookups of this file will be able to extract the identifier with the 
+first method, speeding up the search. This feature can be disabled by the user (in case edits to the pdf file are not desired).
 
 ## Installation
 

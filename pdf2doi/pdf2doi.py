@@ -31,8 +31,7 @@ def make_file_bibtex(filename_bibtex, identifiers):
     filename_bibtex : string
         Absolute path of the target file.
     identifiers : list of dictionaries
-        Each element of identifiers describes a .pdf file and contain the its identifier in the 'identifier' key and other infos.
-
+        Each element of the list 'identifiers' describes a .pdf file and contains the its identifier in the 'identifier' key and other infos.
     Returns
     -------
     None.
@@ -45,6 +44,7 @@ def make_file_bibtex(filename_bibtex, identifiers):
 
 
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
+            save_identifier_metadata = config.save_identifier_metadata,
             numb_results_google_search=config.numb_results_google_search,
             filename_identifiers = False, filename_bibtex = False):
     '''
@@ -59,6 +59,10 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     webvalidation : boolean, optional
         If set false, validation of identifier via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
         The default is True.
+    save_identifier_metadata : boolean, optional
+        If set True, when a valid identifier is found with any method different than the metadata lookup, the identifier
+        is also written in the file metadata with key "/identifier". If set False, this does not happen. The default
+        is True.
     numb_results_google_search : integer, optional
         It sets how many results are considered when performing a google search. The default is config.numb_results_google_search.
     filename_identifiers : string or boolean, optional
@@ -84,13 +88,13 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         result['path'] = path of the pdf file
         result['method'] = method used to find the identifier
 
-    '''
-    
+    ''' 
     config.check_online_to_validate = webvalidation
     config.websearch = websearch
+    config.save_identifier_metadata = save_identifier_metadata
     if numb_results_google_search:
         config.numb_results_google_search = numb_results_google_search
-    
+
     # Setup logging
     if verbose: loglevel = logging.INFO
     else: loglevel = logging.CRITICAL
@@ -118,7 +122,8 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         for f in pdf_files:
             file = target + f
             result = pdf2doi(file, verbose=verbose, websearch=websearch, webvalidation=webvalidation,
-                    numb_results_google_search=numb_results_google_search)
+                             save_identifier_metadata = config.save_identifier_metadata,
+                            numb_results_google_search=numb_results_google_search)
             logger.info(result['identifier'])
             identifiers_found.append(result)
 
@@ -164,7 +169,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
         #valid identifier inside it. We first look for the elements of the dictionary with keys 'doi' or '/doi' (if the they exist), 
         #and then any other field of the dictionary
-        result = finders.find_identifier(filename,method="document_infos",keysToCheckFirst=['doi','/doi'])
+        result = finders.find_identifier(filename,method="document_infos",keysToCheckFirst=['/doi','/identfier'])
         if result['identifier']:
             return result 
         
@@ -209,20 +214,25 @@ def main():
                         action="store_true")
     parser.add_argument(
                         "-nws",
-                        "--nowebsearch",
-                        help="Disable any DOI retrieval method which requires internet searches (e.g. queries to google).",
+                        "--no_web_search",
+                        help="Disable any method to find identifiers which requires internet searches (e.g. queries to google).",
                         action="store_true")
     parser.add_argument(
                         "-nwv",
-                        "--nowebvalidation",
-                        help="Disable the DOI online validation via queries (e.g., to http://dx.doi.org/).",
+                        "--no_web_validation",
+                        help="Disable the online validation of identifiers (e.g., via queries to http://dx.doi.org/).",
+                        action="store_true")
+    parser.add_argument(
+                        "-nsim",
+                        "--no_store_identifier_metadata",
+                        help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By setting this parameter, the identifier is not stored in the file metadata.",
                         action="store_true")
     parser.add_argument('-google_results', 
                         help=f"Set how many results should be considered when doing a google search for the DOI (default={str(config.numb_results_google_search)}).",
                         action="store", dest="google_results", type=int)
     parser.add_argument(
                         "-s",
-                        "--save_identifiers",
+                        "--save_identifiers_file",
                         nargs='?',
                         const = False,
                         dest="filename_identifiers",
@@ -230,18 +240,19 @@ def main():
                         action="store")
     parser.add_argument(
                         "-b",
-                        "--make_bibtex",
+                        "--make_bibtex_file",
                         nargs='?',
                         const = False,
                         dest="filename_bibtex",
                         help="Create a file with bibtex entries for each .pdf file in the targer folder (for which a valid identifier was found). This option is only available when a folder is targeted, and when the web validation is allowed.",
                         action="store")
-    
+    #save_identifier_metadata = config.save_identifier_metadata
     args = parser.parse_args()
     results = pdf2doi(target=args.path,
                   verbose=not(args.no_verbose),
-                  websearch=not(args.nowebsearch),
-                  webvalidation=not(args.nowebvalidation),
+                  websearch=not(args.no_web_search),
+                  webvalidation=not(args.no_web_validation),
+                  save_identifier_metadata = not(args.no_store_identifier_metadata),
                   numb_results_google_search=args.google_results,
                   filename_identifiers = args.filename_identifiers,
                   filename_bibtex = args.filename_bibtex

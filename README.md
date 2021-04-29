@@ -32,6 +32,9 @@ is performed and the plain text of the first results is scanned for valid identi
 5. As a last desperate attempt, the first N=1000 characters of the pdf text are used as a query for
 a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
 
+Whene a valid identifier is found with any method different than the first one, the identifier is also added to the metadata of
+the pdf file with key='/identifier'. In this way, any future analysis of this file will be able to extact the identifier with the 
+first method, speeding up the search. This feature can be disabled by the user, in case edits to the pdf file are not desired.
 
 ## Installation
 
@@ -106,8 +109,9 @@ web-based methods should not be used (either to find an identifier and/or to val
 
 ```
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
-                numb_results_google_search=config.numb_results_google_search,
-                filename_identifiers = False, filename_bibtex = False):
+            save_identifier_metadata = config.save_identifier_metadata,
+            numb_results_google_search=config.numb_results_google_search,
+            filename_identifiers = False, filename_bibtex = False):
     '''
     Parameters
     ----------
@@ -120,15 +124,36 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     webvalidation : boolean, optional
         If set false, validation of identifier via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
         The default is True.
+    save_identifier_metadata : boolean, optional
+        If set True, when a valid identifier is found with any method different than the metadata lookup, the identifier
+        is also written in the file metadata with key "/identifier". If set False, this does not happen. The default
+        is True.
     numb_results_google_search : integer, optional
         It sets how many results are considered when performing a google search. The default is config.numb_results_google_search.
     filename_identifiers : string or boolean, optional
         If is set equal to a string, all identifiers found in the directory specified by target are saved into a text file 
-        with a path specified by filename_identifiers. The default is False. It is ignored if the input parameter target is a file.
+        with a path specified by filename_identifiers. The default is False.
+        It is ignored if the input parameter target is a file.
     filename_bibtex : string or boolean, optional
         If is set equal to a string, all bibtex entries obtained in the validation process for the pdf files found in the 
         directory specified by target are saved into a text file with a path specified by filename_bibtex. 
-        The default is False. It is ignored if the input parameter target is a file.
+        The default is False.
+        It is ignored if the input parameter target is a file.
+
+    Returns
+    -------
+    results, dictionary or list of dictionaries (or None if an error occured)
+        The output is a single dictionary if target is a file, or a list of dictionaries if target is a directory, 
+        each element of the list describing one file. Each dictionary has the following keys
+        
+        result['identifier'] = DOI or other identifier (or None if nothing is found)
+        result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
+        result['validation_info'] = Additional info on the paper. If config.check_online_to_validate = True, then result['validation_info']
+                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+        result['path'] = path of the pdf file
+        result['method'] = method used to find the identifier
+
+    ''' 
 ```
 
 The online validation of an identifier relies on performing queries to different online archives 
@@ -166,11 +191,13 @@ The syntax for the command-line invokation follows closely the arguments that ca
 
 ```
 >> pdf2doi --h
-usage: pdf2doi [-h] [-nv] [-nws] [-nwv] [-google_results GOOGLE_RESULTS] [-s [FILENAME_IDENTIFIERS]]
+usage: pdf2doi [-h] [-nv] [-nws] [-nwv] [-nsim]
+               [-google_results GOOGLE_RESULTS] [-s [FILENAME_IDENTIFIERS]]
                [-b [FILENAME_BIBTEX]]
                path
 
-Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.
+Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a
+publications.
 
 positional arguments:
   path                  Relative path of the pdf file or of a folder.
@@ -178,18 +205,29 @@ positional arguments:
 optional arguments:
   -h, --help            show this help message and exit
   -nv, --no_verbose     Decrease verbosity.
-  -nws, --nowebsearch   Disable any DOI retrieval method which requires internet searches (e.g. queries to google).
-  -nwv, --nowebvalidation
-                        Disable the DOI online validation via queries (e.g., to http://dx.doi.org/).
+  -nws, --no_web_search
+                        Disable any method to find identifiers which requires
+                        internet searches (e.g. queries to google).
+  -nwv, --no_web_validation
+                        Disable the online validation of identifiers (e.g.,
+                        via queries to http://dx.doi.org/).
+  -nsim, --no_store_identifier_metadata
+                        By default, anytime an identifier is found it is added
+                        to the metadata of the pdf file (if not present yet).
+                        By setting this parameter, the identifier is not
+                        stored in the file metadata.
   -google_results GOOGLE_RESULTS
-                        Set how many results should be considered when doing a google search for the DOI (default=6).
-  -s [FILENAME_IDENTIFIERS], --save_identifiers [FILENAME_IDENTIFIERS]
-                        Save all the DOIs/identifiers found in the target folder in a .txt file inside the same folder
-                        (only available when a folder is targeted).
-  -b [FILENAME_BIBTEX], --make_bibtex [FILENAME_BIBTEX]
-                        Create a file with bibtex entries for each .pdf file in the targer folder (for which a valid
-                        identifier was found). This option is only available when a folder is targeted, and when the
-                        web validation is allowed.
+                        Set how many results should be considered when doing a
+                        google search for the DOI (default=6).
+  -s [FILENAME_IDENTIFIERS], --save_identifiers_file [FILENAME_IDENTIFIERS]
+                        Save all the DOIs/identifiers found in the target
+                        folder in a .txt file inside the same folder (only
+                        available when a folder is targeted).
+  -b [FILENAME_BIBTEX], --make_bibtex_file [FILENAME_BIBTEX]
+                        Create a file with bibtex entries for each .pdf file
+                        in the targer folder (for which a valid identifier was
+                        found). This option is only available when a folder is
+                        targeted, and when the web validation is allowed.
 ```
 
 

@@ -6,7 +6,7 @@ any part of the main script pdf2doi.py. Instead, they are called by the high-lev
 this module.
 """
 
-from PyPDF2 import PdfFileReader
+from PyPDF2 import PdfFileReader, PdfFileWriter
 import textract
 import requests
 import pdftitle
@@ -239,6 +239,7 @@ def get_pdf_info(path):
         logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
         return None
     info = pdf.getDocumentInfo()
+    file.close()
     return info
     
 def find_possible_titles(path):
@@ -276,7 +277,7 @@ def find_possible_titles(path):
                 titles.append(value)         
     # (3)
     title = os.path.basename(path)
-    if len(title)>10:#This is to check that the title found is neither empty nor just few characters
+    if len(title)>30:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)
         
     return titles
@@ -288,16 +289,16 @@ def get_pdf_text(path,reader):
 
     Parameters
     ----------
-    path : a valid path to a pdf file
-    reader : It specifies which library is used to extract the text from the pdf.
+    path : string
+        a valid path to a pdf file
+    reader : string
+        It specifies which library is used to extract the text from the pdf.
         The supported values are either 'pypdf' (uses the PyPDF2 module) or 'textract' (uses the 'textract' module)
     Returns
     -------
     text : list of strings
     """
     text =[]
-    if reader == 'pdfminer':
-        text = high_level.extract_text(path, "", 0)
     if reader == 'pypdf':
         with open(path, "rb") as f:
             try:
@@ -324,6 +325,51 @@ def get_pdf_text(path,reader):
                 logger.error("Error from textract: " + str(e))
                 logger.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
+
+def add_found_identifier_to_metadata(path,identifier):
+    """Given a pdf file identified by the input variable path, it adds a metadata to the pdf with name '/identifier'
+    and containing the content of the input variable identifier. This can be useful to make sure that the next time
+    this same pdf is analysed, the identifier is found more easily
+
+    Parameters
+    ----------
+    path : string
+        a valid path to a pdf file
+    identifier : string
+        a valid identifier, which will be stored in the pdf metadata with name '/identifier'
+    Returns
+    -------
+    True if the the metadata was added succesfully, false otherwise
+    """
+    logger.info(f"Trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
+    try:
+        file = open(path, 'rb') 
+    except (FileNotFoundError, IOError):
+        logger.error("File not found.")
+        return False
+    try:
+        pdf = PdfFileReader(path,strict=False)
+    except:
+        logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
+        return False
+    writer = PdfFileWriter()
+    writer.appendPagesFromReader(pdf)
+    metadata = pdf.getDocumentInfo()
+    writer.addMetadata(metadata)
+    key = '/identifier'
+    writer.addMetadata({
+        key: identifier
+    })
+
+    fout = open(path, 'ab') 
+    writer.write(fout)
+
+    file.close()
+    fout.close()
+    logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{path}\' with key \'{key}\'...")
+
+    return True
+
 
 ######## End first part ######## 
 
@@ -379,6 +425,10 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
     if not callable(func_validate):  func_validate = lambda x : x
 
     identifier, desc, info = finder_methods[method](path,func_validate,**kwargs)
+
+    if config.save_identifier_metadata==True:
+        if identifier and not(method=="document_infos"):
+            add_found_identifier_to_metadata(path,identifier)
     
     result = {'identifier':identifier,'identifier_type':desc,'validation_info':info,
               'path':path, 'method':method}

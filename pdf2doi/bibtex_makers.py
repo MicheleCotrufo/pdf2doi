@@ -14,7 +14,6 @@ def doi2bib(doi):
         while NumberAttempts:
             r = requests.get(url, headers = headers)
             text = r.text
-            #logging.info("Text returned: " + text)
             if (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
                 
                 NumberAttempts = NumberAttempts -1

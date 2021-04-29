@@ -9,7 +9,7 @@ with open("requirements.txt") as f:
     required_packages = f.read().splitlines()
 
 setuptools.setup(name='pdf2doi',
-      version='0.23',
+      version='0.24',
       description='A python library/command-line tool to retrieve the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.',
       long_description=long_description,
       long_description_content_type='text/markdown',

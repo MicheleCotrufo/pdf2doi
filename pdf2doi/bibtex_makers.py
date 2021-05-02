@@ -2,6 +2,7 @@ import requests
 import feedparser
 import re
 import logging
+logger = logging.getLogger('pdf2doi')
 
 def doi2bib(doi):
     """
@@ -41,10 +42,15 @@ def arxiv2bib(arxivID):
         if not found: return None
         
         #Extract data
-        data_to_extract = ['title','authors','author','link','arxiv_doi','published']
+        data_to_extract = ['title','authors','author','link','published','arxiv_doi']
         data =[items[key] if key in items.keys() else None for key in data_to_extract]
         data_dict = dict(zip(data_to_extract,data))
         data_dict['eprint'] ="arXiv:" + arxivID 
+        data_dict['ejournal'] ="arXiv" 
+        
+        #rename some of the keys to match the bibtex standards
+        data_dict['url'] = data_dict.pop('link')
+        data_dict['doi'] = data_dict.pop('arxiv_doi')
         
         #get the first word of title (for the bibtex ID)
         if data_dict['title']:
@@ -81,20 +87,13 @@ def arxiv2bib(arxivID):
             LastNameFirstAuthor =  arxivID #If for some reason we cant find last name of an author, we use the arxiv ID instead
         data_dict['id'] = year + "_" + LastNameFirstAuthor + "_" + FirstWordTitle
         return make_bibtex(data_dict) 
-    except:
+    except Exception as e:
+        logger.error(e)
         return None
 
 def make_bibtex(data):
     text = ["@article{" + data['id']]
-    for key, value in [("Author",  data['authors']),
-                ("Title", data['title']),
-                ("Eprint", data['eprint']),
-                ("DOI",  data['arxiv_doi']),
-                ("Year", data['year']),
-                ("Month", data['month']),
-                ("Day", data['day']),
-                ("Url", data['link']),
-                ]:
+    for key, value in data.items():
         if value:
             text.append("\t%s = {%s}" % (key, value))
 

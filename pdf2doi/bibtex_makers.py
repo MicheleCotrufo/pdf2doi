@@ -27,7 +27,8 @@ def doi2bib(doi):
                 return text
             else:
                 return None
-    except:
+    except Exception as e:
+        logger.error(e)
         return -1
 
 def arxiv2bib(arxivID):

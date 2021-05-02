@@ -120,6 +120,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             
         identifiers_found = [] #For each pdf file in the target folder we will store a dictionary inside this list
         for f in pdf_files:
+            logger.info("................") 
             file = target + f
             result = pdf2doi(file, verbose=verbose, websearch=websearch, webvalidation=webvalidation,
                              save_identifier_metadata = config.save_identifier_metadata,
@@ -154,7 +155,6 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     #If target is not a directory, we check that it is an existing file and that it ends with .pdf
     else:
         filename = target
-        logger.info(f"................") 
         logger.info(f"File: {filename}")  
         if not path.exists(filename):
             logger.error(f"'{filename}' is not a valid file or directory.")

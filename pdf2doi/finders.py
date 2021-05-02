@@ -352,23 +352,27 @@ def add_found_identifier_to_metadata(path,identifier):
     except:
         logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
         return False
-    writer = PdfFileWriter()
-    writer.appendPagesFromReader(pdf)
-    metadata = pdf.getDocumentInfo()
-    writer.addMetadata(metadata)
-    key = '/identifier'
-    writer.addMetadata({
-        key: identifier
-    })
-
-    fout = open(path, 'ab') 
-    writer.write(fout)
-
-    file.close()
-    fout.close()
-    logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{path}\' with key \'{key}\'...")
-
-    return True
+    try:
+        writer = PdfFileWriter()
+        writer.appendPagesFromReader(pdf)
+        metadata = pdf.getDocumentInfo()
+        writer.addMetadata(metadata)
+        key = '/identifier'
+        writer.addMetadata({
+            key: identifier
+        })
+    
+        fout = open(path, 'ab') 
+        writer.write(fout)
+    
+        file.close()
+        fout.close()
+        logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{path}\' with key \'{key}\'...")
+        return True
+    except Exception as e:
+        logger.error("Error from PyPDF2: " + str(e))
+        logger.error("An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
+        return False
 
 
 ######## End first part ######## 
@@ -392,7 +396,9 @@ The correspondence between the values of the string method and the function to c
 def find_identifier(path,method,func_validate=validate,**kwargs):
     """ Tries to find an identifier (e.g. DOI, arxiv ID,...) for the pdf file identified by the input
     argument 'path', by using the method specified by input argument 'method'. Any found identifier is validated
-    by using the function func_validate.
+    by using the function func_validate. If a valid identifier is found with any method different from
+    "document_infos" (i.e. by looking into the file metadata) the identifier is also added to the file metadata
+    with key "/identifier" (unless config.save_identifier_metadata is set to False)
 
     Parameters
     ----------

@@ -253,7 +253,8 @@ def main():
                   filename_identifiers = args.filename_identifiers,
                   filename_bibtex = args.filename_bibtex
                   )
-        
+    if not results:
+        return
     if not isinstance(results,list):
         results = [results]
     for result in results:

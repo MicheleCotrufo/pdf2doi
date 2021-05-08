@@ -35,7 +35,13 @@ arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #versi
                                                                             #where YYMM are 4 digits, numbers are up to 5 digits and (vn) is
                                                                             #an additional optional term specifying the version. n is an integer starting from 1
                                                                             #This is the official format for Arxiv indentifier starting from 1 April 2007
-                '(\d{4}\.\d+)(?:v\d+)?(?:\.pdf)'] 
+                                                                            #This is the official format for Arxiv indentifier starting from 1 April 2007
+                '(\d{4}\.\d+)(?:v\d+)?(?:\.pdf)',                         #version 1 is similar to version 0, without the requirement of "arxiv : " at the beginning 
+                                                                            #but with the requirement that '.pdf' appears right after the possible arXiv identifier. 
+                                                                            #This is helpful when we are trying to extrat the arXiv ID from the file name.
+                '\A(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
+                                                                            #but requires that the string contains ONLY the arXiv ID.
+    
 
 def validate(identifier,what='doi'):
     """
@@ -77,7 +83,7 @@ def validate(identifier,what='doi'):
         else: return False
 
     elif what=='arxiv':
-        if re.match(r'(\d{4}\.\d+(?:v\d+)?)',identifier,re.I):
+        if re.match(arxiv_regexp[2],identifier,re.I):
             if config.check_online_to_validate:
                 logger.info(f"Validating the possible arxiv ID {identifier} via a query to export.arxiv.org...")
                 result = bibtex_makers.arxiv2bib(identifier)

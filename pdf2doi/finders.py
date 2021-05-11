@@ -20,15 +20,21 @@ logger = logging.getLogger('pdf2doi')
 
 ######## Beginning first part, low-level functions ######## 
 
-#The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are ordered from stricter to less and less strict
+#The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are (roughly) ordered from stricter to less and less strict
 doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # version 0 looks for something like "DOI : 10.xxxxS[end characters] where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
                                                                             # [end characters] is either a space, newline, " , < or the end of the string. The initial part could be either "DOI : ", "DOI", "DOI:", "DOI.:", ""DOI:." 
                                                                             # and with possible spaces or lower cases.
               '(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)',                 # in version 1 the requirement of having "DOI : " in the beginning is removed
-              '(10\.\d{4}[\:\.\-\/a-z]+[\:\.\-\d]+)(?:[\s\na-z\"<]|$)']     # version 2 is useful for cases in which, in plain texts, the DOI is not followed by a space, newline or special characters,
+              '(10\.\d{4}[\:\.\-\/a-z]+[\:\.\-\d]+)(?:[\s\na-z\"<]|$)',     # version 2 is useful for cases in which, in plain texts, the DOI is not followed by a space, newline or special characters,
                                                                             #but is instead followed by other letters. In this case we can still isolate the DOI if we assume that the DOI always ends up with numbers
+              'http[s]?://doi.org/(10\.\d{4,9}/[-._;()/:A-Z0-9]+)(?:[\s\n\"<]|$)', # version 3 is useful when the DOI can be found in a google result as an URL of the form https://doi.org/DOI
+                                                                            #The regex for the DOI is 10\.\d{4,9}/[-._;()/:A-Z0-9]+ (taken from here https://www.crossref.org/blog/dois-and-matching-regular-expressions/)
+                                                                            #and it must be followed by a valid ending character: either a speace, a new line, a ", a <, or end of string.
+              '\A(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
+                                                                            #However, it requires that the string contains ONLY the doi and nothing else. This is useful for when the DOI is stored in metadata
 
-#Similarly, arxiv_regexp is a list of regular expressions used to identify an arXiv identifier in a string. They are ordered from stricter to less and less strict. Moreover,
+             
+#Similarly, arxiv_regexp is a list of regular expressions used to identify an arXiv identifier in a string. They are (roughly) ordered from stricter to less and less strict. Moreover,
 #the regexp corresponding to older arXiv notations have less priority.
 #NOTE: currently only one regexp is implemented for arxiv. 
 arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #version 0 looks for something like "arXiv:YYMM.number(vn)" 
@@ -64,7 +70,7 @@ def validate(identifier,what='doi'):
     if not identifier:
         return None
     if what=='doi':
-        if re.match(doi_regexp[1],identifier,re.I):
+        if re.match('10\.\d{4,9}/[-._;()/:A-Z0-9]+',identifier,re.I):
             if config.check_online_to_validate:
                 logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
                 result = bibtex_makers.doi2bib(identifier)
@@ -121,11 +127,13 @@ def extract_arxivID_from_text(text,version=0):
     -------
     arxivID : string or None
         It returns the arxiv ID if any was found, or None
-    """                                               
-    regexDOI = re.search(arxiv_regexp[version] ,text,re.I)
-    if regexDOI:
-        print(regexDOI.group(1))
-        return regexDOI.group(1)
+    """   
+    try:                                            
+        regexDOI = re.search(arxiv_regexp[version] ,text,re.I)
+        if regexDOI:
+            return regexDOI.group(1)
+    except:
+        pass
     return None
 
 def extract_doi_from_text(text,version=0):
@@ -147,12 +155,17 @@ def extract_doi_from_text(text,version=0):
         It returns the doi if any was found, or None
 
     """    
-    regexDOI = re.search(doi_regexp[version],text,re.I)
-    if regexDOI:
-        return regexDOI.group(1)
+    try:
+        regexDOI = re.search(doi_regexp[version],text,re.I)
+        if regexDOI:
+            return regexDOI.group(1)
+    except:
+        pass
     return None
 
 def find_identifier_in_google_search(query,func_validate,numb_results=10):
+    headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
+
     MaxLengthDisplay = 100
     if len(query)>MaxLengthDisplay:
         query_to_display = query[0:MaxLengthDisplay]  + " ...[query too long, the remaining part is suppressed in the logging]"
@@ -164,7 +177,7 @@ def find_identifier_in_google_search(query,func_validate,numb_results=10):
     try:
         for url in search(query, stop=numb_results):
             logger.info(f"Looking for a valid identifier in the search result #{str(i)} : {url}")
-            response = requests.get(url)
+            response = requests.get(url,headers=headers)
             text = response.text
             identifier,desc,info = find_identifier_in_text(text,func_validate)
             if identifier: 
@@ -204,6 +217,10 @@ def find_identifier_in_text(texts,func_validate):
     if not isinstance(texts,list): texts = [texts]
     
     for text in texts:
+        #logger.info(text)
+        #logger.info(type(text))
+        if isinstance(text, bytes):
+            text = text.decode()
         #First we look for DOI
         for v in range(len(doi_regexp)):
             identifier = extract_doi_from_text(text,version=v)
@@ -362,7 +379,12 @@ def add_found_identifier_to_metadata(path,identifier):
         writer = PdfFileWriter()
         writer.appendPagesFromReader(pdf)
         metadata = pdf.getDocumentInfo()
-        writer.addMetadata(metadata)
+        try:
+            writer.addMetadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
+                                            #correctly seen as strings (happens with old files). Therefore we use the try/except
+                                            #to ignore this possible problem
+        except:
+            pass
         key = '/identifier'
         writer.addMetadata({
             key: identifier
@@ -377,7 +399,7 @@ def add_found_identifier_to_metadata(path,identifier):
         return True
     except Exception as e:
         logger.error("Error from PyPDF2: " + str(e))
-        logger.error("An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
+        logger.error(f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
         return False
 
 

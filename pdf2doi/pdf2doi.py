@@ -47,32 +47,45 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             save_identifier_metadata = config.save_identifier_metadata,
             numb_results_google_search=config.numb_results_google_search,
             filename_identifiers = False, filename_bibtex = False):
-    '''
+    ''' This is the main routine of the library. When the library is used as a command-line tool (via the entry-point "pdf2doi") the input arguments
+    are collected, validated and sent to this function (see the function main () below).
+    The function tries to extract the DOI (or other identifiers) for the pdf file in the path specified by the user in the input variable target. 
+    If target contains the valid path of a folder, the function tries to extract the DOI/identifer of all pdf files in the folder.
+    It returns a dictionary (or a list of dictionaries) containing info(s) about the file(s) examined, or None if an error occurred.
+    By specifying valid values for the input variables filename_identifiers and filename_bibtex, all identifiers found and/or bibtex entries for
+    all pdf files can be saved in text files (see description of input arguments for details)
+
+    Example:
+        import pdf2doi
+        path = r"Path\to\folder"
+        result = pdf2doi.pdf2doi(path, verbose=True)
+        print(result[0]['identifier'])          # Print doi/identifier of the first pdf file found in this folder
+        print(result[0]['identifier_type'])     # Print the type of identifier found (e.g. 'doi' or 'arxiv')
+        print(result[0]['method'])              # Print the method used to find the identifier
+
     Parameters
     ----------
     target : string
-        Relative or absolute path of the target .pdf file or directory
+        Relative or absolute path of a .pdf file or a directory containing pdf files
     verbose : boolean, optional
         Increases the output verbosity. The default is False.
     websearch : boolean, optional
         If set false, any method to find an identifier which requires a web search is disabled. The default is True.
     webvalidation : boolean, optional
-        If set false, validation of identifier via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
+        If set false, validation of identifiers via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
         The default is True.
     save_identifier_metadata : boolean, optional
         If set True, when a valid identifier is found with any method different than the metadata lookup, the identifier
-        is also written in the file metadata with key "/identifier". If set False, this does not happen. The default
-        is True.
+        is also written in the file metadata with key "/identifier" (this will speed up future lookup of thi same file). 
+        If set False, this does not happen. The default is True.
     numb_results_google_search : integer, optional
         It sets how many results are considered when performing a google search. The default is config.numb_results_google_search.
     filename_identifiers : string or boolean, optional
-        If is set equal to a string, all identifiers found in the directory specified by target are saved into a text file 
-        with a path specified by filename_identifiers. The default is False.
-        It is ignored if the input parameter target is a file.
+        If set equal to a string, all identifiers found in the directory specified by target are saved into a text file 
+        with a name specified by filename_identifiers. The default is False.  It is ignored if the input parameter target is a file.
     filename_bibtex : string or boolean, optional
-        If is set equal to a string, all bibtex entries obtained in the validation process for the pdf files found in the 
-        directory specified by target are saved into a text file with a path specified by filename_bibtex. 
-        The default is False.
+        If set equal to a string, all bibtex entries obtained in the validation process for all pdf files found in the 
+        directory specified by target are saved into a file with a name specified by filename_bibtex. The default is False.
         It is ignored if the input parameter target is a file.
 
     Returns
@@ -122,9 +135,10 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         for f in pdf_files:
             logger.info("................") 
             file = target + f
-            result = pdf2doi(file, verbose=verbose, websearch=websearch, webvalidation=webvalidation,
-                             save_identifier_metadata = config.save_identifier_metadata,
-                            numb_results_google_search=numb_results_google_search)
+            #For each file we call again this function, but now the input argument target is set to the path of the file
+            result = pdf2doi(   target=file, verbose=verbose, websearch=websearch, webvalidation=webvalidation,
+                                save_identifier_metadata = config.save_identifier_metadata,
+                                numb_results_google_search=numb_results_google_search)
             logger.info(result['identifier'])
             identifiers_found.append(result)
 

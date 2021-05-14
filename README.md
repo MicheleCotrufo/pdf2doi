@@ -33,14 +33,14 @@ is performed and the plain text of the first results is scanned for valid identi
 a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
 
 Any time that a possible identifier is found, it is validated by performing a query to a relevant website (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). 
-The validation process returns a valid [bibtex](http://www.bibtex.org/) entry. Thus, ```pdf2doi``` can be also used to automatically generate bibtex entries for all pdf files in a target folder (see below for details).
+The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` **can be also used to automatically generate bibtex entries for all pdf files in a target folder** (see below for details).
 
-When a valid identifier is found with any method different than the first one, the identifier is also stored inside the metadata of
-the pdf file with key='/identifier'. In this way, future lookups of this file will be able to extract the identifier with the 
+When a valid identifier is found with any method different than the first one, the identifier will also be stored inside the metadata of
+the pdf file with key='/identifier'. In this way, future lookups of this same file will be able to extract the identifier with the 
 first method, speeding up the search. This feature can be disabled by the user (in case edits to the pdf file are not desired).
 
-The library is far from being perfect. Often, especially for old publications, none of the currently implemented method will work. Other times the wrong DOI might be extracted: this can happen, for example, 
-if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the the metadata
+The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
+if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
 of the file (with the method shown below). In this way, ```pdf2doi``` will always retrieve the correct DOI, which is useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
 

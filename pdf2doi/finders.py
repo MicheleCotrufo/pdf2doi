@@ -475,7 +475,6 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
     return result
 
 def find_identifier_by_googling_title(path, func_validate, numb_results=config.numb_results_google_search):
-    logger.info("Looking for possible publication titles...")
     titles = find_possible_titles(path)
 
     if titles:
@@ -498,7 +497,6 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
         return None, None, None
     
 def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.numb_results_google_search, numb_characters=config.N_characters_in_pdf):
-    logger.info(f"Trying to do a google search with the first {numb_characters} characters of this pdf file...")
     
     if config.websearch==False:
         logger.warning("Web-search methods are currently disabled by the user. Enable it in order to use this method.")
@@ -551,8 +549,7 @@ def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
     -------
     result : dictionary with identifier and other info (see above) 
     """
-    
-    logger.info("Looking for a valid identifier in the document infos...")
+
     pdfinfo = get_pdf_info(path)
     identifier, desc, info = None, None, None
     if pdfinfo:
@@ -582,7 +579,6 @@ def find_identifier_in_filename(path, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    logger.info("Looking for a valid identifier in the file name...")
     text = os.path.basename(path)
     identifier,desc,info = find_identifier_in_text([text],func_validate)
     if identifier: 
@@ -605,20 +601,20 @@ def find_identifier_in_pdf_text(path, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    logger.info("Looking for a valid identifier in the document text...")
     for reader in reader_libraries:
         logger.info(f"Extracting text with the library {reader}...")
         texts = get_pdf_text(path,reader.lower())
         
         if not isinstance(texts,list):
             texts = [texts]
-        logger.info(f"Text extracted succesfully. Looking for an identifier in the text...")
-        identifier,desc,info = find_identifier_in_text(texts,func_validate)
-        if identifier: 
-            logger.info(f"A valid {desc} was found in the document text.")
-            return identifier,desc,info
-        else:
-            logger.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
+        if texts:
+            logger.info(f"Text extracted succesfully. Looking for an identifier in the text...")
+            identifier,desc,info = find_identifier_in_text(texts,func_validate)
+            if identifier: 
+                logger.info(f"A valid {desc} was found in the document text.")
+                return identifier,desc,info
+            else:
+                logger.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
     logger.info("Could not find a valid identifier in the document text.")
     return None, None, None
         

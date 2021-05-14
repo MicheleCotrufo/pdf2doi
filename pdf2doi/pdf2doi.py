@@ -169,9 +169,9 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     #If target is not a directory, we check that it is an existing file and that it ends with .pdf
     else:
         filename = target
-        logger.info(f"File: {filename}")  
+        logger.info(f"Trying to retrieve a DOI/identifier for the file: {filename}")  
         if not path.exists(filename):
-            logger.error(f"'{filename}' is not a valid file or directory.")
+            logger.error(f"'{filename}' is not a valid file.")
             return None    
         if not filename.endswith('.pdf'):
             logger.error("The file must have .pdf extension.")
@@ -182,17 +182,20 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         #First method: we look into the pdf metadata (in the current implementation this is done
         # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
         #valid identifier inside it. We first look for the elements of the dictionary with keys 'doi' or '/doi' (if the they exist), 
-        #and then any other field of the dictionary
+        #and then any other field of the dictionary 
+        logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
         result = finders.find_identifier(filename,method="document_infos",keysToCheckFirst=['/doi','/identfier'])
         if result['identifier']:
             return result 
         
         #Second method: We look for a DOI or arxiv ID inside the filename
+        logger.info(f"Method #2: Looking for a valid identifier in the file name...")
         result = finders.find_identifier(filename,method="filename")
         if result['identifier']:
             return result 
     
         #Third method: We look in the plain text of the pdf and try to find something that matches a valid identifier. 
+        logger.info(f"Method #3: Looking for a valid identifier in the document text...")
         result =  finders.find_identifier(filename,method="document_text")
         if result['identifier']:
             return result 
@@ -200,12 +203,14 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         
         #Fourth method: We look for possible titles of the paper, do a google search with them, 
         # open the first results and look for identifiers in the plain text of the searcg results.
+        logger.info(f"Method #4: Looking for possible publication titles...")
         result =  finders.find_identifier(filename,method="title_google")
         if result['identifier']:
             return result
         
         #Fifth method: We extract the first N characters from the file (where N is set by config.N_characters_in_pdf) and we use it as 
         # a query for a google seaerch. We open the first results and look for identifiers in the plain text of the searcg results.
+        logger.info(f"Method #5: Trying to do a google search with the first {config.N_characters_in_pdf} characters of this pdf file...")
         result =  finders.find_identifier(filename,method="first_N_characters_google")
         if result['identifier']:
             return result
@@ -219,7 +224,7 @@ def main():
                                     epilog = "")
     parser.add_argument(
                         "path",
-                        help = "Relative path of the pdf file or of a folder.",
+                        help = "Relative path of the target pdf file or of the targe folder.",
                         metavar = "path")
     parser.add_argument(
                         "-nv",
@@ -237,10 +242,15 @@ def main():
                         help="Disable the online validation of identifiers (e.g., via queries to http://dx.doi.org/).",
                         action="store_true")
     parser.add_argument(
-                        "-nsim",
+                        "-nostore",
                         "--no_store_identifier_metadata",
                         help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By setting this parameter, the identifier is not stored in the file metadata.",
                         action="store_true")
+    parser.add_argument('-id', 
+                        help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. This can be helpful when pdf2doi cannot find a valid identifier for this file automatically with any method, "
+                            "or when the identifier found is wrong. By storing a manually-found identifier in the metadata, pdf2doi will be able to detect it in future lookups. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
+                            " are ignored. ",
+                        action="store", dest="identifier", type=str)
     parser.add_argument('-google_results', 
                         help=f"Set how many results should be considered when doing a google search for the DOI (default={str(config.numb_results_google_search)}).",
                         action="store", dest="google_results", type=int)
@@ -256,8 +266,16 @@ def main():
                         dest="filename_bibtex",
                         help="Create a text file inside the target directory with name given by FILENAME_BIBTEX containing the bibtex entry of each pdf file in the target folder (if a valid identifier was found). This option is only available when a folder is targeted, and when the web validation is allowed.",
                         action="store")
-    #save_identifier_metadata = config.save_identifier_metadata
+
     args = parser.parse_args()
+
+    #If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
+    #Nothing else will be done
+    if args.identifier:
+        if isinstance(args.identifier,str):
+            finders.add_found_identifier_to_metadata(args.path,args.identifier)
+        return
+
     results = pdf2doi(target=args.path,
                   verbose=not(args.no_verbose),
                   websearch=not(args.no_web_search),

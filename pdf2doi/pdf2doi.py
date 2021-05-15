@@ -5,40 +5,40 @@ import pdf2doi.finders as finders
 import pdf2doi.config as config
 
 
-def make_file_identifiers(filename_identifiers, identifiers):
-    ''' Write all identifiers in the input list 'identifiers' into a text file with a path specified by filename_identifiers
+def make_file_identifiers(filename_identifiers, results):
+    ''' Write all identifiers in the input list 'results' into a text file with a path specified by filename_identifiers
     
     Parameters
     ----------
     filename_identifiers : string
         Absolute path of the target file.
-    identifiers : list of dictionaries
-        Each element of identifiers describes a .pdf file and contain the its identifier in the 'identifier' key and other infos.
+    results : list of dictionaries
+        Each element of the list 'results' describes a .pdf file, and contains the pdf identifier and other infos.
 
     Returns
     -------
     None.
     '''
     with open(filename_identifiers, "w", encoding="utf-8") as text_file:
-        for result in identifiers:
+        for result in results:
             text_file.write('{:<15s} {:<40s} {:<10s}\n'.format(result['identifier_type'], result['identifier'],result['path']) ) 
           
-def make_file_bibtex(filename_bibtex, identifiers):
-    '''Write all available bibtex entries from the input list 'identifiers' into a text file with a path specified by filename_bibtex
+def make_file_bibtex(filename_bibtex, results):
+    '''Write all available bibtex entries from the input list 'results' into a text file with a path specified by filename_bibtex
     
     Parameters
     ----------
     filename_bibtex : string
         Absolute path of the target file.
-    identifiers : list of dictionaries
-        Each element of the list 'identifiers' describes a .pdf file and contains the its identifier in the 'identifier' key and other infos.
+    results : list of dictionaries
+        Each element of the list 'results' describes a .pdf file, and contains the pdf identifier and other infos.
     Returns
     -------
     None.
 
     '''
     with open(filename_bibtex, "w", encoding="utf-8") as text_file:
-        for result in identifiers:
+        for result in results:
             if isinstance(result['validation_info'],str):
                 text_file.write(result['validation_info'] + "\n\n") 
 

@@ -57,19 +57,19 @@ pip install pdf2doi
 pdf2doi can be used either as a stand-alone application invoked from the command line, or by importing it in your python project.
 
 ### Command line usage:
-The simplest way to use ```pdf2doi``` via command line is to just type
+The simplest way to use ```pdf2doi``` via command line is just
 
 ```
 $ pdf2doi 'path/to/target'
 ```
-where target is either a valid pdf file or a directory containing pdf files. For example, when targeting the folder [examples](/examples) we get the following output
+where ```target``` is either a valid pdf file or a directory containing pdf files. For example, when targeting the folder [examples](/examples) we get the following output
 
 ```
 $ pdf2doi ".\examples"
 [pdf2doi]: Looking for pdf files in the folder .\examples...
 [pdf2doi]: Found 4 pdf files.
 [pdf2doi]: ................
-[pdf2doi]: Trying to retrieve a DOI/identifier for the file: C:\Users\miche\Desktop\examples\1-s2.0-0021999186900938-main.pdf
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\1-s2.0-0021999186900938-main.pdf
 [pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
 [pdf2doi]: Could not find a valid identifier in the document info.
 [pdf2doi]: Method #2: Looking for a valid identifier in the file name...
@@ -91,11 +91,11 @@ $ pdf2doi ".\examples"
 [pdf2doi]: Validating the possible DOI 10.1016/0021-9991(86)90093-8 via a query to dx.doi.org...
 [pdf2doi]: The DOI 10.1016/0021-9991(86)90093-8 is validated by dx.doi.org. A bibtex entry was also created.
 [pdf2doi]: A valid DOI was found with this google search.
-[pdf2doi]: Trying to write the identifier '10.1016/0021-9991(86)90093-8' into the metadata of the file 'C:\Users\miche\Desktop\examples\1-s2.0-0021999186900938-main.pdf'...
-[pdf2doi]: The identifier '10.1016/0021-9991(86)90093-8' was added succesfully to the metadata of the file 'C:\Users\miche\Desktop\examples\1-s2.0-0021999186900938-main.pdf' with key '/identifier'...
+[pdf2doi]: Trying to write the identifier '10.1016/0021-9991(86)90093-8' into the metadata of the file '.\examples\1-s2.0-0021999186900938-main.pdf'...
+[pdf2doi]: The identifier '10.1016/0021-9991(86)90093-8' was added succesfully to the metadata of the file '.\examples\1-s2.0-0021999186900938-main.pdf' with key '/identifier'...
 [pdf2doi]: 10.1016/0021-9991(86)90093-8
 [pdf2doi]: ................
-[pdf2doi]: Trying to retrieve a DOI/identifier for the file: C:\Users\miche\Desktop\examples\chaumet_JAP_07.pdf
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\chaumet_JAP_07.pdf
 [pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
 [pdf2doi]: Could not find a valid identifier in the document info.
 [pdf2doi]: Method #2: Looking for a valid identifier in the file name...
@@ -110,11 +110,11 @@ $ pdf2doi ".\examples"
 [pdf2doi]: Validating the possible DOI 10.1063/1.2409490 via a query to dx.doi.org...
 [pdf2doi]: The DOI 10.1063/1.2409490 is validated by dx.doi.org. A bibtex entry was also created.
 [pdf2doi]: A valid DOI was found in the document text.
-[pdf2doi]: Trying to write the identifier '10.1063/1.2409490' into the metadata of the file 'C:\Users\miche\Desktop\examples\chaumet_JAP_07.pdf'...
-[pdf2doi]: The identifier '10.1063/1.2409490' was added succesfully to the metadata of the file 'C:\Users\miche\Desktop\examples\chaumet_JAP_07.pdf' with key '/identifier'...
+[pdf2doi]: Trying to write the identifier '10.1063/1.2409490' into the metadata of the file '.\examples\chaumet_JAP_07.pdf'...
+[pdf2doi]: The identifier '10.1063/1.2409490' was added succesfully to the metadata of the file '.\examples\chaumet_JAP_07.pdf' with key '/identifier'...
 [pdf2doi]: 10.1063/1.2409490
 [pdf2doi]: ................
-[pdf2doi]: Trying to retrieve a DOI/identifier for the file: C:\Users\miche\Desktop\examples\PhysRevLett.116.061102.pdf
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\PhysRevLett.116.061102.pdf
 [pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
 [pdf2doi]: Could not find a valid identifier in the document info.
 [pdf2doi]: Method #2: Looking for a valid identifier in the file name...
@@ -125,11 +125,11 @@ $ pdf2doi ".\examples"
 [pdf2doi]: Validating the possible DOI 10.1103/PhysRevLett.116.061102 via a query to dx.doi.org...
 [pdf2doi]: The DOI 10.1103/PhysRevLett.116.061102 is validated by dx.doi.org. A bibtex entry was also created.
 [pdf2doi]: A valid DOI was found in the document text.
-[pdf2doi]: Trying to write the identifier '10.1103/PhysRevLett.116.061102' into the metadata of the file 'C:\Users\miche\Desktop\examples\PhysRevLett.116.061102.pdf'...
-[pdf2doi]: The identifier '10.1103/PhysRevLett.116.061102' was added succesfully to the metadata of the file 'C:\Users\miche\Desktop\examples\PhysRevLett.116.061102.pdf' with key '/identifier'...
+[pdf2doi]: Trying to write the identifier '10.1103/PhysRevLett.116.061102' into the metadata of the file '.\examples\PhysRevLett.116.061102.pdf'...
+[pdf2doi]: The identifier '10.1103/PhysRevLett.116.061102' was added succesfully to the metadata of the file '.\examples\PhysRevLett.116.061102.pdf' with key '/identifier'...
 [pdf2doi]: 10.1103/PhysRevLett.116.061102
 [pdf2doi]: ................
-[pdf2doi]: Trying to retrieve a DOI/identifier for the file: C:\Users\miche\Desktop\examples\s41586-019-1666-5.pdf
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\s41586-019-1666-5.pdf
 [pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
 [pdf2doi]: Validating the possible DOI 10.1038/s41586-019-1666-5 via a query to dx.doi.org...
 [pdf2doi]: The DOI 10.1038/s41586-019-1666-5 is validated by dx.doi.org. A bibtex entry was also created.
@@ -145,15 +145,75 @@ DOI             10.1103/PhysRevLett.116.061102           .\Desktop\examples\Phys
 DOI             10.1038/s41586-019-1666-5                .\Desktop\examples\s41586-019-1666-5.pdf
 ```
 
-The first column specifies the kind of identifier (currently either 'DOI' or 'arxiv'), the second column contains the found DOI/identifier, and the third column contains the file path.
-
 The logging information (i.e. all lines starting with ```[pdf2doi]```) can be suppressed by adding the optional argument ```-nv``` (no verbose), i.e.
 ```
 $ pdf2doi ".\examples" -nv
 ```
+
+In the output, the first column specifies the kind of identifier (currently either 'DOI' or 'arxiv'), the second column contains the found DOI/identifier, and the third column contains the file path.
+The retrieved DOI/identifiers can be used to generate bibtex entries for all the files in folder, via the optional argument ```-b```. For example
+```
+$ pdf2doi ".\examples" -b "bibtex.txt"
+```
+creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
+
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. Thus, subsequent lookups of the same folder/file will be much faster.
 This behaviour can be removed (e.g. if cannot or does not want edit files) by adding the optional argument   ```-nostore```
 
+A list of all optional arguments can be generated by ```pdf2doi --h```
+```
+$ pdf2doi --h
+usage: pdf2doi [-h] [-nv] [-nws] [-nwv] [-nostore] [-id IDENTIFIER]
+               [-google_results GOOGLE_RESULTS] [-s FILENAME_IDENTIFIERS]
+               [-b FILENAME_BIBTEX]
+               path
+
+Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a
+publications.
+
+positional arguments:
+  path                  Relative path of the target pdf file or of the targe
+                        folder.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -nv, --no_verbose     Decrease verbosity.
+  -nws, --no_web_search
+                        Disable any method to find identifiers which requires
+                        internet searches (e.g. queries to google).
+  -nwv, --no_web_validation
+                        Disable the online validation of identifiers (e.g.,
+                        via queries to http://dx.doi.org/).
+  -nostore, --no_store_identifier_metadata
+                        By default, anytime an identifier is found it is added
+                        to the metadata of the pdf file (if not present yet).
+                        By setting this parameter, the identifier is not
+                        stored in the file metadata.
+  -id IDENTIFIER        Stores the string IDENTIFIER in the metadata of the
+                        target pdf file, with key '/identifier'. This can be
+                        helpful when pdf2doi cannot find a valid identifier
+                        for this file automatically with any method, or when
+                        the identifier found is wrong. By storing a manually-
+                        found identifier in the metadata, pdf2doi will be able
+                        to detect it in future lookups. Note: when this
+                        argument is passed, all other arguments (except for
+                        the path to the pdf file) are ignored.
+  -google_results GOOGLE_RESULTS
+                        Set how many results should be considered when doing a
+                        google search for the DOI (default=6).
+  -s FILENAME_IDENTIFIERS, --save_identifiers_file FILENAME_IDENTIFIERS
+                        Save all the identifiers found in the target folder in
+                        a text file inside the same folder with name specified
+                        by FILENAME_IDENTIFIERS (only available when a folder
+                        is targeted).
+  -b FILENAME_BIBTEX, --make_bibtex_file FILENAME_BIBTEX
+                        Create a text file inside the target directory with
+                        name given by FILENAME_BIBTEX containing the bibtex
+                        entry of each pdf file in the target folder (if a
+                        valid identifier was found). This option is only
+                        available when a folder is targeted, and when the web
+                        validation is allowed.
+```
 
 
 ### Usage inside a python script:

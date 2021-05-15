@@ -5,6 +5,14 @@ It exploits several methods (see below for detailed description) to find a possi
 via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can be used to generate automatically bibtex entries for all pdf files in a folder.
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
+- [pdf2doi](#pdf2doi)
+  * [Description](#description)
+  * [Installation](#installation)
+  * [Usage](#usage)
+    + [Command line usage:](#command-line-usage-)
+    + [Usage inside a python script:](#usage-inside-a-python-script-)
+  * [Contributing](#contributing)
+  * [License](#license)
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv ID) to a pdf file can be either a very easy or a very difficult
@@ -55,6 +63,107 @@ pip install pdf2doi
 ## Usage
 
 pdf2doi can be used either as a stand-alone application invoked from the command line, or by importing it in your python project.
+
+
+### Usage inside a python script:
+The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
+The first input argument of the function must be a valid path (either absolute or relative) to either a valid pdf file or to a folder containing pdf files. 
+Setting the otpional argument```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
+
+```python
+>>>import pdf2doi
+>>>results = pdf2doi.pdf2doi('.\examples',verbose=True)
+[pdf2doi]: Looking for pdf files in the folder .\examples...
+[pdf2doi]: Found 4 pdf files.
+[pdf2doi]: ................
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\1-s2.0-0021999186900938-main.pdf
+[pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
+[pdf2doi]: Could not find a valid identifier in the document info.
+[pdf2doi]: Method #2: Looking for a valid identifier in the file name...
+[pdf2doi]: Could not find a valid identifier in the file name.
+[pdf2doi]: Method #3: Looking for a valid identifier in the document text...
+[pdf2doi]: Extracting text with the library PyPdf...
+[pdf2doi]: Text extracted succesfully. Looking for an identifier in the text...
+[pdf2doi]: Could not find a valid identifier in the document text extracted by PyPdf.
+[pdf2doi]: Extracting text with the library textract...
+[pdf2doi]: Text extracted succesfully. Looking for an identifier in the text...
+[pdf2doi]: Could not find a valid identifier in the document text extracted by textract.
+[pdf2doi]: Could not find a valid identifier in the document text.
+[pdf2doi]: Method #4: Looking for possible publication titles...
+[pdf2doi]: Found 3 possible title(s).
+[pdf2doi]: Doing a google search for "An Efficient Numerical Evaluation of the Green’s Function for the Helmholtz Operator on Periodic Structures",
+[pdf2doi]: looking at the first 6 results...
+[pdf2doi]: Performing google search with key "An Efficient Numerical Evaluation of the Green’s Function for the Helmholtz Operator on Periodic Str ...[query too long, the remaining part is suppressed in the logging]"
+[pdf2doi]: Looking for a valid identifier in the search result #1 : https://www.sciencedirect.com/science/article/pii/0021999186900938
+[pdf2doi]: Validating the possible DOI 10.1016/0021-9991(86)90093-8 via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1016/0021-9991(86)90093-8 is validated by dx.doi.org. A bibtex entry was also created.
+[pdf2doi]: A valid DOI was found with this google search.
+[pdf2doi]: Trying to write the identifier '10.1016/0021-9991(86)90093-8' into the metadata of the file '.\examples\1-s2.0-0021999186900938-main.pdf'...
+[pdf2doi]: The identifier '10.1016/0021-9991(86)90093-8' was added succesfully to the metadata of the file '.\examples\1-s2.0-0021999186900938-main.pdf' with key '/identifier'...
+[pdf2doi]: 10.1016/0021-9991(86)90093-8
+[pdf2doi]: ................
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\chaumet_JAP_07.pdf
+[pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
+[pdf2doi]: Could not find a valid identifier in the document info.
+[pdf2doi]: Method #2: Looking for a valid identifier in the file name...
+[pdf2doi]: Could not find a valid identifier in the file name.
+[pdf2doi]: Method #3: Looking for a valid identifier in the document text...
+[pdf2doi]: Extracting text with the library PyPdf...
+[pdf2doi]: Text extracted succesfully. Looking for an identifier in the text...
+[pdf2doi]: Validating the possible DOI 10.1063/1.2409490I.INTRODUCTION via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1063/1.2409490I.INTRODUCTION is not valid according to dx.doi.org.
+[pdf2doi]: Validating the possible DOI 10.1063/1.2409490I.INTRODUCTION via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1063/1.2409490I.INTRODUCTION is not valid according to dx.doi.org.
+[pdf2doi]: Validating the possible DOI 10.1063/1.2409490 via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1063/1.2409490 is validated by dx.doi.org. A bibtex entry was also created.
+[pdf2doi]: A valid DOI was found in the document text.
+[pdf2doi]: Trying to write the identifier '10.1063/1.2409490' into the metadata of the file '.\examples\chaumet_JAP_07.pdf'...
+[pdf2doi]: The identifier '10.1063/1.2409490' was added succesfully to the metadata of the file '.\examples\chaumet_JAP_07.pdf' with key '/identifier'...
+[pdf2doi]: 10.1063/1.2409490
+[pdf2doi]: ................
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\PhysRevLett.116.061102.pdf
+[pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
+[pdf2doi]: Could not find a valid identifier in the document info.
+[pdf2doi]: Method #2: Looking for a valid identifier in the file name...
+[pdf2doi]: Could not find a valid identifier in the file name.
+[pdf2doi]: Method #3: Looking for a valid identifier in the document text...
+[pdf2doi]: Extracting text with the library PyPdf...
+[pdf2doi]: Text extracted succesfully. Looking for an identifier in the text...
+[pdf2doi]: Validating the possible DOI 10.1103/PhysRevLett.116.061102 via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1103/PhysRevLett.116.061102 is validated by dx.doi.org. A bibtex entry was also created.
+[pdf2doi]: A valid DOI was found in the document text.
+[pdf2doi]: Trying to write the identifier '10.1103/PhysRevLett.116.061102' into the metadata of the file '.\examples\PhysRevLett.116.061102.pdf'...
+[pdf2doi]: The identifier '10.1103/PhysRevLett.116.061102' was added succesfully to the metadata of the file '.\examples\PhysRevLett.116.061102.pdf' with key '/identifier'...
+[pdf2doi]: 10.1103/PhysRevLett.116.061102
+[pdf2doi]: ................
+[pdf2doi]: Trying to retrieve a DOI/identifier for the file: .\examples\s41586-019-1666-5.pdf
+[pdf2doi]: Method #1: Looking for a valid identifier in the document infos...
+[pdf2doi]: Validating the possible DOI 10.1038/s41586-019-1666-5 via a query to dx.doi.org...
+[pdf2doi]: The DOI 10.1038/s41586-019-1666-5 is validated by dx.doi.org. A bibtex entry was also created.
+[pdf2doi]: A valid DOI was found in the document info labelled '/doi'.
+[pdf2doi]: 10.1038/s41586-019-1666-5
+[pdf2doi]: ................
+```
+All logging information (i.e. all lines starting with ```[pdf2doi]```) can be suppressed by removing ```verbose=True```. The output of the function
+```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
+
+```python
+result['identifier'] =      DOI or other identifier (or None if nothing is found)
+result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
+result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
+                            will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+result['path'] =            path of the pdf file
+result['method'] =          method used to find the identifier
+```
+For example, the DOI/identifiers of each file can be printed by
+```python
+>>>for result in results:
+>>>    print(result['identifier'])
+10.1016/0021-9991(86)90093-8
+10.1063/1.2409490
+10.1103/PhysRevLett.116.061102
+10.1038/s41586-019-1666-5
+```
 
 ### Command line usage:
 The simplest way to use ```pdf2doi``` via command line is just
@@ -216,44 +325,7 @@ optional arguments:
 ```
 
 
-### Usage inside a python script:
-The function ```pdf2doi``` can be used to look for the identifier of a pdf file by applying all the available methods. Setting ```verbose=True``` will increase the output verbosity, documenting all steps performed.
-```python
-import pdf2doi
-result = pdf2doi.pdf2doi('.\examples\PhysRevLett.116.061102.pdf',verbose=True)
-print('\n')
-print(result['identifier'])
-print(result['identifier_type'])
-print(result['method'])
-```
- The previous code produces the output
-```
-................
-File: .\examples\PhysRevLett.116.061102.pdf
-Looking for a valid identifier in the document infos...
-Could not find a valid identifier in the document info.
-Looking for a valid identifier in the file name...
-Could not find a valid identifier in the file name.
-Looking for a valid identifier in the document text...
-Extracting text with the library PyPdf...
-Validating the possible DOI 10.1103/PhysRevLett.116.061102 via a query to dx.doi.org...
-The DOI 10.1103/PhysRevLett.116.061102 is validated by dx.doi.org. A bibtex entry was also created.
-A valid DOI was found in the document text.
 
-10.1103/PhysRevLett.116.061102
-DOI
-document_text
-```
-
-The output variable ```result``` is a dictionary containing the identifier and other relevant information,
-```
-result['identifier'] =      DOI or other identifier (or None if nothing is found)
-result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
-                            will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
-result['path'] =            path of the pdf file
-result['method'] =          method used to find the identifier
-```
 
 The first argument passed to the function ```pdf2doi``` can also be a directory. In this case the function will 
 look for all valid pdf files inside the directory, try to find a valid identifier for each of them,

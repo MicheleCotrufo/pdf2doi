@@ -5,7 +5,7 @@ It exploits several methods (see below for detailed description) to find a possi
 via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can be used to generate automatically bibtex entries for all pdf files in a folder.
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
-Table of Contents
+## Table of Contents
  - [Description](#description)
  - [Installation](#installation)
  - [Usage](#usage)
@@ -49,7 +49,7 @@ first method, speeding up the search. This feature can be disabled by the user (
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
-of the file (with the method shown below). In this way, ```pdf2doi``` will always retrieve the correct DOI, which is useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
+of the file (with the methods shown [here](#Manually-associating-the-right-DOI/identifier-to-a-file). In this way, ```pdf2doi``` will always retrieve the correct DOI, which is useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
 
 ## Installation
@@ -157,7 +157,7 @@ result['validation_info'] = Additional info on the paper. If the online validati
 result['path'] =            path of the pdf file
 result['method'] =          method used to find the identifier
 ```
-For example, the DOI/identifiers of each file can be printed by
+For example, the DOIs/identifiers of each file can be printed by
 ```
 >>> for result in results:
 >>>     print(result['identifier'])
@@ -166,16 +166,6 @@ For example, the DOI/identifiers of each file can be printed by
 10.1103/PhysRevLett.116.061102
 10.1038/s41586-019-1666-5
 ```
-The online validation of an identifier relies on performing queries to different online archives 
-(e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
-and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
-valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory. For example,
-
-```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
-```
-creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
 
 Additional optional arguments can be passed to the function ```pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
 web-based methods (either to find an identifier and/or to validate it) should not be used.
@@ -216,8 +206,27 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
 This behaviour can be removed (e.g. if cannot or does not want edit files) by setting the optional argument  ```save_identifier_metadata=False```
 
+#### Generating list of bibtex entries:
+The online validation of an identifier relies on performing queries to different online archives 
+(e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
+and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
+valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory. For example,
 
+```python
+>>> import pdf2doi
+>>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
+```
+creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
 
+#### Manually associating the right DOI/identifier to a file
+Sometimes it is not possible to retrive a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
+a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files or other bibliographic purposes. This problem can be fixed
+by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,
+```python
+>>> import pdf2doi
+>>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file,identifier)
+```
+this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```. 
 
 ### Command line usage:
 The simplest way to use ```pdf2doi``` via command line is just

@@ -247,8 +247,7 @@ def main():
                         help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By setting this parameter, the identifier is not stored in the file metadata.",
                         action="store_true")
     parser.add_argument('-id', 
-                        help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. This can be helpful when pdf2doi cannot find a valid identifier for this file automatically with any method, "
-                            "or when the identifier found is wrong. By storing a manually-found identifier in the metadata, pdf2doi will be able to detect it in future lookups. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
+                        help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                             " are ignored. ",
                         action="store", dest="identifier", type=str)
     parser.add_argument('-google_results', 
@@ -258,7 +257,7 @@ def main():
                         "-s",
                         "--save_identifiers_file",
                         dest="filename_identifiers",
-                        help="Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS (only available when a folder is targeted).",
+                        help="Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS. This option is only available when a folder is targeted.",
                         action="store")
     parser.add_argument(
                         "-b",

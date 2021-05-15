@@ -53,7 +53,7 @@ first method, speeding up the search. This feature can be disabled by the user (
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
-of the file (with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file)(from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) )(from command line). 
+of the file (with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
 In this way, ```pdf2doi``` will always retrieve the correct DOI, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
 
@@ -69,7 +69,7 @@ pip install pdf2doi
 
 ## Usage
 
-pdf2doi can be used either as a stand-alone application invoked from the command line, or by importing it in your python project.
+pdf2doi can be used either as a [stand-alone application](#command-line-usage) invoked from the command line, or by [importing it in your python project](#usage-inside-a-python-script).
 
 
 ### Usage inside a python script

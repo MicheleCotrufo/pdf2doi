@@ -45,7 +45,7 @@ is performed and the plain text of the first results is scanned for valid identi
 a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
 
 Any time that a possible identifier is found, it is validated by performing a query to a relevant website (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). 
-The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` **can be also used to [automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
+The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` can also be used to **[automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
 
 When a valid identifier is found with any method different than the first one, the identifier will also be stored inside the metadata of
 the pdf file with key='/identifier'. In this way, future lookups of this same file will be able to extract the identifier with the 
@@ -210,7 +210,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 ```
 
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
-This behaviour can be removed (e.g. if cannot or does not want edit files) by setting the optional argument  ```save_identifier_metadata=False```
+This behaviour can be removed (e.g. if the user does not want or cannot edit files) by setting the optional argument  ```save_identifier_metadata = False```
 
 #### Generate list of bibtex entries
 The online validation of an identifier relies on performing queries to different online archives 
@@ -220,7 +220,7 @@ valid filename, the bibtex entries of all files in the target directory will be 
 
 ```python
 >>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
+>>> results = pdf2doi.pdf2doi('.\examples', filename_bibtex='bibtex.txt')
 ```
 creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. Note that this task can also be done [via command line](#generate-list-of-bibtex-entries-from-command-line), without having to open a python console.
 
@@ -230,7 +230,7 @@ a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of 
 by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,
 ```python
 >>> import pdf2doi
->>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file,identifier)
+>>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
 ```
 this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```. 
 
@@ -323,7 +323,7 @@ creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder.
 
 #### Manually associate the right identifier to a file from command line
 
-Similary to what described [above](#manually-associate-the-right-identifier-to-a-file), it is possible to associate a (manually found) 
+Similarly to what described [above](#manually-associate-the-correct-identifier-to-a-file), it is possible to associate a (manually found) 
 identifier to a pdf file also directly from command line, by using the optional argument ```-id```,
 ```
 $ pdf2doi "path\to\pdf" -id "identifier"

@@ -166,6 +166,17 @@ For example, the DOI/identifiers of each file can be printed by
 10.1103/PhysRevLett.116.061102
 10.1038/s41586-019-1666-5
 ```
+The online validation of an identifier relies on performing queries to different online archives 
+(e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
+and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
+valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory. For example,
+
+```python
+>>> import pdf2doi
+>>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
+```
+creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
+
 Additional optional arguments can be passed to the function ```pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
 web-based methods (either to find an identifier and/or to validate it) should not be used.
 
@@ -202,20 +213,8 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     '''
 ```
 
-The online validation of an identifier relies on performing queries to different online archives 
-(e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
-and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
-valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory.
-
-For example,
-```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
-```
-creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. Similarly, by specifying the input argument ```filename_identifiers```, all found identifiers are saved in a txt file inside the target folder.
-
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
-This behaviour can be removed (e.g. if cannot or does not want edit files) by setting the optional argument   ```save_identifier_metadata=False```
+This behaviour can be removed (e.g. if cannot or does not want edit files) by setting the optional argument  ```save_identifier_metadata=False```
 
 
 

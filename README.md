@@ -81,6 +81,7 @@ Setting the optional argument ```verbose=True``` will increase the output verbos
 >>> import pdf2doi
 >>> results = pdf2doi.pdf2doi('.\examples',verbose=True)
 ```
+generates the output
 ```
 [pdf2doi]: Looking for pdf files in the folder .\examples...
 [pdf2doi]: Found 4 pdf files.
@@ -157,10 +158,10 @@ All logging information (i.e. all lines starting with ```[pdf2doi]```) can be su
 ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
 ```
-result['identifier'] =      DOI or other identifier (or None if nothing is found)
+result['identifier'] =      DOI or other identifier (or None if no identifier was found for this file)
 result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
 result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
-                            will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+                            will contain a bibtex entry for this paper. Otherwise it will just contain True                         
 result['path'] =            path of the pdf file
 result['method'] =          method used to find the identifier
 ```
@@ -211,11 +212,11 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 ```
 
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
-This behaviour can be removed (e.g. if the user does not want or cannot edit files) by setting the optional argument  ```save_identifier_metadata = False```
+This behaviour can be removed (e.g. if the user does not want or cannot edit the files) by setting the optional argument  ```save_identifier_metadata = False```
 
 #### Generate list of bibtex entries
 The online validation of an identifier relies on performing queries to different online archives 
-(e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
+(e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). Using data obtained from these queries, a bibtex entry is created
 and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
 valid filename, the bibtex entries of all files in the target directory will be saved in a file within the same directory. For example,
 

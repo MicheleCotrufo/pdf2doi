@@ -11,10 +11,10 @@ Currently, only the format of arXiv identifiers in use after [1 April 2007](http
  - [Usage](#usage)
     * [Usage inside a python script](#usage-inside-a-python-script)
         + [Generate list of bibtex entries](#generate-list-of-bibtex-entries)
-        + [Manually associate the right identifier to a file](#manually-associate-the-right-identifier-to-a-file)
+        + [Manually associate the correct identifier to a file](#manually-associate-the-correct-identifier-to-a-file)
     * [Command line usage:](#command-line-usage)
         + [Generate list of bibtex entries from command line](#generate-list-of-bibtex-entries-from-command-line)
-        + [Manually associate the right identifier to a file from command line](#manually-associate-the-right-identifier-to-a-file-from-command-line)
+        + [Manually associate the correct identifier to a file from command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line)
  - [Contributing](#contributing)
  - [License](#license)
 
@@ -222,7 +222,7 @@ valid filename, the bibtex entries of all files in the target directory will be 
 ```
 creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
 
-#### Manually associate the right identifier to a file
+#### Manually associate the correct identifier to a file
 Sometimes it is not possible to retrive a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
 a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files or other bibliographic purposes. This problem can be fixed
 by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,
@@ -292,12 +292,7 @@ optional arguments:
                         By setting this parameter, the identifier is not
                         stored in the file metadata.
   -id IDENTIFIER        Stores the string IDENTIFIER in the metadata of the
-                        target pdf file, with key '/identifier'. This can be
-                        helpful when pdf2doi cannot find a valid identifier
-                        for this file automatically with any method, or when
-                        the identifier found is wrong. By storing a manually-
-                        found identifier in the metadata, pdf2doi will be able
-                        to detect it in future lookups. Note: when this
+                        target pdf file, with key '/identifier'. Note: when this
                         argument is passed, all other arguments (except for
                         the path to the pdf file) are ignored.
   -google_results GOOGLE_RESULTS

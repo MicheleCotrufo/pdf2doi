@@ -5,14 +5,14 @@ It exploits several methods (see below for detailed description) to find a possi
 via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can be used to generate automatically bibtex entries for all pdf files in a folder.
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
-- [Table of Contents]
-  * [Description](#description)
-  * [Installation](#installation)
-  * [Usage](#usage)
-    + [Usage inside a python script:](#usage-inside-a-python-script-)
-    + [Command line usage:](#command-line-usage-)
-  * [Contributing](#contributing)
-  * [License](#license)
+Table of Contents
+ - [Description](#description)
+ - [Installation](#installation)
+ - [Usage](#usage)
+    * [Usage inside a python script:](#usage-inside-a-python-script-)
+    * [Command line usage:](#command-line-usage-)
+ - [Contributing](#contributing)
+ - [License](#license)
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv ID) to a pdf file can be either a very easy or a very difficult
@@ -67,8 +67,8 @@ pdf2doi can be used either as a stand-alone application invoked from the command
 
 ### Usage inside a python script:
 The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
-The first input argument of the function must be a valid path (either absolute or relative) to either a valid pdf file or to a folder containing pdf files. 
-Setting the optional argument ```pyhton verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
+The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
+Setting the optional argument ```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
 
 ```python
 >>> import pdf2doi
@@ -166,7 +166,7 @@ For example, the DOI/identifiers of each file can be printed by
 10.1103/PhysRevLett.116.061102
 10.1038/s41586-019-1666-5
 ```
-Additional optional arguments can be passed to the function ````pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
+Additional optional arguments can be passed to the function ```pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
 web-based methods (either to find an identifier and/or to validate it) should not be used.
 
 ```python
@@ -174,7 +174,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             save_identifier_metadata = config.save_identifier_metadata,
             numb_results_google_search=config.numb_results_google_search,
             filename_identifiers = False, filename_bibtex = False):
-
+    '''
     Parameters
     ----------
     target : string
@@ -199,6 +199,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         If set equal to a string, all bibtex entries obtained in the validation process for all pdf files found in the 
         directory specified by target are saved into a file with a name specified by filename_bibtex. The default is False.
         It is ignored if the input parameter target is a file.
+    '''
 ```
 
 The online validation of an identifier relies on performing queries to different online archives 

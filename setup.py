@@ -2,7 +2,7 @@ import setuptools
 from os import path
 
 this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
+with open(path.join(this_directory, 'README.md'),encoding ='unicode_escape') as f:
     long_description = f.read()
 
 with open("requirements.txt") as f:
@@ -10,7 +10,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(name='pdf2doi',
       version='0.4',
-      description='A python library/command-line tool to retrieve the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.',
+      description='A  python library/command-line tool to extract the DOI or other identifiers of a scientific paper from a pdf file, and to quickly and automatically generate BibTeX data.',
       long_description=long_description,
       long_description_content_type='text/markdown',
       url='https://github.com/MicheleCotrufo/pdf2doi',

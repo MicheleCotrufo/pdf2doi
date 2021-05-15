@@ -2,7 +2,7 @@
 
 pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication (or from a folder containing several .pdf files).
 It exploits several methods (see below for detailed description) to find a possible identifier, and it validates any result
-via web queries to public archives (e.g. http://dx.doi.org). Additionally, **it can be used to generate automatically bibtex entries for all pdf files in a folder.**
+via web queries to public archives (e.g. http://dx.doi.org). Additionally, **it can be used to [generate automatically bibtex entries](#usage-inside-a-python-script) for all pdf files in a folder.**
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
 ## Table of Contents
@@ -10,8 +10,8 @@ Currently, only the format of arXiv identifiers in use after [1 April 2007](http
  - [Installation](#installation)
  - [Usage](#usage)
     * [Usage inside a python script](#usage-inside-a-python-script)
-        + [Generating list of bibtex entries](#generating-list-of-bibtex-entries)
-        + [Manually associating the right identifier to a file](#manually-associating-the-right-identifier-to-a-file)
+        + [Generate list of bibtex entries](#generate-list-of-bibtex-entries)
+        + [Manually associate the right identifier to a file](#manually-associate-the-right-identifier-to-a-file)
     * [Command line usage:](#command-line-usage)
  - [Contributing](#contributing)
  - [License](#license)
@@ -208,11 +208,11 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
 This behaviour can be removed (e.g. if cannot or does not want edit files) by setting the optional argument  ```save_identifier_metadata=False```
 
-#### Generating list of bibtex entries
+#### Generate list of bibtex entries
 The online validation of an identifier relies on performing queries to different online archives 
 (e.g. dx.doi.org for DOIs or export.arxiv.org for arXiv identifiers). Using data obtained from these queries, a bibtex entry is created
 and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
-valid filename, the bibtex entries of all papers in the target directory will be saved in a file within the same directory. For example,
+valid filename, the bibtex entries of all files in the target directory will be saved in a file within the same directory. For example,
 
 ```python
 >>> import pdf2doi
@@ -220,7 +220,7 @@ valid filename, the bibtex entries of all papers in the target directory will be
 ```
 creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
 
-#### Manually associating the right identifier to a file
+#### Manually associate the right identifier to a file
 Sometimes it is not possible to retrive a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
 a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files or other bibliographic purposes. This problem can be fixed
 by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,

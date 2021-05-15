@@ -20,7 +20,7 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it ca
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv ID) to a pdf file can be either a very easy or a very difficult
-(sometimes nearly impossible) task, depending on how much care was placed in crafting the file. In the simplest case (which typically applies to most recent publications)
+(sometimes nearly impossible) task, depending on how much care was placed in crafting the file. In the simplest case (which typically works with most recent publications)
 it is enough to look into the file metadata. For older publications, the identifier is often found within the pdf text and it can be
 extracted with the help of regular expressions. In the unluckiest cases, the only method left is to google some details of the publication
 (e.g. the title or parts of the text) and hope that a valid identifier is contained in one of the first results.
@@ -29,9 +29,9 @@ The ```pdf2doi``` library applies sequentially all these methods (starting from 
 Specifically, for a given .pdf file it will, in order,
 
 1. Look into the metadata of the .pdf file (extracted via the library [PyPDF2](https://github.com/mstamy2/PyPDF2)) and see if any string matches the pattern of 
-a DOI or an arXiv ID. Priority is given to the metadata which contain the word 'doi' in their label.
+a DOI or an arXiv ID. Priority is given to metadata which contain the word 'doi' in their label.
 
-2. Check if the name of the pdf file contains any sub-string that matches the pattern of 
+2. Check if the file name file contains any sub-string that matches the pattern of 
 a DOI or an arXiv ID.
 
 3. Scan the text inside the .pdf file, and check for any string that matches the pattern of 
@@ -42,18 +42,19 @@ the library [pdftitle](https://github.com/metebalci/pdftitle "pdftitle"), and by
 is performed and the plain text of the first results is scanned for valid identifiers.
 
 5. As a last desperate attempt, the first N=1000 characters of the pdf text are used as a query for
-a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
+a google search. The plain text of the first results is scanned for valid identifiers.
 
 Any time that a possible identifier is found, it is validated by performing a query to a relevant website (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). 
-The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` can also be used to **[automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
+The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` can also **[automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
 
 When a valid identifier is found with any method different than the first one, the identifier will also be stored inside the metadata of
-the pdf file with key='/identifier'. In this way, future lookups of this same file will be able to extract the identifier with the 
+the pdf file. In this way, future lookups of this same file will be able to extract the identifier with the 
 first method, speeding up the search. This feature can be disabled by the user (in case edits to the pdf file are not desired).
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
-of the file (with the methods shown [here](#Manually-associating-the-right-identifier-to-a-file) ). In this way, ```pdf2doi``` will always retrieve the correct DOI, which is useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
+of the file (with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file)(from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) )(from command line). 
+In this way, ```pdf2doi``` will always retrieve the correct DOI, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
 
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
@@ -315,13 +316,13 @@ optional arguments:
 ```
 #### Generate list of bibtex entries from command line
 
-A list of bibtex entries can be generated and saved in a file via the optional argument ```-b```. For example
+A list of bibtex entries can be generated and saved in a file via the optional argument ```-b```. For example, if the target is the folder 'examples', the command
 ```
 $ pdf2doi ".\examples" -b "bibtex.txt"
 ```
-creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
+creates the file [bibtex.txt](/examples/bibtex.txt) inside the same folder. 
 
-#### Manually associate the right identifier to a file from command line
+#### Manually associate the correct identifier to a file from command line
 
 Similarly to what described [above](#manually-associate-the-correct-identifier-to-a-file), it is possible to associate a (manually found) 
 identifier to a pdf file also directly from command line, by using the optional argument ```-id```,

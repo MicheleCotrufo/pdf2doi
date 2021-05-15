@@ -227,14 +227,14 @@ valid filename, the bibtex entries of all files in the target directory will be 
 creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. Note that this task can also be done [via command line](#generate-list-of-bibtex-entries-from-command-line), without having to open a python console.
 
 #### Manually associate the correct identifier to a file
-Sometimes it is not possible to retrive a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
-a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files or other bibliographic purposes. This problem can be fixed
+Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
+a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files, or for other bibliographic purposes. This problem can be fixed
 by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,
 ```python
 >>> import pdf2doi
 >>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
 ```
-this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```. 
+this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.   Note that this task can also be done [via command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line), without having to open a python console.
 
 ### Command line usage
 ```pdf2doi``` can also be invoked directly from the command line, without having to open a python console.
@@ -252,11 +252,11 @@ $ pdf2doi ".\examples"
 [...same logging information as for the previous example, omitted for brevity...]
 DOI             10.1016/0021-9991(86)90093-8             .\examples\1-s2.0-0021999186900938-main.pdf
 
-DOI             10.1063/1.2409490                        .\Desktop\examples\chaumet_JAP_07.pdf
+DOI             10.1063/1.2409490                        .\examples\chaumet_JAP_07.pdf
 
-DOI             10.1103/PhysRevLett.116.061102           .\Desktop\examples\PhysRevLett.116.061102.pdf
+DOI             10.1103/PhysRevLett.116.061102           .\examples\PhysRevLett.116.061102.pdf
 
-DOI             10.1038/s41586-019-1666-5                .\Desktop\examples\s41586-019-1666-5.pdf
+DOI             10.1038/s41586-019-1666-5                .\examples\s41586-019-1666-5.pdf
 ```
 
 The logging information can be suppressed by adding the optional argument ```-nv``` (no verbose), i.e.
@@ -326,7 +326,7 @@ creates the file [bibtex.txt](/examples/bibtex.txt) inside the same folder.
 #### Manually associate the correct identifier to a file from command line
 
 Similarly to what described [above](#manually-associate-the-correct-identifier-to-a-file), it is possible to associate a (manually found) 
-identifier to a pdf file also directly from command line, by using the optional argument ```-id```,
+identifier to a pdf file directly from command line, by using the optional argument ```-id```,
 ```
 $ pdf2doi "path\to\pdf" -id "identifier"
 ```

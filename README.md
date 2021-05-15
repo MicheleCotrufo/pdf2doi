@@ -5,12 +5,12 @@ It exploits several methods (see below for detailed description) to find a possi
 via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can be used to generate automatically bibtex entries for all pdf files in a folder.
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
-- [pdf2doi](#pdf2doi)
+- [Table of Contents]
   * [Description](#description)
   * [Installation](#installation)
   * [Usage](#usage)
-    + [Command line usage:](#command-line-usage-)
     + [Usage inside a python script:](#usage-inside-a-python-script-)
+    + [Command line usage:](#command-line-usage-)
   * [Contributing](#contributing)
   * [License](#license)
 
@@ -68,9 +68,9 @@ pdf2doi can be used either as a stand-alone application invoked from the command
 ### Usage inside a python script:
 The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
 The first input argument of the function must be a valid path (either absolute or relative) to either a valid pdf file or to a folder containing pdf files. 
-Setting the otpional argument```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
+Setting the optional argument ```pyhton verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
 
-```python
+```
 >>>import pdf2doi
 >>>results = pdf2doi.pdf2doi('.\examples',verbose=True)
 [pdf2doi]: Looking for pdf files in the folder .\examples...
@@ -147,7 +147,7 @@ Setting the otpional argument```verbose=True``` will increase the output verbosi
 All logging information (i.e. all lines starting with ```[pdf2doi]```) can be suppressed by removing ```verbose=True```. The output of the function
 ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
-```python
+```
 result['identifier'] =      DOI or other identifier (or None if nothing is found)
 result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
 result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
@@ -156,7 +156,7 @@ result['path'] =            path of the pdf file
 result['method'] =          method used to find the identifier
 ```
 For example, the DOI/identifiers of each file can be printed by
-```python
+```
 >>>for result in results:
 >>>    print(result['identifier'])
 10.1016/0021-9991(86)90093-8

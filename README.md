@@ -2,8 +2,8 @@
 
 pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication (or from a folder containing several .pdf files).
 It exploits several methods (see below for detailed description) to find a possible identifier, and it validates any result
-via web queries to public archives (e.g. http://dx.doi.org). Additionally, **it can be used to [generate automatically bibtex entries](#generate-list-of-bibtex-entries) for all pdf files in a folder.**
-Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
+via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[generate automatically bibtex entries](#generate-list-of-bibtex-entries) for all pdf files in a target folder.**
+
 
 ## Table of Contents
  - [Description](#description)
@@ -45,7 +45,7 @@ is performed and the plain text of the first results is scanned for valid identi
 a google search (the value of N can be set by the variable config.N_characters_in_pdf). The plain text of the first results is scanned for valid identifiers.
 
 Any time that a possible identifier is found, it is validated by performing a query to a relevant website (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). 
-The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` **can be also used to automatically generate bibtex entries for all pdf files in a target folder** (see below for details).
+The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. Thus, ```pdf2doi``` **can be also used to [automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
 
 When a valid identifier is found with any method different than the first one, the identifier will also be stored inside the metadata of
 the pdf file with key='/identifier'. In this way, future lookups of this same file will be able to extract the identifier with the 
@@ -55,6 +55,8 @@ The library is far from being perfect. Often, especially for old publications, n
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
 of the file (with the methods shown [here](#Manually-associating-the-right-identifier-to-a-file) ). In this way, ```pdf2doi``` will always retrieve the correct DOI, which is useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
+
+Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
 ## Installation
 
@@ -220,7 +222,7 @@ valid filename, the bibtex entries of all files in the target directory will be 
 >>> import pdf2doi
 >>> results = pdf2doi.pdf2doi('.\examples',filename_bibtex='bibtex.txt')
 ```
-creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
+creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. Note that this task can also be done [via command line](#generate-list-of-bibtex-entries-from-command-line), without having to open a python console.
 
 #### Manually associate the correct identifier to a file
 Sometimes it is not possible to retrive a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 

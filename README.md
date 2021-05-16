@@ -12,7 +12,7 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it ca
     * [Usage inside a python script](#usage-inside-a-python-script)
         + [Generate list of bibtex entries](#generate-list-of-bibtex-entries)
         + [Manually associate the correct identifier to a file](#manually-associate-the-correct-identifier-to-a-file)
-    * [Command line usage:](#command-line-usage)
+    * [Command line usage](#command-line-usage)
         + [Generate list of bibtex entries from command line](#generate-list-of-bibtex-entries-from-command-line)
         + [Manually associate the correct identifier to a file from command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line)
  - [Contributing](#contributing)

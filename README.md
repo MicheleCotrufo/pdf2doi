@@ -2,7 +2,7 @@
 
 pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication (or from a folder containing several .pdf files).
 It exploits several methods (see below for detailed description) to find a possible identifier, and it validates any result
-via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[generate automatically bibtex entries](#generate-list-of-bibtex-entries) for all pdf files in a target folder.**
+via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[automatically generate bibtex entries](#generate-list-of-bibtex-entries) for all pdf files in a target folder.**
 
 
 ## Table of Contents
@@ -101,9 +101,9 @@ generates the output
 [pdf2doi]: Could not find a valid identifier in the document text.
 [pdf2doi]: Method #4: Looking for possible publication titles...
 [pdf2doi]: Found 3 possible title(s).
-[pdf2doi]: Doing a google search for "An Efficient Numerical Evaluation of the Green’s Function for the Helmholtz Operator on Periodic Structures",
+[pdf2doi]: Doing a google search for "An Efficient Numerical Evaluation of the Greenâ€™s Function for the Helmholtz Operator on Periodic Structures",
 [pdf2doi]: looking at the first 6 results...
-[pdf2doi]: Performing google search with key "An Efficient Numerical Evaluation of the Green’s Function for the Helmholtz Operator on Periodic Str ...[query too long, the remaining part is suppressed in the logging]"
+[pdf2doi]: Performing google search with key "An Efficient Numerical Evaluation of the Greenâ€™s Function for the Helmholtz Operator on Periodic Str ...[query too long, the remaining part is suppressed in the logging]"
 [pdf2doi]: Looking for a valid identifier in the search result #1 : https://www.sciencedirect.com/science/article/pii/0021999186900938
 [pdf2doi]: Validating the possible DOI 10.1016/0021-9991(86)90093-8 via a query to dx.doi.org...
 [pdf2doi]: The DOI 10.1016/0021-9991(86)90093-8 is validated by dx.doi.org. A bibtex entry was also created.

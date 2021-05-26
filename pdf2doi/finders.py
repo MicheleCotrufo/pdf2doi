@@ -76,12 +76,15 @@ def validate(identifier,what='doi'):
     if not identifier:
         return None
     if what=='doi':
-        if re.match('10\.\d{4,9}/[-._;()/:A-Z0-9]+',identifier,re.I):
+        if re.match(doi_pattern,identifier,re.I):
             if config.check_online_to_validate:
                 logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
                 result = bibtex_makers.doi2bib(identifier)
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
+                    return None
+                if result.strip()[0:5] == '@misc':
+                    logger.error(f"A valid bibTex entry was returned by dx.doi.org, but it starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return None
                 if result:
                     logger.info(f"The DOI {identifier} is validated by dx.doi.org. A bibtex entry was also created.")
@@ -550,6 +553,11 @@ def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
     result : dictionary with identifier and other info (see above) 
     """
 
+
+    #This is a list of keys that will NOT be considered when looking for an identifier in the metadata. 
+    #Some of them are known to contain doi-like patterns but not the actual doi of the publication.
+    #For example '/wps-journaldoi' contains the DOI of the journal
+    KeysNotToUse = ['/wps-journaldoi'] 
     pdfinfo = get_pdf_info(path)
     identifier, desc, info = None, None, None
     if pdfinfo:
@@ -557,7 +565,7 @@ def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
                                             #Some elements of keysToCheckFirst might be duplicated in 'Keys', but this is not a problem
                                             #because the corresponding element in the pdfinfo dictionary is eliminated after being checked
         for key in Keys:
-            if key in pdfinfo.keys():
+            if key in pdfinfo.keys() and key.lower() not in KeysNotToUse:
                 identifier,desc,info = find_identifier_in_text(pdfinfo[key],func_validate)
                 if identifier: 
                     logger.info(f"A valid {desc} was found in the document info labelled \'{key}\'.")

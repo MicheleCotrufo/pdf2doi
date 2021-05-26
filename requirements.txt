@@ -8,3 +8,5 @@ feedparser>=6.0.2
 chardet==3.0.4
 pdfminer.six==20181108
 pdftitle==0.3
+unidecode>=1.2.0
+bibtexparser>=1.2.0

@@ -10,8 +10,9 @@ if not logger.handlers:
     logger.addHandler(ch)
 logger.propagate = False
 
-from .pdf2doi import pdf2doi
+from .main import pdf2doi
 from .finders import *
 from .bibtex_makers import *
+from .utils_registry import install_right_click, uninstall_right_click
 
 

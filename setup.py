@@ -9,7 +9,7 @@ with open("requirements.txt") as f:
     required_packages = f.read().splitlines()
 
 setuptools.setup(name='pdf2doi',
-      version='0.5',
+      version='0.5rc3',
       description='A  python library/command-line tool to extract the DOI or other identifiers of a scientific paper from a pdf file, and to quickly and automatically generate BibTeX data.',
       long_description=long_description,
       long_description_content_type='text/markdown',
@@ -18,7 +18,7 @@ setuptools.setup(name='pdf2doi',
       author_email='michele.cotrufo@gmail.com',
       license='MIT',
       entry_points = {
-        'console_scripts': ["pdf2doi = pdf2doi.pdf2doi:main"],
+        'console_scripts': ["pdf2doi = pdf2doi.main:main"],
       },
       packages=['pdf2doi'],
       install_requires= required_packages,

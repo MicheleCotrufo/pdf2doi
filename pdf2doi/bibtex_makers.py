@@ -103,6 +103,15 @@ def arxiv2bib(arxivID):
         logger.error(e)
         return None
 
+def remove_latex_codes(text):
+    #It replaces any latex special code (e.g. {\`{u}}) by the "closest" unicode character (e.g. u). This is useful when
+    #certain strings which might contain latex codes need to be use in contexts where only unicode characters are accepted
+    
+    #This regex looks for any substring that matched the pattern "{\string1{string2}}" where string1 can be anything,
+    #and it replaces the whole substring by string2
+    text_sanitized = re.sub(r"{\\.+{([\w]+)}}", r"\1", text)
+    return text_sanitized
+
 def make_bibtex(data):
     #Based on the metadata contained in the input dictionary data, it creates a valid bibtex entry
     #The name of the entry has the format [lastname_firstauthor][year][first_word_title] all in lowe case
@@ -111,10 +120,10 @@ def make_bibtex(data):
     #This is normally the format returned by dx.doi.org
 
     #Generate the ID by looking for last name of firs author, year of publicaton, and first word of title
-    if 'author' in data.keys():
-        author_string = data['author']
-    elif 'authors' in data.keys():
+    if 'authors' in data.keys():
         author_string = data['authors']
+    elif 'author' in data.keys():
+        author_string = data['author']
     else:
         author_string = ''
     if author_string:
@@ -126,6 +135,7 @@ def make_bibtex(data):
     first_word_title =  data['title'].split(' ')[0] if 'title' in data.keys() else ''
     id = lastname_firstauthor + year + first_word_title
     id = id.lower()
+    id = remove_latex_codes(id)
     id = unidecode(id) #This makes sure that the id of the bibtex entry is only made out of ascii characters (i.e. no accents, tildes, etc.)
     if id == '':
         id = 'NoValidID'

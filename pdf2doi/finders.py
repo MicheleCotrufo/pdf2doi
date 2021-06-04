@@ -83,7 +83,7 @@ def validate(identifier,what='doi'):
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
-                if result.strip()[0:5] == '@misc':
+                if isinstance(result,str) and result.strip()[0:5] == '@misc':
                     logger.error(f"A valid bibTex entry was returned by dx.doi.org, but it starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return None
                 if result:
@@ -296,7 +296,7 @@ def find_possible_titles(path):
         title = pdftitle.get_title_from_file(path)
     except:
         title = ''
-    if len(title)>6:#This is to check that the title found is neither empty nor just few characters
+    if len(title.strip())>12:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)  
         
     # (2)
@@ -305,11 +305,11 @@ def find_possible_titles(path):
     
     for key, value in info.items():
         if 'title' in key.lower():
-            if isinstance(value,str) and len(value)>6: #This is to check that the title found is neither empty nor just few characters
+            if isinstance(value,str) and len(value.strip())>12: #This is to check that the title found is neither empty nor just few characters
                 titles.append(value)         
     # (3)
     title = os.path.basename(path)
-    if len(title)>30:#This is to check that the title found is neither empty nor just few characters
+    if len(title.strip())>30:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)
         
     return titles
@@ -486,6 +486,7 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
             return None, None, None
         else:
             logger.info(f"Found {len(titles)} possible title(s).")
+            titles.sort(key=len, reverse=True)
             for title in titles:
                 logger.info(f"Doing a google search for \"{title}\",")
                 logger.info(f"looking at the first {config.numb_results_google_search} results...")

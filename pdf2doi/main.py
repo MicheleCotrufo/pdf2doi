@@ -333,6 +333,14 @@ def main():
                         help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                             " are ignored. ",
                         action="store", dest="identifier", type=str)
+    parser.add_argument(
+                        "-id_input_box",#When called with this argument, an input box is generated in order to
+                                        #to acquire a string from the user, which is then stored in the metadata 
+                                        # of the target pdf file, with key \'/identifier\'
+                                        #This is normally used when calling pdf2doi from by a right click on a
+                                        #.pdf file in Windows
+                        help=argparse.SUPPRESS,
+                        action="store_true")
     parser.add_argument('-google_results', 
                         help=f"Set how many results should be considered when doing a google search for the DOI (default={str(config.numb_results_google_search)}).",
                         action="store", dest="google_results", type=int)
@@ -393,6 +401,13 @@ def main():
         print("pdf2doi: error: the following arguments are required: path")
         return
 
+    #If the command -id_input_box was specified, we generate an input box, ask for a string from the user and
+    #save it in args.identifier. In this way, the next if block is triggered
+    if args.id_input_box:
+        import easygui
+        identifier = easygui.enterbox(
+            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file '{target}':\n(this will be stored in the file metadata labelled '\identifier')")
+        args.identifier = identifier
     #If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
     #Nothing else will be done
     if args.identifier:

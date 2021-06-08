@@ -64,6 +64,8 @@ def install_right_click():
                                             title="Copy BibTeX entry to clipboard...", command=path_pdf2doi + " \"%1\" -bclip" )
         create_registry_key_rightclick_menu(key="SystemFileAssociations\\.pdf",registry_title="pdf2doi_doi", 
                                             title="Copy DOI/identifier to clipboard...", command=path_pdf2doi + " \"%1\" -doiclip" )
+        create_registry_key_rightclick_menu(key="SystemFileAssociations\\.pdf",registry_title="pdf2doi_setdoi", 
+                                            title="Specify DOI/identifier of this file...", command=path_pdf2doi + " \"%1\" -id_input_box" )
         create_registry_key_rightclick_menu(key="Directory",registry_title="pdf2doi_bibtex", 
                                             title="Retrieve and copy BibTeX entries of all pdf files in this folder...", command=path_pdf2doi + " \"%1\" -bclip" )
         create_registry_key_rightclick_menu(key="Directory",registry_title="pdf2doi_doi", 
@@ -79,7 +81,8 @@ def uninstall_right_click():
     try:
         delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_bibtex")
         delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_doi")
-        delete_sub_key(winreg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi_doi")
+        delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_setdoi")
+        delete_sub_key(winreg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi_bibtex")
         delete_sub_key(winreg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi_doi")
         logger.info(f'All keys were removed.')
     except Exception as e:

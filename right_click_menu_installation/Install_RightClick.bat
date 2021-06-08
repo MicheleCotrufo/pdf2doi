@@ -1,4 +1,4 @@
-set path_pdf2doi=D:\Dropbox (Personal)\PythonScripts\env\Scripts
+set path_pdf2doi=Path\To\Scripts
 
 REG ADD "HKEY_CLASSES_ROOT\SystemFileAssociations\.pdf\shell\pdf2doi_bibtex" /t REG_SZ /d "Copy BibTeX entry to clipboard..."
 REG ADD "HKEY_CLASSES_ROOT\SystemFileAssociations\.pdf\shell\pdf2doi_bibtex\command" /t REG_SZ /d "%path_pdf2doi%\pdf2doi.exe \"%%1\" -bclip"

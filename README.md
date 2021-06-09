@@ -83,11 +83,11 @@ set the identifier of a pdf file (see also [here](#manually-associate-the-correc
 
 To install this functionality, first install ```pdf2doi``` from pip (as described above), then open a command prompt with administrator rights and execute
 ```
-$ pdf2doi  install--right--click
+$ pdf2doi  -install--right--click
 ```
 and to remove it, simply run (again from a terminal with administrator rights)
 ```
-$ pdf2doi  uninstall--right--click
+$ pdf2doi  -uninstall--right--click
 ```
 If it is not possible to run this command from a terminal with administrator rights, it is also possible to use the batch files
 [here](/right_click_menu_installation) (see readme.MD file in the same folder for instructions), although it is still required to have 
@@ -98,7 +98,8 @@ the only the info of the last file will be stored in the clipboard. To copy the 
 
 ## Usage
 
-pdf2doi can be used either as a [stand-alone application](#command-line-usage) invoked from the command line, or by [importing it in your python project](#usage-inside-a-python-script).
+pdf2doi can be used either as a [stand-alone application](#command-line-usage) invoked from the command line, or by [importing it in your python project](#usage-inside-a-python-script) or, only for Windows, 
+directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
 ### Command line usage
 ```pdf2doi``` can be invoked directly from the command line, without having to open a python console.

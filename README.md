@@ -6,9 +6,6 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it ca
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
-
-
-
 ## Table of Contents
  - [Description](#description)
  - [Installation](#installation)

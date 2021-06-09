@@ -94,7 +94,7 @@ If it is not possible to run this command from a terminal with administrator rig
 admnistrator rights.
 
 NOTE: when multiple pdf files are selected, and the right-click context menu commands are used, ```pdf2doi``` will be called separately for each file, and thus
-the only the info of the last file will be stored in the clipboard. To copy the info of multiple files it is necessary to save them in a folder and right click on the folder.
+only the info of the last file will be stored in the clipboard. In order to copy the info of multiple files, it is necessary to save them in a folder and right click on the folder.
 
 ## Usage
 

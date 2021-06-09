@@ -10,13 +10,13 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
  - [Description](#description)
  - [Installation](#installation)
  - [Usage](#usage)
-    * [Usage inside a python script](#usage-inside-a-python-script)
-        + [Generate list of bibtex entries](#generate-list-of-bibtex-entries)
-        + [Manually associate the correct identifier to a file](#manually-associate-the-correct-identifier-to-a-file)
     * [Command line usage](#command-line-usage)
         + [Generate list of bibtex entries from command line](#generate-list-of-bibtex-entries-from-command-line)
         + [Manually associate the correct identifier to a file from command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line)
- - [Contributing](#contributing)
+    * [Usage inside a python script](#usage-inside-a-python-script)
+        + [Generate list of bibtex entries](#generate-list-of-bibtex-entries)
+        + [Manually associate the correct identifier to a file](#manually-associate-the-correct-identifier-to-a-file)
+  - [Contributing](#contributing)
  - [License](#license)
 
 ## Description
@@ -71,7 +71,7 @@ pip install pdf2doi
 
 ### Installing the shortcuts in the right-click context menu of Windows
 This functionality is only available on Windows (and so far it has been tested only on Windows 10). It adds additional commands to the context menu of Windows
-which appears when right-clicking on a pdf file or on a folder, and it allows to copy the paper(s) identifier(s), or bibtex entry(ies), into the system clipboard, or also to manually
+which appears when right-clicking on a pdf file or on a folder, and it allows to copy the identifier(s) o or the bibtex entry(ies) of the paper(s) into the system clipboard, or also to manually
 set the identifier of a pdf file (see also [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line)).
 
 <img src="docs/ContextMenu_pdf.png" width="350" />
@@ -100,18 +100,17 @@ the only the info of the last file will be stored in the clipboard. To copy the 
 
 pdf2doi can be used either as a [stand-alone application](#command-line-usage) invoked from the command line, or by [importing it in your python project](#usage-inside-a-python-script).
 
+### Command line usage
+```pdf2doi``` can be invoked directly from the command line, without having to open a python console.
+The simplest command-line invokation is
 
-### Usage inside a python script
-The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
-The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
-Setting the optional argument ```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
+```
+$ pdf2doi 'path/to/target'
+```
+where ```target``` is either a valid pdf file or a directory containing pdf files. For example, when targeting the folder [examples](/examples) we get the following output
 
-```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',verbose=True)
 ```
-generates the output
-```
+$ pdf2doi ".\examples"
 [pdf2doi]: Looking for pdf files in the folder .\examples...
 [pdf2doi]: Found 4 pdf files.
 [pdf2doi]: ................
@@ -182,112 +181,6 @@ generates the output
 [pdf2doi]: A valid DOI was found in the document info labelled '/doi'.
 [pdf2doi]: 10.1038/s41586-019-1666-5
 [pdf2doi]: ................
-```
-All logging information (i.e. all lines starting with ```[pdf2doi]```) can be suppressed by removing ```verbose=True```. The output of the function
-```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
-
-```
-result['identifier'] =      DOI or other identifier (or None if no identifier was found for this file)
-result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
-                            will contain a bibtex entry for this paper. Otherwise it will just contain True                         
-result['path'] =            path of the pdf file
-result['method'] =          method used to find the identifier
-```
-For example, the DOIs/identifiers of each file can be printed by
-```
->>> for result in results:
->>>     print(result['identifier'])
-10.1016/0021-9991(86)90093-8
-10.1063/1.2409490
-10.1103/PhysRevLett.116.061102
-10.1038/s41586-019-1666-5
-```
-
-Additional optional arguments can be passed to the function ```pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
-web-based methods (either to find an identifier and/or to validate it) should not be used.
-
-```python
-def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
-            save_identifier_metadata = config.save_identifier_metadata,
-            numb_results_google_search=config.numb_results_google_search,
-            filename_identifiers = False, filename_bibtex = False):
-    '''
-    Parameters
-    ----------
-        target : string
-        Relative or absolute path of a .pdf file or a directory containing pdf files
-    verbose : boolean, optional
-        Increases the output verbosity. The default is False.
-    websearch : boolean, optional
-        If set false, any method to find an identifier which requires a web search is disabled. The default is True.
-    webvalidation : boolean, optional
-        If set false, validation of identifiers via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
-        The default is True.
-    save_identifier_metadata : boolean, optional
-        If set True, when a valid identifier is found with any method different than the metadata lookup, the identifier
-        is also written in the file metadata with key "/identifier" (this will speed up future lookup of thi same file). 
-        If set False, this does not happen. The default is True.
-    numb_results_google_search : integer, optional
-        It sets how many results are considered when performing a google search. The default is config.numb_results_google_search.
-    filename_identifiers : string or boolean, optional
-        If set equal to a string, all identifiers found in the directory specified by target are saved into a text file 
-        inside the same directory and with a name specified by filename_identifiers. 
-        The default is False.  It is ignored if the input parameter target is a file.
-    filename_bibtex : string or boolean, optional
-        If set equal to a string, all bibtex entries obtained in the validation process for all pdf files found in the 
-        directory specified by target are saved into a file inside the same directory and with a name specified by filename_bibtex. 
-        The default is False. It is ignored if the input parameter target is a file.
-    store_bibtex_clipboard : boolean, optional
-        If set true, the bibtex entries of all pdf files (or a for a single pdf file if target is a file) are
-        stored in the system clipboard. The default is False. 
-    store_identifier_clipboard : boolean, optional
-        If set true, the identifier of all pdf files (or a for a single pdf file if target is a file) are
-        stored in the system clipboard. The default is False. 
-        If both store_bibtex_clipboard and store_identifier_clipboard are set to true, the bibtex entries have 
-        priority.
-    '''
-```
-
-By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
-This behaviour can be removed (e.g. if the user does not want or cannot edit the files) by setting the optional argument  ```save_identifier_metadata = False```
-
-#### Generate list of bibtex entries
-The online validation of an identifier relies on performing queries to different online archives 
-(e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). Using data obtained from these queries, a bibtex entry is created
-and stored in the 'validation_info' element of the output dictionary. By setting the input argument ```filename_bibtex``` equal to a 
-valid filename, the bibtex entries of all files in the target directory will be saved in a file within the same directory. For example,
-
-```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples', filename_bibtex='bibtex.txt')
-```
-creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. Note that this task can also be done [via command line](#generate-list-of-bibtex-entries-from-command-line), without having to open a python console.
-
-#### Manually associate the correct identifier to a file
-Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
-a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files, or for other bibliographic purposes. This problem can be fixed
-by looking for the DOI/identifier manually and add it to the pdf metadata, by using the function ```pdf2doi.add_found_identifier_to_metadata```,
-```python
->>> import pdf2doi
->>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
-```
-this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.   Note that this task can also be done [via command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line), without having to open a python console.
-
-### Command line usage
-```pdf2doi``` can also be invoked directly from the command line, without having to open a python console.
-The syntax follows closely the one of the ```pdf2doi.pdf2doi``` python function.
-
-The simplest command-line invokation is
-
-```
-$ pdf2doi 'path/to/target'
-```
-where ```target``` is either a valid pdf file or a directory containing pdf files. For example, when targeting the folder [examples](/examples) we get the following output
-
-```
-$ pdf2doi ".\examples"
-[...same logging information as for the previous example, omitted for brevity...]
 DOI             10.1016/0021-9991(86)90093-8             .\examples\1-s2.0-0021999186900938-main.pdf
 
 DOI             10.1063/1.2409490                        .\examples\chaumet_JAP_07.pdf
@@ -342,20 +235,121 @@ optional arguments:
                         Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.
 ```
 #### Generate list of bibtex entries from command line
-
-A list of bibtex entries can be generated and saved in a file via the optional argument ```-b```. For example, if the target is the folder [examples](/examples), the command
+The online validation of an identifier relies on performing queries to different online archives 
+(e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). Using data obtained from these queries, a bibtex entry can be automatically created.
+By uasing the optional argument ```-b filename```, a list of bibtex entries for all the pdf files in the targetted folder is generated in a file within the same folder. 
+For example, if the target is the folder [examples](/examples), the command
 ```
 $ pdf2doi ".\examples" -b "bibtex.txt"
 ```
 creates the file [bibtex.txt](/examples/bibtex.txt) inside the same folder. 
 
 #### Manually associate the correct identifier to a file from command line
-
-Similarly to what described [above](#manually-associate-the-correct-identifier-to-a-file), it is possible to associate a (manually found) 
-identifier to a pdf file directly from command line, by using the optional argument ```-id```,
+Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. This can be 
+a problem when using ```pdf2doi``` to generate the bibtex entries of a bunch of pdf files, or for other bibliographic purposes. This problem can be fixed
+by looking for the DOI/identifier manually and add it to the pdf metadata, by using the ```-id``` argument,
 ```
 $ pdf2doi "path\to\pdf" -id "identifier"
 ```
+this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.  
+
+### Usage inside a python script
+```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
+The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
+Setting the optional argument ```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
+
+```python
+>>> import pdf2doi
+>>> results = pdf2doi.pdf2doi('.\examples',verbose=True)
+```
+
+The output of the function ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
+
+```
+result['identifier'] =      DOI or other identifier (or None if no identifier was found for this file)
+result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
+result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
+                            will contain a bibtex entry for this paper. Otherwise it will just contain True                         
+result['path'] =            path of the pdf file
+result['method'] =          method used to find the identifier
+```
+For example, the DOIs/identifiers of each file can be printed by
+```
+>>> for result in results:
+>>>     print(result['identifier'])
+10.1016/0021-9991(86)90093-8
+10.1063/1.2409490
+10.1103/PhysRevLett.116.061102
+10.1038/s41586-019-1666-5
+```
+Additional optional arguments can be passed to the function ```pdf2doi.pdf2doi``` to control its behaviour, for example to specify if
+web-based methods (either to find an identifier and/or to validate it) should not be used.
+
+```python
+def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
+            save_identifier_metadata = config.save_identifier_metadata,
+            numb_results_google_search=config.numb_results_google_search,
+            filename_identifiers = False, filename_bibtex = False):
+    '''
+    Parameters
+    ----------
+        target : string
+        Relative or absolute path of a .pdf file or a directory containing pdf files
+    verbose : boolean, optional
+        Increases the output verbosity. The default is False.
+    websearch : boolean, optional
+        If set false, any method to find an identifier which requires a web search is disabled. The default is True.
+    webvalidation : boolean, optional
+        If set false, validation of identifiers via internet queries (e.g. to dx.doi.org or export.arxiv.org) is disabled. 
+        The default is True.
+    save_identifier_metadata : boolean, optional
+        If set True, when a valid identifier is found with any method different than the metadata lookup, the identifier
+        is also written in the file metadata with key "/identifier" (this will speed up future lookup of thi same file). 
+        If set False, this does not happen. The default is True.
+    numb_results_google_search : integer, optional
+        It sets how many results are considered when performing a google search. The default is config.numb_results_google_search.
+    filename_identifiers : string or boolean, optional
+        If set equal to a string, all identifiers found in the directory specified by target are saved into a text file 
+        inside the same directory and with a name specified by filename_identifiers. 
+        The default is False.  It is ignored if the input parameter target is a file.
+    filename_bibtex : string or boolean, optional
+        If set equal to a string, all bibtex entries obtained in the validation process for all pdf files found in the 
+        directory specified by target are saved into a file inside the same directory and with a name specified by filename_bibtex. 
+        The default is False. It is ignored if the input parameter target is a file.
+    store_bibtex_clipboard : boolean, optional
+        If set true, the bibtex entries of all pdf files (or a for a single pdf file if target is a file) are
+        stored in the system clipboard. The default is False. 
+    store_identifier_clipboard : boolean, optional
+        If set true, the identifier of all pdf files (or a for a single pdf file if target is a file) are
+        stored in the system clipboard. The default is False. 
+        If both store_bibtex_clipboard and store_identifier_clipboard are set to true, the bibtex entries have 
+        priority.
+    '''
+```
+
+By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
+This behaviour can be removed (e.g. if the user does not want or cannot edit the files) by setting the optional argument  ```save_identifier_metadata = False```
+
+#### Generate list of bibtex entries
+Similarly to the [command line](#generate-list-of-bibtex-entries-from-command-line) approach, the function ```pdf2doi.pdf2doi``` can be used
+to generate bibtex entries and save them on file. By setting the input argument ```filename_bibtex``` equal to a 
+valid filename, the bibtex entries of all files in the target directory will be saved in a file within the same directory. For example,
+
+```python
+>>> import pdf2doi
+>>> results = pdf2doi.pdf2doi('.\examples', filename_bibtex='bibtex.txt')
+```
+creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
+
+#### Manually associate the correct identifier to a file
+Similarly to what described [above](#manually-associate-the-correct-identifier-to-a-file-from-command-line), it is possible to associate a (manually found) 
+identifier to a pdf file also from within python, by using the function ```pdf2doi.add_found_identifier_to_metadata```:
+
+```python
+>>> import pdf2doi
+>>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
+```
+this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.   Note that this task can also be done [via command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line), without having to open a python console.
 
 
 ## Contributing

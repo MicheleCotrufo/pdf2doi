@@ -350,8 +350,7 @@ identifier to a pdf file also from within python, by using the function ```pdf2d
 >>> import pdf2doi
 >>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
 ```
-this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.   Note that this task can also be done [via command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line), without having to open a python console.
-
+this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.   
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

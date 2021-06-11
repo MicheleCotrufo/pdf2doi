@@ -332,7 +332,7 @@ def main():
     parser.add_argument('-id', 
                         help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                             " are ignored. ",
-                        action="store", dest="identifier", type=str)
+                        action="store", dest="identifier", type=str, default=False)
     parser.add_argument(
                         "-id_input_box",#When called with this argument, an input box is generated in order to
                                         #to acquire a string from the user, which is then stored in the metadata 
@@ -410,7 +410,7 @@ def main():
         args.identifier = identifier
     #If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
     #Nothing else will be done
-    if args.identifier:
+    if args.identifier or args.identifier=="":
         if isinstance(args.identifier,str):
             finders.add_found_identifier_to_metadata(target,args.identifier)
         return

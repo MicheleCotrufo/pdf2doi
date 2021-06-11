@@ -358,58 +358,72 @@ def get_pdf_text(path,reader):
                 logger.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
     return text
 
-def add_found_identifier_to_metadata(path,identifier):
-    """Given a pdf file identified by the input variable path, it adds a metadata to the pdf with name '/identifier'
-    and containing the content of the input variable identifier. This can be useful to make sure that the next time
-    this same pdf is analysed, the identifier is found more easily
+def add_found_identifier_to_metadata(target,identifier):
+    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with name '/identifier'
+    and containing the content of the input variable identifier to either the pdf files (if target is the path of a single file) or
+    to all the pdf files in a folder (if target is the path of a folder). This can be useful to make sure that the next time
+    this same pdf is analysed, the identifier is found more easily.
+    It can also be useful when one want to reset to to '' the '/identifier' of all pdf files in a certain folder.
 
     Parameters
     ----------
-    path : string
-        a valid path to a pdf file
+    target : string
+        a valid path to a pdf file or a folder
     identifier : string
         a valid identifier, which will be stored in the pdf metadata with name '/identifier'
     Returns
     -------
     True if the the metadata was added succesfully, false otherwise
     """
-    logger.info(f"Trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
-    try:
-        file = open(path, 'rb') 
-    except (FileNotFoundError, IOError):
-        logger.error("File not found.")
-        return False
-    try:
-        pdf = PdfFileReader(path,strict=False)
-    except:
-        logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
-        return False
-    try:
-        writer = PdfFileWriter()
-        writer.appendPagesFromReader(pdf)
-        metadata = pdf.getDocumentInfo()
+    list_files = []
+    if  os.path.isdir(target): #if target is a folder, we populate the list list_files with all the pdf files contained in this folder
+        logger.info(f"Looking for pdf files in the folder {target}...")
+        pdf_files = [f for f in os.listdir(target) if f.endswith('.pdf')]
+        numb_files = len(pdf_files)
+        if len(pdf_files) == 0:
+            logger.error("No pdf files found in this folder.")
+            return None
+        logger.info(f"Found {numb_files} pdf files.")
+        if not(target.endswith(config.separator)): #Make sure the path ends with "\" or "/" (according to the OS)
+            target = target + config.separator
+        for f in pdf_files:
+            list_files.append(target + f)
+    else:
+        list_files = [target]
+
+    for f in list_files:
+        logger.info(f"Trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'...")
         try:
-            writer.addMetadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
-                                            #correctly seen as strings (happens with old files). Therefore we use the try/except
-                                            #to ignore this possible problem
+            file = open(f, 'rb') 
+        except (FileNotFoundError, IOError):
+            logger.error("File not found.")
+            return False
+        try:
+            pdf = PdfFileReader(f,strict=False)
         except:
-            pass
-        key = '/identifier'
-        writer.addMetadata({
-            key: identifier
-        })
-    
-        fout = open(path, 'ab') 
-        writer.write(fout)
-    
-        file.close()
-        fout.close()
-        logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{path}\' with key \'{key}\'...")
-        return True
-    except Exception as e:
-        logger.error("Error from PyPDF2: " + str(e))
-        logger.error(f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{path}\'...")
-        return False
+            logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
+            return False
+        try:
+            writer = PdfFileWriter()
+            writer.appendPagesFromReader(pdf)
+            metadata = pdf.getDocumentInfo()
+            try:
+                writer.addMetadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
+            except:                             #correctly seen as strings (happens with old files). Therefore we use the try/except
+                pass                           #to ignore this possible problem
+            key = '/identifier'
+            writer.addMetadata({
+                key: identifier
+            })
+            fout = open(f, 'ab') 
+            writer.write(fout)
+            file.close()
+            fout.close()
+            logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{f}\' with key \'{key}\'...")
+        except Exception as e:
+            logger.error("Error from PyPDF2: " + str(e))
+            logger.error(f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'...")
+            return False
 
 
 ######## End first part ######## 

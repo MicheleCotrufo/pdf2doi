@@ -1,4 +1,4 @@
-# pdf2doi
+# pdf2doi 
 
 pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication (or from a folder containing several .pdf files).
 It exploits several methods (see below for detailed description) to find a possible identifier, and it validates any result
@@ -6,6 +6,8 @@ via web queries to public archives (e.g. http://dx.doi.org). Additionally, it ca
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi)
+[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 ## Table of Contents
  - [Description](#description)
  - [Installation](#installation)
@@ -54,14 +56,15 @@ the pdf file. In this way, future lookups of this same file will be able to extr
 first method, speeding up the search. This feature can be disabled by the user (in case edits to the pdf file are not desired).
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
-if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to manually add the correct DOI to the metadata
-of the file (with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
-In this way, ```pdf2doi``` will always retrieve the correct DOI, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
+if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually to add it to the metadata
+of the file, with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
+In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
 
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
 ## Installation
+[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 Use the package manager pip to install pdf2doi.
 
@@ -94,7 +97,7 @@ If it is not possible to run this command from a terminal with administrator rig
 admnistrator rights.
 
 NOTE: when multiple pdf files are selected, and the right-click context menu commands are used, ```pdf2doi``` will be called separately for each file, and thus
-only the info of the last file will be stored in the clipboard. In order to copy the info of multiple files, it is necessary to save them in a folder and right click on the folder.
+only the info of the last file will be stored in the clipboard. In order to copy the info of multiple files it is necessary to save them in a folder and right-click on the folder.
 
 ## Usage
 

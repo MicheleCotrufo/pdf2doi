@@ -34,7 +34,7 @@ Specifically, for a given .pdf file it will, in order,
 1. Look into the metadata of the .pdf file (extracted via the library [PyPDF2](https://github.com/mstamy2/PyPDF2)) and see if any string matches the pattern of 
 a DOI or an arXiv ID. Priority is given to metadata which contain the word 'doi' in their label.
 
-2. Check if the file name file contains any sub-string that matches the pattern of 
+2. Check if the file name contains any sub-string that matches the pattern of 
 a DOI or an arXiv ID.
 
 3. Scan the text inside the .pdf file, and check for any string that matches the pattern of 

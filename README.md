@@ -292,7 +292,8 @@ web-based methods (either to find an identifier and/or to validate it) should no
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             save_identifier_metadata = config.save_identifier_metadata,
             numb_results_google_search=config.numb_results_google_search,
-            filename_identifiers = False, filename_bibtex = False):
+            filename_identifiers = False, filename_bibtex = False,
+            store_bibtex_clipboard = False, store_identifier_clipboard = False):
     '''
     Parameters
     ----------

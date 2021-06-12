@@ -74,8 +74,7 @@ pip install pdf2doi
 
 ### Installing the shortcuts in the right-click context menu of Windows
 This functionality is only available on Windows (and so far it has been tested only on Windows 10). It adds additional commands to the context menu of Windows
-which appears when right-clicking on a pdf file or on a folder, and it allows to copy the identifier(s) o or the bibtex entry(ies) of the paper(s) into the system clipboard, or also to manually
-set the identifier of a pdf file (see also [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line)).
+which appears when right-clicking on a pdf file or on a folder.
 
 <img src="docs/ContextMenu_pdf.png" width="350" />
 
@@ -84,11 +83,11 @@ set the identifier of a pdf file (see also [here](#manually-associate-the-correc
 
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 
-To install this functionality, first install ```pdf2doi``` from pip (as described above), then open a command prompt with administrator rights and execute
+To install this functionality, first install ```pdf2doi``` via pip (as described above), then open a command prompt with administrator rights and execute
 ```
 $ pdf2doi  -install--right--click
 ```
-and to remove it, simply run (again from a terminal with administrator rights)
+To remove it, simply run (again from a terminal with administrator rights)
 ```
 $ pdf2doi  -uninstall--right--click
 ```

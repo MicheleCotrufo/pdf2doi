@@ -240,8 +240,8 @@ optional arguments:
 #### Generate list of bibtex entries from command line
 The online validation of an identifier relies on performing queries to different online archives 
 (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). Using data obtained from these queries, a bibtex entry can be automatically created.
-By uasing the optional argument ```-b filename```, a list of bibtex entries for all the pdf files in the targetted folder is generated in a file within the same folder. 
-For example, if the target is the folder [examples](/examples), the command
+By using the optional argument ```-b filename```, a list of bibtex entries for all the pdf files in the targetted folder is stored in a text file within the same folder. 
+For example, if target is the folder [examples](/examples), the command
 ```
 $ pdf2doi ".\examples" -b "bibtex.txt"
 ```

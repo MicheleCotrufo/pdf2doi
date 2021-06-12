@@ -257,13 +257,13 @@ $ pdf2doi "path\to\pdf" -id "identifier"
 this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.  
 
 ### Usage inside a python script
-```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. It can be used to look for the identifier of a pdf file by applying all the available methods. 
+```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. It looks for the identifier of a pdf file by applying all the available methods. 
 The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
 Setting the optional argument ```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
 
 ```python
 >>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',verbose=True)
+>>> results = pdf2doi.pdf2doi('.\examples',verbose=False)
 ```
 
 The output of the function ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys

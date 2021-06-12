@@ -51,12 +51,12 @@ Any time that a possible identifier is found, it is validated by performing a qu
 The validation process returns a valid [bibtex](http://www.bibtex.org/) entry when the identifier is valid. 
 Thus, ```pdf2doi``` can also **[automatically generate bibtex entries for all pdf files in a target folder](#generate-list-of-bibtex-entries-from-command-line)**.
 
-When a valid identifier is found with any method different than the first one, the identifier will also be stored inside the metadata of
+When a valid identifier is found with any method different than the first one, the identifier is stored inside the metadata of
 the pdf file. In this way, future lookups of this same file will be able to extract the identifier with the 
-first method, speeding up the search. This feature can be disabled by the user (in case edits to the pdf file are not desired).
+first method, speeding up the search (This feature can be disabled by the user, in case edits to the pdf file are not desired).
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
-if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually to add it to the metadata
+if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually and to add it to the metadata
 of the file, with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
 In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.

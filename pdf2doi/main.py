@@ -12,12 +12,12 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             filename_identifiers = False, filename_bibtex = False,
             store_bibtex_clipboard = False, store_identifier_clipboard = False):
     ''' This is the main routine of the library. When the library is used as a command-line tool (via the entry-point "pdf2doi") the input arguments
-    are collected, validated and sent to this function (see the function main () below).
+    are collected, validated and sent to this function (see the function main() below).
     The function tries to extract the DOI (or other identifiers) for the pdf file in the path specified by the user in the input variable target. 
     If target contains the valid path of a folder, the function tries to extract the DOI/identifer of all pdf files in the folder.
     It returns a dictionary (or a list of dictionaries) containing info(s) about the file(s) examined, or None if an error occurred.
-    By specifying valid values for the input variables filename_identifiers and filename_bibtex, all identifiers found and/or bibtex entries for
-    all pdf files can be saved in text files (see description of input arguments for details)
+    If the input variables filename_identifiers and/or filename_bibtex are set to a valid string, all identifiers found and/or bibtex entries for
+    all pdf files are saved in text files (see description of input arguments for details)
 
     Example:
         import pdf2doi

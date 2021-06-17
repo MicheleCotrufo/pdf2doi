@@ -93,7 +93,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     #we call again this function
     if  path.isdir(target):
         logger.info(f"Looking for pdf files in the folder {target}...")
-        pdf_files = [f for f in listdir(target) if f.endswith('.pdf')]
+        pdf_files = [f for f in listdir(target) if (f.lower()).endswith('.pdf')]
         numb_files = len(pdf_files)
         
         if numb_files == 0:
@@ -141,7 +141,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         if not path.exists(filename):
             logger.error(f"'{filename}' is not a valid file.")
             return None    
-        if not filename.endswith('.pdf'):
+        if not (filename.lower()).endswith('.pdf'):
             logger.error("The file must have .pdf extension.")
             return None
         result = pdf2doi_singlefile(filename)

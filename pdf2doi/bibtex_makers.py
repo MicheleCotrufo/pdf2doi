@@ -109,7 +109,7 @@ def remove_latex_codes(text):
     
     #This regex looks for any substring that matched the pattern "{\string1{string2}}" where string1 can be anything,
     #and it replaces the whole substring by string2
-    text_sanitized = re.sub(r"{\\.+{([\w]+)}}", r"\1", text)
+    text_sanitized = re.sub(r"{\\[^\{]+{([\w]+)}}", r"\1",text)
     return text_sanitized
 
 def make_bibtex(data):

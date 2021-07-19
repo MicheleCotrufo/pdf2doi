@@ -69,9 +69,11 @@ def validate(identifier,what='doi'):
         Specifies the kind of identifier to be validated.
     Returns
     -------
-    result : It is either boolean (True if identifier is valid, False if is not valid) or a string
-        If config.check_online_to_validate is set to true, the validation process also generate a valid bibtex entry, which is 
-        returned a string in result
+    result :    If config.check_online_to_validate is set to true but connection was not possible, it returns None
+                If config.check_online_to_validate is set to true and the identifier is validated, it returns a dictionary:
+                    "bibtex_entry" -> full bibTeX entry (as a concatenated string)
+                    "bibtex_data" -> parsed bibtex data (as a dictionary). 
+                If config.check_online_to_validate is set to false, it returns a single boolean value (True if identifier is valid, False if is not valid)
     """  
     if not identifier:
         return None
@@ -83,9 +85,9 @@ def validate(identifier,what='doi'):
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
-                if isinstance(result,str) and result.strip()[0:5] == '@misc':
+                if isinstance(result,dict) and result['bibtex_entry'].strip()[0:5] == '@misc':
                     logger.error(f"A valid bibTex entry was returned by dx.doi.org, but it starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
-                    return None
+                    return False
                 if result:
                     logger.info(f"The DOI {identifier} is validated by dx.doi.org. A bibtex entry was also created.")
                     return result
@@ -93,7 +95,7 @@ def validate(identifier,what='doi'):
                     logger.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
                     return False
             else:
-                logger.info(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential DOI on dx.doi.org).")
+                logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential DOI on dx.doi.org.")
                 return True
         else: return False
 
@@ -112,7 +114,7 @@ def validate(identifier,what='doi'):
                     logger.info(f"The Arxiv ID {identifier} is not valid according to export.arxiv.org.")
                     return False
             else:
-                logging.warning(f"(web validation is deactivated. Set webvalidation = True in order to validate a potential arxiv ID on export.arxiv.org).")
+                logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential arxiv ID on export.arxiv.org.")
                 return True
         else: return False
 
@@ -359,11 +361,11 @@ def get_pdf_text(path,reader):
     return text
 
 def add_found_identifier_to_metadata(target,identifier):
-    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with name '/identifier'
-    and containing the content of the input variable identifier to either the pdf files (if target is the path of a single file) or
-    to all the pdf files in a folder (if target is the path of a folder). This can be useful to make sure that the next time
+    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label '/identifier'
+    and containing the content of the input variable identifier to all pdf files specified by target (either a single file or
+    all the pdf files in a folder). This can be useful to make sure that the next time
     this same pdf is analysed, the identifier is found more easily.
-    It can also be useful when one want to reset to to '' the '/identifier' of all pdf files in a certain folder.
+    It can also be useful when one want to reset to '' the '/identifier' of all pdf files in a certain folder.
 
     Parameters
     ----------
@@ -378,7 +380,7 @@ def add_found_identifier_to_metadata(target,identifier):
     list_files = []
     if  os.path.isdir(target): #if target is a folder, we populate the list list_files with all the pdf files contained in this folder
         logger.info(f"Looking for pdf files in the folder {target}...")
-        pdf_files = [f for f in os.listdir(target) if f.endswith('.pdf')]
+        pdf_files = [f for f in os.listdir(target) if (f.lower()).endswith('.pdf')]
         numb_files = len(pdf_files)
         if len(pdf_files) == 0:
             logger.error("No pdf files found in this folder.")
@@ -409,8 +411,8 @@ def add_found_identifier_to_metadata(target,identifier):
             metadata = pdf.getDocumentInfo()
             try:
                 writer.addMetadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
-            except:                             #correctly seen as strings (happens with old files). Therefore we use the try/except
-                pass                           #to ignore this possible problem
+            except:                             #correctly seen as strings (it happens with old files). Therefore we use the try/except
+                pass                            #to ignore this possible problem
             key = '/identifier'
             writer.addMetadata({
                 key: identifier
@@ -435,8 +437,8 @@ def add_found_identifier_to_metadata(target,identifier):
 ######## Beginning second part, high-level functions ######## 
 
 '''
-The following functions are high-level identifier finders, i.e. functions that can be called directly by the user or by the main
-script pdf2doi.py. The function find_identifier acts as a wrapper for all the other high-level functions: 
+The following functions are high-level identifier finders, i.e. functions that can be called directly by the user or by the function pdf2doi
+contained in main.py. The function find_identifier acts as a wrapper for all the other high-level functions: 
 based on the value of the input argument method, it call the corresponding function. 
 The correspondence between the values of the string method and the function to call is defined in the dictionary finder_methods 
 (see bottom of this module).
@@ -444,7 +446,7 @@ The correspondence between the values of the string method and the function to c
 
 
 
-def find_identifier(path,method,func_validate=validate,**kwargs):
+def find_identifier(path, method, func_validate=validate,**kwargs):
     """ Tries to find an identifier (e.g. DOI, arxiv ID,...) for the pdf file identified by the input
     argument 'path', by using the method specified by input argument 'method'. Any found identifier is validated
     by using the function func_validate. If a valid identifier is found with any method different from
@@ -473,6 +475,7 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
         result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
         result['validation_info'] = Additional info on the paper. If config.check_online_to_validate = True, then result['validation_info']
                                     will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+        result['bibtex_info'] = dictionary containing all available bibtex info of this publication. E.g., result['bibtex_info']['author'], result['bibtex_info']['title'], etc.
         result['path'] = path of the pdf file
         result['method'] = method used to find the identifier
 
@@ -487,8 +490,16 @@ def find_identifier(path,method,func_validate=validate,**kwargs):
         if identifier and not(method=="document_infos"):
             add_found_identifier_to_metadata(path,identifier)
     
-    result = {'identifier':identifier,'identifier_type':desc,'validation_info':info,
+    result = {'identifier':identifier,'identifier_type':desc,
+              #'validation_info':info[0] , 
+              #'bibtex_info':(info[1] if len(info)>1 else None),
               'path':path, 'method':method}
+    if isinstance(info,dict):   #the variable info is obtained as the output of the func_validate function, which normally corresponds to the function "validate" defined
+                                #in this same module (see above). The output of validate is either a None/False/True single variable, or a dictionary containing validation info
+        result.update(info)
+        result['validation_info'] = info['bibtex_entry']
+    else:
+        result['validation_info'] = info
     return result
 
 def find_identifier_by_googling_title(path, func_validate, numb_results=config.numb_results_google_search):
@@ -496,7 +507,7 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
 
     if titles:
         if config.websearch==False:
-            logging.warning("Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
+            logging.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
             logger.info(f"Found {len(titles)} possible title(s).")
@@ -517,7 +528,7 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
 def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.numb_results_google_search, numb_characters=config.N_characters_in_pdf):
     
     if config.websearch==False:
-        logger.warning("Web-search methods are currently disabled by the user. Enable it in order to use this method.")
+        logger.info("NOTE: Web-search methods are currently disabled by the user. Enable it in order to use this method.")
         return None, None, None
 
     for reader in reader_libraries:

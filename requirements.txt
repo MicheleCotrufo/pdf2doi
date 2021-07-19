@@ -12,3 +12,4 @@ unidecode>=1.2.0
 bibtexparser>=1.2.0
 pyperclip
 easygui
+six==1.12.0

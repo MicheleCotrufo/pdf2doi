@@ -220,7 +220,7 @@ optional arguments:
 #### Generate list of bibtex entries from command line
 The online validation of an identifier relies on performing queries to different online archives 
 (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). Using data obtained from these queries, a bibtex entry can be automatically created.
-By using the optional argument ```-b filename```, a list of bibtex entries for all the pdf files in the targetted folder is stored in a text file within the same folder. 
+By using the optional argument ```-b filename```, a list of bibtex entries for all the pdf files in the targeted folder is stored in a text file within the same folder. 
 For example, if target is the folder [examples](/examples), the command
 ```
 $ pdf2doi ".\examples" -b "bibtex.txt"
@@ -272,7 +272,7 @@ web-based methods (either to find an identifier and/or to validate it) should no
 ```python
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             save_identifier_metadata = config.save_identifier_metadata,
-            numb_results_google_search=config.numb_results_google_search,
+            numb_results_google_search = config.numb_results_google_search,
             filename_identifiers = False, filename_bibtex = False,
             store_bibtex_clipboard = False, store_identifier_clipboard = False):
     '''
@@ -321,8 +321,8 @@ to generate bibtex entries and save them on file. By setting the input argument 
 valid filename, the bibtex entries of all files in the target directory will be saved in a file within the same directory. For example,
 
 ```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples', filename_bibtex='bibtex.txt')
+>>> from pdf2doi import pdf2doi
+>>> results = pdf2doi('.\examples', filename_bibtex='bibtex.txt')
 ```
 creates the file [bibtex.txt](/examples/bibtex.txt) in the 'examples' folder. 
 

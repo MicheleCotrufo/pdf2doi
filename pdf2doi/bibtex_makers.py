@@ -11,7 +11,9 @@ logger = logging.getLogger('pdf2doi')
 
 def doi2bib(doi):
     """
-    Return a a bibTeX entry for a given DOI. 
+    If the bibtex info of this doi can be succefully retrieved, it returns a dictionary:
+    "bibtex_entry" -> full bibTeX entry (as a concatenated string)
+    "bibtex_data" -> parsed bibtex data (as a dictionary). 
     It returns None if no data was found for this DOI, or -1 if it was not possible to connect to dx.doi.org
     """
     try:
@@ -37,7 +39,7 @@ def doi2bib(doi):
                 #We then pass this dictionary to the function make_bibtex to ressemble the bibtex entry
                 data = bibtexparser.loads(text)
                 metadata = data.entries[0]
-                return make_bibtex(metadata)
+                return {'bibtex_entry':make_bibtex(metadata), 'bibtex_data':metadata}
             else:
                 return None
     except Exception as e:
@@ -47,8 +49,10 @@ def doi2bib(doi):
 
 def arxiv2bib(arxivID):
     """
-    Return a bibTeX entry for a given arxiv ID.
-    It returns None if no data was found for this arxiv ID, or -1 if it was not possible to connect to export.arxiv.org.
+    If the bibtex info of this arxiv ID can be succefully retrieved, it returns a dictionary:
+    "bibtex_entry" -> full bibTeX entry (as a concatenated string)
+    "bibtex_data" -> parsed bibtex data (as a dictionary). 
+    It returns None if no data was found for this arxiv ID, or -1 if it was not possible to connect to export.arxiv.org
     """
     try:
         url = "http://export.arxiv.org/api/query?search_query=id:" + arxivID
@@ -98,10 +102,11 @@ def arxiv2bib(arxivID):
             authorsnames_list = [author['name'] for author in authors]
             data_dict['authors'] = " and ".join(authorsnames_list)
 
-        return make_bibtex(data_dict) 
+        return {'bibtex_entry':make_bibtex(data_dict), 'bibtex_data':data_dict}
     except Exception as e:
+        logger.error(r"Some error occured within the function arxiv2bib")
         logger.error(e)
-        return None
+        return -1
 
 def remove_latex_codes(text):
     #It replaces any latex special code (e.g. {\`{u}}) by the "closest" unicode character (e.g. u). This is useful when
@@ -114,12 +119,12 @@ def remove_latex_codes(text):
 
 def make_bibtex(data):
     #Based on the metadata contained in the input dictionary data, it creates a valid bibtex entry
-    #The name of the entry has the format [lastname_firstauthor][year][first_word_title] all in lowe case
+    #The name of the entry has the format [lastname_firstauthor][year][first_word_title] all in lower case
     #If the tag url is present, any possible ascii code (e.g. %2f) is decoded
     #Note: the code below assumes that the string of the authors has the format "Name1 Lastname1 and Name2 Lastname2 and ... "
     #This is normally the format returned by dx.doi.org
 
-    #Generate the ID by looking for last name of firs author, year of publicaton, and first word of title
+    #Generate the ID by looking for last name of first author, year of publicaton, and first word of title
     if 'authors' in data.keys():
         author_string = data['authors']
     elif 'author' in data.keys():
@@ -127,7 +132,7 @@ def make_bibtex(data):
     else:
         author_string = ''
     if author_string:
-        firstauthor = author_string.split('and')[0]
+        firstauthor = author_string.split(' and ')[0]
         lastname_firstauthor = (firstauthor.strip()).split(' ')[-1]
     else: 
         lastname_firstauthor = ''

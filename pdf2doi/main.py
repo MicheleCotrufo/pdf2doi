@@ -3,17 +3,16 @@ import logging
 from os import path, listdir
 import pdf2doi.finders as finders
 import pdf2doi.config as config
-import pdf2doi.utils_registry as utils_registry
 import pyperclip
 
 def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
             save_identifier_metadata = config.save_identifier_metadata,
-            numb_results_google_search=config.numb_results_google_search,
+            numb_results_google_search = config.numb_results_google_search,
             filename_identifiers = False, filename_bibtex = False,
             store_bibtex_clipboard = False, store_identifier_clipboard = False):
     ''' This is the main routine of the library. When the library is used as a command-line tool (via the entry-point "pdf2doi") the input arguments
     are collected, validated and sent to this function (see the function main() below).
-    The function tries to extract the DOI (or other identifiers) for the pdf file in the path specified by the user in the input variable target. 
+    The function tries to extract the DOI (or other identifiers) of the publication in the pdf file whose path is specified in the input variable target. 
     If target contains the valid path of a folder, the function tries to extract the DOI/identifer of all pdf files in the folder.
     It returns a dictionary (or a list of dictionaries) containing info(s) about the file(s) examined, or None if an error occurred.
     If the input variables filename_identifiers and/or filename_bibtex are set to a valid string, all identifiers found and/or bibtex entries for
@@ -70,7 +69,8 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         result['identifier'] = DOI or other identifier (or None if nothing is found)
         result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
         result['validation_info'] = Additional info on the paper. If config.check_online_to_validate = True, then result['validation_info']
-                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True 
+        result['bibtex_data'] = dictionary containing all available bibtex info of this publication. E.g., result['bibtex_info']['author'], result['bibtex_info']['title'], etc.
         result['path'] = path of the pdf file
         result['method'] = method used to find the identifier
 
@@ -87,6 +87,11 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
 
     logger = logging.getLogger("pdf2doi")
     logger.setLevel(level=loglevel)
+
+    #Check if path is valid
+    if not(path.exists(target)):
+        logger.error(f"{target} is not a valid path to a file or a directory.")
+        return
       
     #Check if target is a directory
     #If yes, we look for all the .pdf files inside it, and for each of them
@@ -147,6 +152,9 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
         result = pdf2doi_singlefile(filename)
         if result['identifier'] == None:
             logger.error("It was not possible to find a valid identifier for this file.")
+
+        #The next 4 lines of code need to be improved in next version. Right now, if I am scanning a folder, it will first copy
+        #the details of each file separately into the clipboard, and then in the end it will copy the whole list to the clipboard
         if store_bibtex_clipboard and config.check_online_to_validate:
             save_bibtex(False, [result], store_bibtex_clipboard)
         if  store_identifier_clipboard:
@@ -170,7 +178,8 @@ def pdf2doi_singlefile(filename):
         result['identifier'] = DOI or other identifier (or None if nothing is found)
         result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
         result['validation_info'] = Additional info on the paper. If config.check_online_to_validate = True, then result['validation_info']
-                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
+                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True 
+        result['bibtex_data'] = dictionary containing all available bibtex info of this publication. E.g., result['bibtex_info']['author'], result['bibtex_info']['title'], etc.
         result['path'] = path of the pdf file
         result['method'] = method used to find the identifier
 
@@ -219,8 +228,8 @@ def pdf2doi_singlefile(filename):
 
 
 def save_identifiers(filename_identifiers, results, clipboard = False):
-    ''' Write all identifiers in the input list 'results' into a text file with a path specified by filename_identifiers and/or
-        into the clipboard.
+    ''' Write all identifiers contained in the input list 'results' into a text file with a path specified by filename_identifiers (if filename_identifiers is a 
+        valid string) and/or into the clipboard (if clipboard = True).
     
     Parameters
     ----------
@@ -240,7 +249,7 @@ def save_identifiers(filename_identifiers, results, clipboard = False):
         try:
             text = ''
             for result in results:
-                if isinstance(result['validation_info'],str):
+                if result['validation_info']:
                     text = text + '{:<15s} {:<40s} {:<10s}\n'.format(result['identifier_type'], result['identifier'],result['path']) 
             with open(filename_identifiers, "w", encoding="utf-8") as text_file:
                 text_file.write(text) 
@@ -252,7 +261,7 @@ def save_identifiers(filename_identifiers, results, clipboard = False):
         try:
             text = ''
             for result in results:
-                if isinstance(result['validation_info'],str):
+                if result['validation_info']:
                     text = text + result['identifier'] + '\n' 
             pyperclip.copy(text)
             logger.info(f'All available identifiers have been stored in the system clipboard')
@@ -261,8 +270,8 @@ def save_identifiers(filename_identifiers, results, clipboard = False):
             logger.error(f'A problem occurred when trying to write into the system clipboard')
 
 def save_bibtex(filename_bibtex, results, clipboard = False):
-    '''Write all available bibtex entries from the input list 'results' into a text file with a path specified by filename_bibtex and/or
-        into the clipboard.
+    '''Write all available bibtex entries from results contained in the input list 'results' into a text file with a path specified by filename_bibtex 
+        (if filename_bibtex is a valid string) and/or into the clipboard (if clipboard = True).
     
     Parameters
     ----------
@@ -304,28 +313,23 @@ def main():
             description = "Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.",
             epilog = "")
 
-    parser.add_argument(
-                        "path",
+    parser.add_argument("path",
                         help = "Relative path of the target pdf file or of the targe folder.",
                         metavar = "path",
                         nargs = '*')
-    parser.add_argument(
-                        "-nv",
+    parser.add_argument("-nv",
                         "--no_verbose",
                         help="Decrease verbosity.",
                         action="store_true")
-    parser.add_argument(
-                        "-nws",
+    parser.add_argument("-nws",
                         "--no_web_search",
                         help="Disable any method to find identifiers which requires internet searches (e.g. queries to google).",
                         action="store_true")
-    parser.add_argument(
-                        "-nwv",
+    parser.add_argument("-nwv",
                         "--no_web_validation",
                         help="Disable the online validation of identifiers (e.g., via queries to http://dx.doi.org/).",
                         action="store_true")
-    parser.add_argument(
-                        "-nostore",
+    parser.add_argument("-nostore",
                         "--no_store_identifier_metadata",
                         help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By setting this parameter, the identifier is not stored in the file metadata.",
                         action="store_true")
@@ -333,60 +337,53 @@ def main():
                         help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                             " are ignored. ",
                         action="store", dest="identifier", type=str, default=False)
-    parser.add_argument(
-                        "-id_input_box",#When called with this argument, an input box is generated in order to
+    parser.add_argument("-id_input_box",#When called with this argument, an input box is generated in order
                                         #to acquire a string from the user, which is then stored in the metadata 
                                         # of the target pdf file, with key \'/identifier\'
-                                        #This is normally used when calling pdf2doi from by a right click on a
+                                        #This is normally used when calling pdf2doi by right-clicking on a
                                         #.pdf file in Windows
                         help=argparse.SUPPRESS,
                         action="store_true")
     parser.add_argument('-google_results', 
                         help=f"Set how many results should be considered when doing a google search for the DOI (default={str(config.numb_results_google_search)}).",
                         action="store", dest="google_results", type=int)
-    parser.add_argument(
-                        "-s",
+    parser.add_argument("-s",
                         "--save_identifiers_file",
                         dest="filename_identifiers",
                         help="Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS. This option is only available when a folder is targeted.",
                         action="store")
-    parser.add_argument(
-                        "-b",
+    parser.add_argument("-b",
                         "--make_bibtex_file",
                         dest="filename_bibtex",
                         help="Create a text file inside the target directory with name given by FILENAME_BIBTEX containing the bibtex entry of each pdf file in the target folder (if a valid identifier was found). This option is only available when a folder is targeted, and when the web validation is allowed.",
                         action="store")
-    parser.add_argument(
-                        "-bclip",
+    parser.add_argument("-bclip",
                         "--save_bibtex_clipboard",
                         action="store_true",
                         help="Store all found bibtex entries into the clipboard.")
-    parser.add_argument(
-                        "-doiclip",
+    parser.add_argument("-doiclip",
                         "--save_doi_clipboard",
                         action="store_true",
                         help="Store all found DOI/identifiers into the clipboard.")
 
-    parser.add_argument(
-                        "-install--right--click",
+    parser.add_argument("-install--right--click",
                         dest="install_right_click",
                         action="store_true",
                         help="Add a shortcut to pdf2doi in the right-click context menu of Windows. You can copy the identifier and/or bibtex entry of a pdf file (or all pdf files in a folder) into the clipboard by just right clicking on it! NOTE: this feature is only available on Windows.")
-
-    parser.add_argument(
-                        "-uninstall--right--click",
+    parser.add_argument("-uninstall--right--click",
                         dest="uninstall_right_click",
                         action="store_true",
                         help="Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.")
 
     args = parser.parse_args()
 
-
     #If the command -install--right--click was specified, it sets the right keys in the system registry
     if args.install_right_click:
+        import pdf2doi.utils_registry as utils_registry
         utils_registry.install_right_click()
         return
     if args.uninstall_right_click:
+        import pdf2doi.utils_registry as utils_registry
         utils_registry.uninstall_right_click()
         return
     if isinstance(args.path,list):
@@ -398,7 +395,7 @@ def main():
         target = args.path
 
     if target == "":
-        print("pdf2doi: error: the following arguments are required: path")
+        print("pdf2doi: error: the following arguments are required: path. Type \'pdf2doi --h\' for a list of commands.")
         return
 
     #If the command -id_input_box was specified, we generate an input box, ask for a string from the user and
@@ -406,7 +403,7 @@ def main():
     if args.id_input_box:
         import easygui
         identifier = easygui.enterbox(
-            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file '{target}':\n(this will be stored in the file metadata labelled '\identifier')")
+            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file:\n '{target}' \n\n(this will be stored in the file metadata labelled '\identifier')")
         args.identifier = identifier
     #If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
     #Nothing else will be done

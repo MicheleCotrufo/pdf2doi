@@ -3,7 +3,7 @@
 pdf2doi is a Python library to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
 (or from a folder containing several .pdf files), and to retrieve bibliographic information.
 It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
-via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[automatically generate bibtex entries](#generate-list-of-bibtex-entries).**
+via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[automatically generate bibtex entries](#generate-list-of-bibtex-entries-from-command-line).**
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
@@ -57,7 +57,7 @@ the pdf file. In this way, future lookups of this same file will be able to extr
 first method, speeding up the search (This feature can be disabled by the user, in case edits to the pdf file are not desired).
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
-if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually and to add it to the metadata
+if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually and then add it to the metadata
 of the file, with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
 In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
 for other bibliographic purposes.
@@ -84,7 +84,7 @@ set the identifier of a pdf file (see also [here](#manually-associate-the-correc
 
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 
-To install this functionality, first install ```pdf2doi``` via pip (as described above), then open a command prompt with administrator rights and execute
+To install this functionality, first install ```pdf2doi``` via pip (as described above), then open a command prompt **with administrator rights** and execute
 ```
 $ pdf2doi  -install--right--click
 ```
@@ -92,8 +92,8 @@ To remove it, simply run (again from a terminal with administrator rights)
 ```
 $ pdf2doi  -uninstall--right--click
 ```
-If it is not possible to run this command from a terminal with administrator rights, it is also possible to use the batch files
-[here](/right_click_menu_installation) (see readme.MD file in the same folder for instructions), although it is still required to have 
+If it is not possible to run this command from a terminal with administrator rights, the batch files
+[here](/right_click_menu_installation) can be alternatively used (see readme.MD file in the same folder for instructions), although it is still required to have 
 admnistrator rights.
 
 NOTE: when multiple pdf files are selected, and the right-click context menu commands are used, ```pdf2doi``` will be called separately for each file, and thus

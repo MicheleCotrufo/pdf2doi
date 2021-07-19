@@ -1,8 +1,9 @@
 # pdf2doi 
 
-pdf2doi is a Python library to extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication (or from a folder containing several .pdf files).
-It exploits several methods (see below for detailed description) to find a possible identifier, and it validates any result
-via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[automatically generate bibtex entries](#generate-list-of-bibtex-entries) for all pdf files in a target folder.**
+pdf2doi is a Python library to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
+(or from a folder containing several .pdf files), and to retrieve bibliographic information.
+It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
+via web queries to public archives (e.g. http://dx.doi.org). Additionally, it can **[automatically generate bibtex entries](#generate-list-of-bibtex-entries).**
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
@@ -76,9 +77,9 @@ pip install pdf2doi
 This functionality is only available on Windows (and so far it has been tested only on Windows 10). It adds additional commands to the context menu of Windows
 which appears when right-clicking on a pdf file or on a folder.
 
-<img src="docs/ContextMenu_pdf.png" width="350" />
+<img src="docs/ContextMenu_pdf.png" width="350" /><img src="docs/ContextMenu_folder.png" width="350" />
 
-The different menu commands allow to copy the paper(s) identifier(s), or bibtex entry(ies), into the system clipboard, or also to manually
+The different menu commands allow to copy the paper(s) identifier(s) or bibtex entry(ies) into the system clipboard, or also to manually
 set the identifier of a pdf file (see also [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line)).
 
 <img src="docs/ContextMenu_pdf.gif" width="500" />

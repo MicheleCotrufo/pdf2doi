@@ -9,7 +9,7 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi)
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.4&versions=0.5&versions=0.6)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.4&versions=0.5&versions=0.6)
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 ## Table of Contents
  - [Description](#description)

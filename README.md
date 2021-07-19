@@ -249,12 +249,13 @@ Setting the optional argument ```verbose=True``` will increase the output verbos
 The output of the function ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
 ```
-result['identifier'] =      DOI or other identifier (or None if no identifier was found for this file)
+result['identifier'] = DOI or other identifier (or None if nothing is found)
 result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-result['validation_info'] = Additional info on the paper. If the online validation is enabled, then result['validation_info']
-                            will contain a bibtex entry for this paper. Otherwise it will just contain True                         
-result['path'] =            path of the pdf file
-result['method'] =          method used to find the identifier
+result['validation_info'] = Additional info on the paper. If online validation of identifier is set to True (as default), then result['validation_info']
+                            will contain a bibtex entry for this paper. Otherwise it will just contain True.
+result['bibtex_data'] = dictionary containing all available bibtex info of this publication. E.g., result['bibtex_info']['author'], result['bibtex_info']['title'], etc.
+result['path'] = path of the pdf file
+result['method'] = method used to find the identifier
 ```
 For example, the DOIs/identifiers of each file can be printed by
 ```

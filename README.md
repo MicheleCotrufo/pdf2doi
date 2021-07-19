@@ -242,11 +242,11 @@ The first input argument must be a valid path (either absolute or relative) to a
 Setting the optional argument ```verbose=True``` will increase the output verbosity, documenting all steps performed by the library. Using as a test the folder [examples](/examples), 
 
 ```python
->>> import pdf2doi
->>> results = pdf2doi.pdf2doi('.\examples',verbose=False)
+>>> from pdf2doi import pdf2doi
+>>> results = pdf2doi('.\examples',verbose=False)
 ```
 
-The output of the function ```pdf2doi.pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
+The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
 ```
 result['identifier'] = DOI or other identifier (or None if nothing is found)
@@ -278,7 +278,7 @@ def pdf2doi(target, verbose=False, websearch=True, webvalidation=True,
     '''
     Parameters
     ----------
-        target : string
+    target : string
         Relative or absolute path of a .pdf file or a directory containing pdf files
     verbose : boolean, optional
         Increases the output verbosity. The default is False.

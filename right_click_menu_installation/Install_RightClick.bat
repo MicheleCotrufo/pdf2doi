@@ -1,5 +1,4 @@
-set path_pdf2doi=D:\Dropbox (Personal)\PythonScripts\env\Scripts
-
+set path_pdf2doi=Path\To\Scripts
 
 REG ADD "HKEY_CLASSES_ROOT\SystemFileAssociations\.pdf\shell\pdf2doi"
 REG ADD "HKEY_CLASSES_ROOT\SystemFileAssociations\.pdf\shell\pdf2doi" /v "MUIVerb" /t REG_SZ /d "pdf2doi"

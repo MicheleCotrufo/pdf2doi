@@ -307,7 +307,7 @@ def find_possible_titles(path):
     
     for key, value in info.items():
         if 'title' in key.lower():
-            if isinstance(value,str) and len(value.strip())>12: #This is to check that the title found is neither empty nor just few characters
+            if isinstance(value,str) and len(value.strip())>12 and len(value.split())>3: #This is to check that the title found is neither empty nor just few characters or few words
                 titles.append(value)         
     # (3)
     title = os.path.basename(path)
@@ -398,13 +398,15 @@ def add_found_identifier_to_metadata(target,identifier):
         try:
             file = open(f, 'rb') 
         except (FileNotFoundError, IOError):
-            logger.error("File not found.")
-            return False
+            msg = "File not found."
+            logger.error(msg)
+            return False, msg
         try:
             pdf = PdfFileReader(f,strict=False)
         except:
-            logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
-            return False
+            msg = "It was not possible to open the file with PyPDF2. Is this a valid pdf file?"
+            logger.error(msg)
+            return False, msg
         try:
             writer = PdfFileWriter()
             writer.appendPagesFromReader(pdf)
@@ -424,8 +426,9 @@ def add_found_identifier_to_metadata(target,identifier):
             logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{f}\' with key \'{key}\'...")
         except Exception as e:
             logger.error("Error from PyPDF2: " + str(e))
-            logger.error(f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'...")
-            return False
+            msg = f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'. Maybe the file is open elsewhere?"
+            logger.error(msg)
+            return False, msg
 
 
 ######## End first part ######## 

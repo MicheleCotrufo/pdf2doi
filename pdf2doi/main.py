@@ -377,6 +377,13 @@ def main():
 
     args = parser.parse_args()
 
+    # Setup logging
+    if not(args.no_verbose): loglevel = logging.INFO
+    else: loglevel = logging.CRITICAL
+
+    logger = logging.getLogger("pdf2doi")
+    logger.setLevel(level=loglevel)
+
     #If the command -install--right--click was specified, it sets the right keys in the system registry
     if args.install_right_click:
         import pdf2doi.utils_registry as utils_registry
@@ -409,7 +416,10 @@ def main():
     #Nothing else will be done
     if args.identifier or args.identifier=="":
         if isinstance(args.identifier,str):
-            finders.add_found_identifier_to_metadata(target,args.identifier)
+            result = finders.add_found_identifier_to_metadata(target,args.identifier)
+            if args.id_input_box and len(result)>1:
+                if result[0]==False:
+                    easygui.msgbox(result[1])
         return
 
     results = pdf2doi(target=target,

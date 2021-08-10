@@ -110,9 +110,9 @@ def arxiv2bib(arxivID):
 
 def remove_latex_codes(text):
     #It replaces any latex special code (e.g. {\`{u}}) by the "closest" unicode character (e.g. u). This is useful when
-    #certain strings which might contain latex codes need to be use in contexts where only unicode characters are accepted
+    #certain strings which might contain latex codes need to be used in contexts where only unicode characters are accepted
     
-    #This regex looks for any substring that matched the pattern "{\string1{string2}}" where string1 can be anything,
+    #This regex looks for any substring that matches the pattern "{\string1{string2}}" where string1 can be anything,
     #and it replaces the whole substring by string2
     text_sanitized = re.sub(r"{\\[^\{]+{([\w]+)}}", r"\1",text)
     return text_sanitized

@@ -4,7 +4,7 @@ pdf2doi is a Python library to automatically extract the DOI or other identifier
 (or from a folder containing several .pdf files), and to retrieve bibliographic information.
 It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
 via web queries to public archives (e.g. http://dx.doi.org). 
-The validation process also returns raw bibtex infos, which can be used for further processing, such as generating BibTeX entries ([pdf2doi](https://github.com/MicheleCotrufo/pdf2doi)) or
+The validation process also returns raw bibtex infos, which can be used for further processing, such as generating BibTeX entries ([pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)) or
 automatically rename the pdf files ([pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.

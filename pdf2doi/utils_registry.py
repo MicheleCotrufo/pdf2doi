@@ -13,23 +13,7 @@ if os.name == 'nt':
 
 logger = logging.getLogger("pdf2doi")
 
-#def create_registry_key_rightclick_menu(key,registry_title, title, command):
-    
-#    k1 = winreg.OpenKey(winreg.HKEY_CLASSES_ROOT, key, 0, winreg.KEY_SET_VALUE)
-#    #k1 = winreg.CreateKey(reg, filetype) 
-#    k2 = winreg.CreateKey(k1, "shell")
-#    k3 = winreg.CreateKey(k2, registry_title)
-#    namekey1 = "HKEY_CLASSES_ROOT\\" + key + "\\shell\\" + registry_title
-#    if title != None:
-#        winreg.SetValueEx(k3, None, 0, winreg.REG_SZ, title)
-#    logger.info("Created the key \"%s\" with value \"%s\"" % (namekey1,str(title)))
-#    k4 = winreg.CreateKey(k3, "command")
-#    winreg.SetValueEx(k4, None, 0, winreg.REG_SZ, command)
-#    logger.info("Created the key \"%s\" with value \"%s\"" % (namekey1 + "\\command",command))
-#    winreg.CloseKey(k3)
-#    winreg.CloseKey(k2)
-#    winreg.CloseKey(k1)
-#    #winreg.CloseKey(reg)
+
 
 def delete_sub_key(key0, current_key, arch_key=0):
     #Code inpsired by Orsiris de Jong's solution https://stackoverflow.com/questions/38205784/python-how-to-delete-registry-key-and-subkeys-from-hklm-getting-error-5
@@ -75,13 +59,6 @@ def install_right_click():
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell')
         reg.CloseKey(key)
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_bibtex')
-        reg.SetValue(key, '', reg.REG_SZ, 'Retrieve and copy BibTeX entries of all pdf files in this folder...')
-        reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_bibtex\command')
-        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -bclip")
-        reg.CloseKey(key)
-
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_doi')
         reg.SetValue(key, '', reg.REG_SZ, 'Retrieve and copy DOIs/identifiers of all pdf files in this folder...')
         reg.CloseKey(key)
@@ -97,13 +74,6 @@ def install_right_click():
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell')
         reg.CloseKey(key)
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_bibtex')
-        reg.SetValue(key, '', reg.REG_SZ, 'Copy BibTeX entry to clipboard...')
-        reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_bibtex\command')
-        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -bclip")
-        reg.CloseKey(key)
-
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi')
         reg.SetValue(key, '', reg.REG_SZ, 'Copy DOI/identifier to clipboard...')
         reg.CloseKey(key)
@@ -112,24 +82,12 @@ def install_right_click():
         reg.CloseKey(key)
 
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi')
-        reg.SetValue(key, '', reg.REG_SZ, 'Specify DOI/identifier of this file...')
+        reg.SetValue(key, '', reg.REG_SZ, 'Set DOI/identifier of this file...')
         reg.CloseKey(key)
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi\command')
         reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -id_input_box")
         reg.CloseKey(key)
 
-        #create_registry_key_rightclick_menu(key="SystemFileAssociations\\.pdf",registry_title="pdf2doi_bibtex", 
-        #                                    title="Copy BibTeX entry to clipboard...", command=path_pdf2doi + " \"%1\" -bclip" )
-        #create_registry_key_rightclick_menu(key="SystemFileAssociations\\.pdf",registry_title="pdf2doi_doi", 
-        #                                    title="Copy DOI/identifier to clipboard...", command=path_pdf2doi + " \"%1\" -doiclip" )
-        #create_registry_key_rightclick_menu(key="SystemFileAssociations\\.pdf",registry_title="pdf2doi_setdoi", 
-        #                                    title="Specify DOI/identifier of this file...", command=path_pdf2doi + " \"%1\" -id_input_box" )
-        #create_registry_key_rightclick_menu(key="Directory",registry_title="pdf2doi_bibtex", 
-        #                                    title="Retrieve and copy BibTeX entries of all pdf files in this folder...", command=path_pdf2doi + " \"%1\" -bclip" )
-        #create_registry_key_rightclick_menu(key="Directory",registry_title="pdf2doi_doi", 
-        #                                    title="Retrieve and copy DOIs/identifiers of all pdf files in this folder...", command=path_pdf2doi + " \"%1\" -doiclip" )
-        #create_registry_key_rightclick_menu(key="Directory",registry_title="pdf2doi", 
-        #                                    title="Retrieve and copy BibTeX entries of all pdf files in this folder...", command=path_pdf2doi + " \"%1\" -bclip" )
         logger.info(f'All necessary keys were added to the system register.')
     except Exception as e:
         logger.error(e)
@@ -141,10 +99,6 @@ def uninstall_right_click():
         return
     logger.info(f'Removing all keys associated to pdf2doi from the system register...')
     try:
-        #delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_bibtex")
-        #delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_doi")
-        #delete_sub_key(winreg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi_setdoi")
-        #delete_sub_key(winreg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi_bibtex")
         delete_sub_key(reg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi")
         delete_sub_key(reg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi")
         logger.info(f'All keys were removed.')

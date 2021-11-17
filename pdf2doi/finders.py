@@ -13,9 +13,10 @@ import pdftitle
 import re
 import logging
 from googlesearch import search
-from . import bibtex_makers
 import pdf2doi.config as config
 import os
+import feedparser
+
 logger = logging.getLogger('pdf2doi')
 
 ######## Beginning first part, low-level functions ######## 
@@ -53,12 +54,67 @@ arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #versi
                                                                             #This is helpful when we are trying to extrat the arXiv ID from the file name.
                 '\A(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
                                                                             #but requires that the string contains ONLY the arXiv ID.
-    
+
+def validate_doi_web(doi,method=None):
+    """
+    It queries dx.doi.org for a certain doi, to check that the doi exists.
+    If dx.doi.org could not find any paper associated to this doi, the function returns None
+    If it was not possible to connect to dx.doi.org, the function returns -1
+    If dx.doi.org confirmed that DOI exists, the function returns the full text obtained from dx.doi.org
+    Depending on the value of method (default =config.get('method_dxdoiorg')), the format of the text returned by dx.doi.org will be different
+    """
+    if method == None:
+        method = config.get('method_dxdoiorg')
+    try:
+        url = "http://dx.doi.org/" + doi
+        headers = {"accept": method}
+        NumberAttempts = 10
+        while NumberAttempts:
+            r = requests.get(url, headers = headers)
+            r.encoding = 'utf-8' #This forces to encode the obtained text with utf-8
+            text = r.text
+            if (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
+                NumberAttempts = NumberAttempts -1
+                logging.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
+                continue
+            else:
+                NumberAttempts = 0
+            if (text.lower().find( "DOI Not Found".lower() ))==-1:
+                return text
+                #metadata = parse_bib_from_dxdoiorg(text, method)
+                #return {'bibtex_entry':make_bibtex(metadata), 'bibtex_data':metadata}
+            else:
+                return None
+    except Exception as e:
+        logger.error(r"Some error occured within the function validate_doi_web")
+        logger.error(e)
+        return -1
+
+def validate_arxivID_web(arxivID):
+    """
+    It queries export.arxiv.org for a certain arxiv ID, to check that it exists.
+    If export.arxiv.org could not find any paper associated to this arxiv ID, the function returns None
+    If it was not possible to connect to export.arxiv.org, the function returns -1
+    If export.arxiv.org confirmed that DOI exists, the function returns the data obtained from export.arxiv.org
+    """
+    try:
+        url = "http://export.arxiv.org/api/query?search_query=id:" + arxivID
+        result = feedparser.parse(url)
+        items = result.entries[0]
+        found = len(items) > 0
+        if not found: 
+            return None
+        else:
+            return items
+    except Exception as e:
+        logger.error(r"Some error occured within the function arxiv2bib")
+        logger.error(e)
+        return -1    
 
 def validate(identifier,what='doi'):
     """
     Check that an identifier is a valid identifier by using a regular expression.
-    If config.check_online_to_validate, it also checks that the identifier is actually associate to a paper via 
+    If config.get('webvalidation') == true, it also checks that the identifier is actually associate to a paper via 
     a query to the proper website (e.g. http://dx.doi.org/ for DOIs).
 
     Parameters
@@ -69,27 +125,25 @@ def validate(identifier,what='doi'):
         Specifies the kind of identifier to be validated.
     Returns
     -------
-    result :    If config.check_online_to_validate is set to true but connection was not possible, it returns None
-                If config.check_online_to_validate is set to true and the identifier is validated, it returns a dictionary:
-                    "bibtex_entry" -> full bibTeX entry (as a concatenated string)
-                    "bibtex_data" -> parsed bibtex data (as a dictionary). 
-                If config.check_online_to_validate is set to false, it returns a single boolean value (True if identifier is valid, False if is not valid)
+    result :    If config.get('webvalidation') is set to true but connection was not possible, it returns None
+                If config.get('webvalidation') is set to true and the identifier is validated, it returns the validation object (could be either a string or dictionary)
+                If config.get('webvalidation') is set to false, it returns a single boolean value (True if identifier is valid, False if is not valid)
     """  
     if not identifier:
         return None
     if what=='doi':
         if re.match(doi_pattern,identifier,re.I):
-            if config.check_online_to_validate:
+            if config.get('webvalidation'):
                 logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
-                result = bibtex_makers.doi2bib(identifier)
+                result = validate_doi_web(identifier)
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
-                if isinstance(result,dict) and result['bibtex_entry'].strip()[0:5] == '@misc':
-                    logger.error(f"A valid bibTex entry was returned by dx.doi.org, but it starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
+                if isinstance(result,str) and result.strip()[0:5] == '@misc':
+                    logger.error(f"The DOI was validated by by dx.doi.org, but the validation string starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return False
                 if result:
-                    logger.info(f"The DOI {identifier} is validated by dx.doi.org. A bibtex entry was also created.")
+                    logger.info(f"The DOI {identifier} is validated by dx.doi.org.")
                     return result
                 else:
                     logger.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
@@ -101,14 +155,14 @@ def validate(identifier,what='doi'):
 
     elif what=='arxiv':
         if re.match(arxiv2007_pattern,identifier,re.I):
-            if config.check_online_to_validate:
+            if config.get('webvalidation'):
                 logger.info(f"Validating the possible arxiv ID {identifier} via a query to export.arxiv.org...")
-                result = bibtex_makers.arxiv2bib(identifier)
+                result = validate_arxivID_web(identifier)
                 if result==-1:
                     logger.error(f"Some error occured during connection to export.arxiv.org.")
                     return None
                 if result:
-                    logger.info(f"The Arxiv ID {identifier} is validated by export.arxiv.org. A bibtex entry was also created.")
+                    logger.info(f"The Arxiv ID {identifier} is validated by export.arxiv.org")
                     return result
                 else:
                     logger.info(f"The Arxiv ID {identifier} is not valid according to export.arxiv.org.")
@@ -174,7 +228,7 @@ def extract_doi_from_text(text,version=0):
         pass
     return None
 
-def find_identifier_in_google_search(query,func_validate,numb_results=10):
+def find_identifier_in_google_search(query,func_validate,numb_results):
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
 
     MaxLengthDisplay = 100
@@ -183,7 +237,7 @@ def find_identifier_in_google_search(query,func_validate,numb_results=10):
     else:
         query_to_display = query
     logger.info(f"Performing google search with key \"" + query_to_display + "\"")
-    
+    logger.info(f"and looking at the first {numb_results} results...")
     i=1
     try:
         for url in search(query, stop=numb_results):
@@ -269,10 +323,16 @@ def get_pdf_info(path):
         return None
     try:
         pdf = PdfFileReader(path,strict=False)
-    except:
+    except Exception as e:
         logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
+        logger.error(f"{e}")
         return None
-    info = pdf.getDocumentInfo()
+    try:
+        info = pdf.getDocumentInfo()
+    except Exception as e:
+        logger.error(f"An error occurred when retrieving the pdf info with PyPDF2: {e}")
+        return None
+
     file.close()
     return info
     
@@ -298,6 +358,8 @@ def find_possible_titles(path):
         title = pdftitle.get_title_from_file(path)
     except:
         title = ''
+    if not(isinstance(title, str)):
+        return
     if len(title.strip())>12:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)  
         
@@ -340,13 +402,19 @@ def get_pdf_text(path,reader):
             except:
                 logger.error("The input argument 'pdf' must be a valid path to a pdf file.")
                 return None
-            number_of_pages = pdf.getNumPages()
+            try:
+                number_of_pages = pdf.getNumPages()
+            except Exception as e:
+                logger.error(f"An error occurred when retrieving the number of pages in the pdf with PyPDF2.")
+                logger.error("Error from PyPDF2: " + str(e))
+                return None
+            
             for i in range(number_of_pages):
                 try:
                     text.append( (pdf.getPage(i)).extractText())
                 except Exception as e:
-                    logger.error("Error from PyPDF2: " + str(e))
                     logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
+                    logger.error("Error from PyPDF2: " + str(e))
                     break 
     if reader == 'textract':
         try:
@@ -356,8 +424,8 @@ def get_pdf_text(path,reader):
             try:
                 text = [textract.process(path)]
             except Exception as e:   
-                logger.error("Error from textract: " + str(e))
                 logger.error("An error occured while loading the document text with textract. The pdf version might be not supported.")
+                logger.error("Error from textract: " + str(e))
     return text
 
 def add_found_identifier_to_metadata(target,identifier):
@@ -386,8 +454,8 @@ def add_found_identifier_to_metadata(target,identifier):
             logger.error("No pdf files found in this folder.")
             return None
         logger.info(f"Found {numb_files} pdf files.")
-        if not(target.endswith(config.separator)): #Make sure the path ends with "\" or "/" (according to the OS)
-            target = target + config.separator
+        if not(target.endswith(config.get('separator'))): #Make sure the path ends with "\" or "/" (according to the OS)
+            target = target + config.get('separator')
         for f in pdf_files:
             list_files.append(target + f)
     else:
@@ -454,7 +522,7 @@ def find_identifier(path, method, func_validate=validate,**kwargs):
     argument 'path', by using the method specified by input argument 'method'. Any found identifier is validated
     by using the function func_validate. If a valid identifier is found with any method different from
     "document_infos" (i.e. by looking into the file metadata) the identifier is also added to the file metadata
-    with key "/identifier" (unless config.save_identifier_metadata is set to False)
+    with key "/identifier" (unless config.get('save_identifier_metadata') is set to False)
 
     Parameters
     ----------
@@ -476,9 +544,8 @@ def find_identifier(path, method, func_validate=validate,**kwargs):
     result : dictionary
         result['identifier'] = DOI or other identifier (or None if nothing is found)
         result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-        result['validation_info'] = Additional info on the paper. If config.check_online_to_validate = True, then result['validation_info']
-                                    will typically contain a bibtex entry for this paper. Otherwise it will just contain True                         
-        result['bibtex_info'] = dictionary containing all available bibtex info of this publication. E.g., result['bibtex_info']['author'], result['bibtex_info']['title'], etc.
+        result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info']
+                                    will typically contain a raw bibtex data for this paper. Otherwise it will just contain True                         
         result['path'] = path of the pdf file
         result['method'] = method used to find the identifier
 
@@ -488,37 +555,27 @@ def find_identifier(path, method, func_validate=validate,**kwargs):
     if not callable(func_validate):  func_validate = lambda x : x
 
     identifier, desc, info = finder_methods[method](path,func_validate,**kwargs)
-
-    if config.save_identifier_metadata==True:
+    if (config.get('save_identifier_metadata'))==True:
         if identifier and not(method=="document_infos"):
             add_found_identifier_to_metadata(path,identifier)
     
     result = {'identifier':identifier,'identifier_type':desc,
-              #'validation_info':info[0] , 
-              #'bibtex_info':(info[1] if len(info)>1 else None),
               'path':path, 'method':method}
-    if isinstance(info,dict):   #the variable info is obtained as the output of the func_validate function, which normally corresponds to the function "validate" defined
-                                #in this same module (see above). The output of validate is either a None/False/True single variable, or a dictionary containing validation info
-        result.update(info)
-        result['validation_info'] = info['bibtex_entry']
-    else:
-        result['validation_info'] = info
+    result['validation_info'] = info
     return result
 
-def find_identifier_by_googling_title(path, func_validate, numb_results=config.numb_results_google_search):
+def find_identifier_by_googling_title(path, func_validate):
     titles = find_possible_titles(path)
-
     if titles:
-        if config.websearch==False:
+        if config.get('websearch')==False:
             logging.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
             logger.info(f"Found {len(titles)} possible title(s).")
             titles.sort(key=len, reverse=True)
-            for title in titles:
-                logger.info(f"Doing a google search for \"{title}\",")
-                logger.info(f"looking at the first {config.numb_results_google_search} results...")
-                identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results)
+            for index_title,title in enumerate(titles):
+                logger.info(f"Trying possible title #{index_title+1}")
+                identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results=config.get('numb_results_google_search'))
                 if identifier:
                     logger.info(f"A valid {desc} was found with this google search.")
                     return identifier,desc,info
@@ -528,9 +585,9 @@ def find_identifier_by_googling_title(path, func_validate, numb_results=config.n
         logger.error("It was not possible to find a title for this file.")
         return None, None, None
     
-def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.numb_results_google_search, numb_characters=config.N_characters_in_pdf):
+def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.get('numb_results_google_search'), numb_characters=config.get('N_characters_in_pdf')):
     
-    if config.websearch==False:
+    if config.get('websearch')==False:
         logger.info("NOTE: Web-search methods are currently disabled by the user. Enable it in order to use this method.")
         return None, None, None
 
@@ -540,10 +597,11 @@ def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, n
         if text==[] or text=="":
             logger.error(f"The library {reader} could not extract any text from this file.")
             continue
-        
         if isinstance(text,list):
             text = "".join(text)
-            
+        if not(isinstance(text, str)):
+            logger.error(f"The library {reader} could not extract any text from this file.")
+            continue 
         text = re.sub(r'[^\x00-\x7f]',r' ',text)    #Remove all non-text characters from the string text
         for r in ("\n","\r","\t"):
             text = text.replace(r," ")
@@ -554,7 +612,7 @@ def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, n
             
         text = text[0:numb_characters]              #Select the first numb_characters characters
 
-        logger.info(f"Doing a google search, looking at the first {config.numb_results_google_search} results...")
+        logger.info(f"Doing a google search, looking at the first {config.get('numb_results_google_search')} results...")
         identifier,desc,info = find_identifier_in_google_search(text,func_validate,numb_results)
         if identifier:
             logger.info(f"A valid {desc} was found with this google search.")

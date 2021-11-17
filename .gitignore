@@ -15,3 +15,6 @@
 .google-cookie
 .pypi
 test.py
+/changes new version.txt
+/things to fix in next version.txt
+/testOLD.py

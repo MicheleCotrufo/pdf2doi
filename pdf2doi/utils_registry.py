@@ -63,7 +63,7 @@ def install_right_click():
         reg.SetValue(key, '', reg.REG_SZ, 'Retrieve and copy DOIs/identifiers of all pdf files in this folder...')
         reg.CloseKey(key)
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_doi\command')
-        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -doiclip")
+        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -clip -v")
         reg.CloseKey(key)
 
 
@@ -75,17 +75,17 @@ def install_right_click():
         reg.CloseKey(key)
 
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi')
-        reg.SetValue(key, '', reg.REG_SZ, 'Copy DOI/identifier to clipboard...')
+        reg.SetValue(key, '', reg.REG_SZ, 'Copy DOI/identifier of this file to clipboard...')
         reg.CloseKey(key)
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi\command')
-        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -doiclip")
+        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -clip -v")
         reg.CloseKey(key)
 
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi')
         reg.SetValue(key, '', reg.REG_SZ, 'Set DOI/identifier of this file...')
         reg.CloseKey(key)
         key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi\command')
-        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -id_input_box")
+        reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -id_input_box -v")
         reg.CloseKey(key)
 
         logger.info(f'All necessary keys were added to the system register.')

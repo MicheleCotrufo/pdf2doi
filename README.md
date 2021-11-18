@@ -33,8 +33,10 @@ Under Windows, it is also possible to add [shortcuts to the right-click context 
     * [Usage inside a python script](#usage-inside-a-python-script)
         + [Manually associate the correct identifier to a file](#manually-associate-the-correct-identifier-to-a-file)
  - [Installing the shortcuts in the right-click context menu of Windows](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows)
-  - [Contributing](#contributing)
+  -[Contributing](#contributing)
  - [License](#license)
+ - [Acknowledgment](#acknowledgment)
+ - [Donating](#donating)
 
 ## Description
 Automatically associating a DOI or other identifiers (e.g. arXiv ID) to a pdf file can be either a very easy or a very difficult
@@ -305,10 +307,22 @@ admnistrator rights.
 NOTE: when multiple pdf files are selected, and the right-click context menu commands are used, ```pdf2doi``` will be called separately for each file, and thus
 only the info of the last file will be stored in the clipboard. In order to copy the info of multiple files it is necessary to save them in a folder and right-click on the folder.
 
-
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+## Acknowledgment
+I am thankful to my friend and colleague Yarden Mazor for leading the beta-testing efforts for this project.
+
+## Donating
+If you find this library useful (or amazing!), please consider making donations on my behalf to organizations that advocate for and promote free dissemination of science, such as
+
+[Arxiv](https://arxiv.org/about/donate)
+
+[Sci-Hub](https://sci-hub.se/donate)
+
+[Wikipedia](https://donate.wikimedia.org/)
 
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+

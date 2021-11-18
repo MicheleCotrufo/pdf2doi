@@ -272,10 +272,12 @@ def main():
 
     #If the command -install--right--click was specified, it sets the right keys in the system registry
     if args.install_right_click:
+        config.set('verbose',True)
         import pdf2doi.utils_registry as utils_registry
         utils_registry.install_right_click()
         return
     if args.uninstall_right_click:
+        config.set('verbose',True)
         import pdf2doi.utils_registry as utils_registry
         utils_registry.uninstall_right_click()
         return

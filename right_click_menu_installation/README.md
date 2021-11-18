@@ -27,7 +27,8 @@ Save the file ```Install_RightClick.bat``` and run it as an administrator (Right
 Save the file ```Uninstall_RightClick.bat``` on your computer and run it as administrator  (Right click on it, then click on "Run as administrator").
 
 ## Help
-If, for some reason, the entries in the right-click context menu do not disappear after running ```Uninstall_RightClick.bat```,
+If, for some reason, the entries in the right-click context menu do not disappear after running ```Uninstall_RightClick.bat``` (or if you uninstall pdf2doi 
+without first uninstalling this functionality)
 you can open the system register manually and delete the following keys
 
 ```

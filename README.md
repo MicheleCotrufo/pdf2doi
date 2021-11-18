@@ -10,7 +10,6 @@ automatically rename the pdf files ([pdf-renamer](https://github.com/MicheleCotr
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
 ## Installation
-[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 Use the package manager pip to install pdf2doi.
 

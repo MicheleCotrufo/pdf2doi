@@ -8,6 +8,18 @@ The validation process also returns raw bibtex infos, which can be used for furt
 automatically rename the pdf files ([pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
+
+## Installation
+[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
+
+Use the package manager pip to install pdf2doi.
+
+```bash
+pip install pdf2doi
+```
+
+Under Windows, it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).
+
 <!--
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 -->
@@ -65,17 +77,6 @@ In this way, ```pdf2doi``` will always retrieve the correct DOI in future reques
 for other bibliographic purposes.
 
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
-
-## Installation
-[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
-
-Use the package manager pip to install pdf2doi.
-
-```bash
-pip install pdf2doi
-```
-
-Under Windows, it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).
 
 ## Usage
 

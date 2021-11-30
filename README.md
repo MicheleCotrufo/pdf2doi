@@ -5,7 +5,7 @@ pdf2doi is a Python library to automatically extract the DOI or other identifier
 It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
 via web queries to public archives (e.g. http://dx.doi.org). 
 The validation process also returns raw bibtex infos, which can be used for further processing, such as generating BibTeX entries ([pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)) or
-automatically rename the pdf files ([pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
+automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
@@ -48,7 +48,7 @@ extracted with the help of regular expressions. In the unluckiest cases, the onl
 The ```pdf2doi``` library applies sequentially all these methods (starting from the simplest ones) until a valid identifier is found and validated.
 Specifically, for a given .pdf file it will, in order,
 
-1. Look into the metadata of the .pdf file (extracted via the library [PyPDF2](https://github.com/mstamy2/PyPDF2)) and see if any string matches the pattern of 
+1. Look into the metadata of the .pdf file (extracted via the library [PyPDF2](https://github.com/mstamy2/PyPDF2)) and see if any of them contains a string that matches the pattern of 
 a DOI or an arXiv ID. Priority is given to metadata which contain the word 'doi' in their label.
 
 2. Check if the file name contains any sub-string that matches the pattern of 
@@ -65,17 +65,18 @@ is performed and the plain text of the first results is scanned for valid identi
 a google search. The plain text of the first results is scanned for valid identifiers.
 
 Any time that a possible identifier is found, it is validated by performing a query to a relevant website (e.g., http://dx.doi.org for DOIs and http://export.arxiv.org for arxiv IDs). 
-The validation process returns raw [bibtex](http://www.bibtex.org/) info when the identifier is valid. 
+The validation process returns raw [BibTeX](http://www.bibtex.org/) info when the identifier is valid. 
 
-When a valid identifier is found with any method different than the first one, the identifier is stored inside the metadata of
+When a valid identifier is found with any method different than the first one, the identifier is also stored inside the metadata of
 the pdf file. In this way, future lookups of this same file will be able to extract the identifier with the 
 first method, speeding up the search (This feature can be disabled by the user, in case edits to the pdf file are not desired).
 
 The library is far from being perfect. Often, especially for old publications, none of the currently implemented methods will work. Other times the wrong DOI might be extracted: this can happen, for example, 
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually and then add it to the metadata
 of the file, with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
-In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful for the generation of bibtex entries and for when ```pdf2doi```  is used 
-for other bibliographic purposes.
+In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful when ```pdf2doi```  is used  to automatize
+ bibliographic procedured for a large number of files (e.g. via [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)) or
+[pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
 
@@ -175,7 +176,7 @@ DOI             10.1103/PhysRevLett.116.061102           D:\Dropbox (Personal)\P
 
 DOI             10.1038/s41586-019-1666-5                D:\Dropbox (Personal)\PythonScripts\pdf2doi\examples\s41586-019-1666-5.pdf
 ```
-Every line which begins with '[pdf2doi]' is omitted when the optional command '-v' is absent.
+Every line which begins with ```[pdf2doi]``` is omitted when the optional command '-v' is absent.
 In the final output, the first column specifies the kind of identifier (currently either 'DOI' or 'arxiv'), the second column contains the found DOI/identifier, and the third column contains the file path.
 
 
@@ -224,8 +225,8 @@ then return the correct identifier.
 ### Usage inside a python script
 ```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. The function looks for the identifier of a pdf file by applying all the available methods. 
 The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
-The same settings available in the command line operation, are not available via the methods ```set``` and ```get``` of the object ```pdf2doi.config```
-For example, we can scan the folder [examples](/examples), while keeping reducing the output verbosity, 
+The same settings available in the command line operation, are now available via the methods ```set``` and ```get``` of the object ```pdf2doi.config```
+For example, we can scan the folder [examples](/examples), with reduced output verbosity, 
 
 ```python
 >>> from pdf2doi import pdf2doi
@@ -316,7 +317,7 @@ I am thankful to my friend and colleague Yarden Mazor for leading the beta-testi
 ## Donating
 If you find this library useful (or amazing!), please consider making donations on my behalf to organizations that advocate for and promote free dissemination of science, such as
 
-[Arxiv](https://arxiv.org/about/donate)
+[arXiv](https://arxiv.org/about/donate)
 
 [Sci-Hub](https://sci-hub.se/donate)
 

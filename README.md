@@ -219,20 +219,21 @@ it is possible to manually add the correct DOI/identifier to the pdf metadata, b
 ```
 $ pdf2doi "path\to\pdf" -id "doi1234"
 ```
-This creates a new metadata in the pdf file with label '/identifier' and containing the string ```doi1234```.  Future lookups of this same file via ```pdf2doi``` (in particular when used by other tools such as[pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
+This creates a new metadata in the pdf file with label '/identifier' and containing the string ```doi1234```.  Future lookups of this same file via ```pdf2doi``` (in particular when used by other tools such as [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
 [pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)) will then return the correct identifier and BibTeX infos.
 
 ### Usage inside a python script
 ```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. The function looks for the identifier of a pdf file by applying all the available methods. 
 The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
-The same settings available in the command line operation, are now available via the methods ```set``` and ```get``` of the object ```pdf2doi.config```
-For example, we can scan the folder [examples](/examples), with reduced output verbosity, 
+The same optional arguments available in the command line operation are now available via the methods ```set``` and ```get``` of the object ```pdf2doi.config```
+For example, we can scan the folder [examples](/examples) while soppressing output verbosity by, 
 
 ```python
 >>> from pdf2doi import pdf2doi
 >>> pdf2doi.config.set('verbose',False)
 >>> results = pdf2doi('.\examples')
 ```
+A full list of the library settings can be printed by ```python pdf2doi.config.print()```.
 
 The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 

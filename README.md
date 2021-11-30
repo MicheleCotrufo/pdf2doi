@@ -75,7 +75,7 @@ The library is far from being perfect. Often, especially for old publications, n
 if the DOI of another paper is present in the pdf text and it appears before the correct DOI. A quick and dirty solution to this problem is to look up the identifier manually and then add it to the metadata
 of the file, with the methods shown [here](#manually-associate-the-correct-identifier-to-a-file) (from python console) or [here](#manually-associate-the-correct-identifier-to-a-file-from-command-line) (from command line). 
 In this way, ```pdf2doi``` will always retrieve the correct DOI in future requests, which can be useful when ```pdf2doi```  is used  to automatize
- bibliographic procedured for a large number of files (e.g. via [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)) or
+ bibliographic procedures for a large number of files (e.g. via [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
 [pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 Currently, only the format of arXiv identifiers in use after [1 April 2007](https://arxiv.org/help/arxiv_identifier) is supported.
@@ -217,10 +217,10 @@ optional arguments:
 Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. In these (hopefully rare) occasions
 it is possible to manually add the correct DOI/identifier to the pdf metadata, by using the ```-id``` argument,
 ```
-$ pdf2doi "path\to\pdf" -id "identifier"
+$ pdf2doi "path\to\pdf" -id "doi1234"
 ```
-This creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.  Future lookups of this same file via ```pdf2doi``` will 
-then return the correct identifier.
+This creates a new metadata in the pdf file with label '/identifier' and containing the string ```doi1234```.  Future lookups of this same file via ```pdf2doi``` (in particular when used by other tools such as[pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
+[pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)) will then return the correct identifier and BibTeX infos.
 
 ### Usage inside a python script
 ```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. The function looks for the identifier of a pdf file by applying all the available methods. 

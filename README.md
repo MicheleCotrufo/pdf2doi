@@ -234,20 +234,6 @@ For example, we can scan the folder [examples](/examples) while soppressing outp
 >>> results = pdf2doi('.\examples')
 ```
 
-A full list of the library settings can be printed by 
-```python 
->>> from pdf2doi import pdf2doi
->>>pdf2doi.config.print()
-verbose : True (bool)
-separator : \ (str)
-method_dxdoiorg : application/citeproc+json (str)
-webvalidation : True (bool)
-websearch : True (bool)
-numb_results_google_search : 6 (int)
-N_characters_in_pdf : 1000 (int)
-save_identifier_metadata : True (bool)
-```
-
 The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
 ```
@@ -259,7 +245,7 @@ result['path'] = path of the pdf file
 result['method'] = method used to find the identifier
 ```
 For example, the DOIs/identifiers of each file can be printed by
-```
+```python
 >>> for result in results:
 >>>     print(result['identifier'])
 10.1016/0021-9991(86)90093-8
@@ -267,7 +253,7 @@ For example, the DOIs/identifiers of each file can be printed by
 10.1103/PhysRevLett.116.061102
 10.1038/s41586-019-1666-5
 ```
-A list of all possible settings, together with their current value, is obtainable via
+A full list of the library settings can be printed by the method ```pdf2doi.config.print()```
 ```python
 >>> from pdf2doi import pdf2doi
 >>> pdf2doi.config.print()

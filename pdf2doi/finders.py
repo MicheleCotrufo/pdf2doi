@@ -191,12 +191,11 @@ def extract_arxivID_from_text(text,version=0):
     Returns
     -------
     arxivID : string or None
-        It returns the arxiv ID if any was found, or None
+        It returns a list of all arxiv IDs found
     """   
     try:                                            
-        regexDOI = re.search(arxiv_regexp[version] ,text,re.I)
-        if regexDOI:
-            return regexDOI.group(1)
+        arxiv_ids = re.findall(arxiv_regexp[version] ,text,re.I)
+        return arxiv_ids
     except:
         pass
     return None
@@ -216,14 +215,13 @@ def extract_doi_from_text(text,version=0):
 
     Returns
     -------
-    doi : string or None
-        It returns the doi if any was found, or None
+    doi_list : string or None
+        It returns a list of all dois found
 
     """    
     try:
-        regexDOI = re.search(doi_regexp[version],text,re.I)
-        if regexDOI:
-            return regexDOI.group(1)
+        dois = re.findall(doi_regexp[version],text,re.I)
+        return dois
     except:
         pass
     return None
@@ -282,23 +280,24 @@ def find_identifier_in_text(texts,func_validate):
     if not isinstance(texts,list): texts = [texts]
     
     for text in texts:
-        #logger.info(text)
-        #logger.info(type(text))
+
         if isinstance(text, bytes):
             text = text.decode()
         #First we look for DOI
         for v in range(len(doi_regexp)):
-            identifier = extract_doi_from_text(text,version=v)
-            validation = func_validate(identifier,'doi')
-            if validation: 
-                return identifier, 'DOI', validation
+            identifiers = extract_doi_from_text(text,version=v)
+            for identifier in identifiers:
+                validation = func_validate(identifier,'doi')
+                if validation: 
+                    return identifier, 'DOI', validation
             
         #Then we look for an Arxiv ID
         for v in range(len(arxiv_regexp)):
-            identifier = extract_arxivID_from_text(text,version=v)
-            validation = func_validate(identifier,'arxiv')
-            if validation:
-                return identifier,'arxiv ID', validation
+            identifiers = extract_arxivID_from_text(text,version=v)
+            for identifier in identifiers:
+                validation = func_validate(identifier,'arxiv')
+                if validation:
+                    return identifier,'arxiv ID', validation
     return None, None, None
 
 

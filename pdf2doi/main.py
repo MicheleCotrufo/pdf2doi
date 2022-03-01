@@ -95,7 +95,7 @@ def pdf2doi(target):
         return result #This will be a dictionary with all entries as None
 
 def pdf2doi_singlefile(filename):
-    ''' This function looks for an identifier of the file specified by filename
+    ''' This function looks for an identifier of the file specified by filename.  This function does not check wheter filename is a valid path to a pdf file.
     Parameters
     ----------
     filename : string

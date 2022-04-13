@@ -2,10 +2,9 @@
 This module contains different functions to identify the DOI (or arXiv identifier) of a paper starting from a PDF file.
 The module is divided in two parts. The first part contains low-level functions. These are functions that perform several small tasks 
 (e.g., find a DOI in a string of text, validating a DOI, etc.) and that are not supposed to be called directly by the user or by 
-any part of the main script pdf2doi.py. Instead, they are called by the high-level finder functions, defined in the second part of 
+any part of the main script main.py. Instead, they are called by the high-level finder functions, defined in the second part of 
 this module.
 """
-
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import textract
 import requests
@@ -56,8 +55,7 @@ arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #versi
                                                                             #but requires that the string contains ONLY the arXiv ID.
 
 def validate_doi_web(doi,method=None):
-    """
-    It queries dx.doi.org for a certain doi, to check that the doi exists.
+    """ It queries dx.doi.org for a certain doi, to check that the doi exists.
     If dx.doi.org could not find any paper associated to this doi, the function returns None
     If it was not possible to connect to dx.doi.org, the function returns -1
     If dx.doi.org confirmed that DOI exists, the function returns the full text obtained from dx.doi.org
@@ -91,8 +89,7 @@ def validate_doi_web(doi,method=None):
         return -1
 
 def validate_arxivID_web(arxivID):
-    """
-    It queries export.arxiv.org for a certain arxiv ID, to check that it exists.
+    """It queries export.arxiv.org for a certain arxiv ID, to check that it exists.
     If export.arxiv.org could not find any paper associated to this arxiv ID, the function returns None
     If it was not possible to connect to export.arxiv.org, the function returns -1
     If export.arxiv.org confirmed that DOI exists, the function returns the data obtained from export.arxiv.org
@@ -301,27 +298,22 @@ def find_identifier_in_text(texts,func_validate):
     return None, None, None
 
 
-def get_pdf_info(path):
+def get_pdf_info(file):
     """
-    Given a valid path to a pdf file, it return a dictionary of info. 
+    Given a valid file object, it returns a dictionary of info. 
     Currently, it uses PyPDF to extract the info.
     
     Parameters
     ----------
-    path : string
-        a valid path to a pdf file
+    file : file object, opened as 'rb
     
     Returns
     -------
     info : dictionary
     """
+
     try:
-        file = open(path, 'rb') 
-    except (FileNotFoundError, IOError):
-        logger.error("File not found.")
-        return None
-    try:
-        pdf = PdfFileReader(path,strict=False)
+        pdf = PdfFileReader(file,strict=False)
     except Exception as e:
         logger.error("It was not possible to open the file with PyPDF2. Is this a valid pdf file?")
         logger.error(f"{e}")
@@ -332,19 +324,18 @@ def get_pdf_info(path):
         logger.error(f"An error occurred when retrieving the pdf info with PyPDF2: {e}")
         return None
 
-    file.close()
+    #file.close()
     return info
     
-def find_possible_titles(path):
+def find_possible_titles(file):
     """
-    Given a valid path to a pdf file, it tries to extract a list of possible titles. 
+    Given a valid file object, it tries to extract a list of possible titles. 
     In the current implementation it looks for titles by 1) looking for the outcome of pdftitle library, 
     2) looking in the dictionary returned by the PyPDF library and 3) looking in the filename.
 
     Parameters
     ----------
-    path : string
-        A valid path to a pdf file
+    file : file object, opened as 'rb
     
     Returns
     -------
@@ -354,7 +345,7 @@ def find_possible_titles(path):
     titles = []
     # (1)    
     try:
-        title = pdftitle.get_title_from_file(path)
+        title = pdftitle.get_title_from_io(file)
     except:
         title = ''
     if not(isinstance(title, str)):
@@ -363,7 +354,7 @@ def find_possible_titles(path):
         titles.append(title)  
         
     # (2)
-    info = get_pdf_info(path)
+    info = get_pdf_info(file)
     if not(info): return None
     
     for key, value in info.items():
@@ -371,21 +362,20 @@ def find_possible_titles(path):
             if isinstance(value,str) and len(value.strip())>12 and len(value.split())>3: #This is to check that the title found is neither empty nor just few characters or few words
                 titles.append(value)         
     # (3)
-    title = os.path.basename(path)
+    title = os.path.basename(file.name)
     if len(title.strip())>30:#This is to check that the title found is neither empty nor just few characters
         titles.append(title)
         
     return titles
         
-def get_pdf_text(path,reader):
+def get_pdf_text(file,reader):
     """
-    Given a valid path to a pdf file, it returns the text of the pdf file extracted with the library 
+    Given a valid file object (pointing to a pdf file), it returns the text of the pdf file extracted with the library 
     specified in the 'reader' input variable.
 
     Parameters
     ----------
-    path : string
-        a valid path to a pdf file
+    file : file object, opened as 'rb
     reader : string
         It specifies which library is used to extract the text from the pdf.
         The supported values are either 'pypdf' (uses the PyPDF2 module) or 'textract' (uses the 'textract' module)
@@ -395,27 +385,30 @@ def get_pdf_text(path,reader):
     """
     text =[]
     if reader == 'pypdf':
-        with open(path, "rb") as f:
-            try:
-                pdf = PdfFileReader(f,strict=False)
-            except:
-                logger.error("The input argument 'pdf' must be a valid path to a pdf file.")
-                return None
-            try:
-                number_of_pages = pdf.getNumPages()
-            except Exception as e:
-                logger.error(f"An error occurred when retrieving the number of pages in the pdf with PyPDF2.")
-                logger.error("Error from PyPDF2: " + str(e))
-                return None
+        try:
+            pdf = PdfFileReader(file,strict=False)
+        except Exception as e:
+            logger.error(f"An error occurred when reading the content of this file with PyPDF2.")
+            logger.error("Error from PyPDF2: " + str(e))
+            return None
+        try:
+            number_of_pages = pdf.getNumPages()
+        except Exception as e:
+            logger.error(f"An error occurred when retrieving the number of pages in the pdf with PyPDF2.")
+            logger.error("Error from PyPDF2: " + str(e))
+            return None
             
-            for i in range(number_of_pages):
-                try:
-                    text.append( (pdf.getPage(i)).extractText())
-                except Exception as e:
-                    logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
-                    logger.error("Error from PyPDF2: " + str(e))
-                    break 
+        for i in range(number_of_pages):
+            try:
+                text.append( (pdf.getPage(i)).extractText())
+            except Exception as e:
+                logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
+                logger.error("Error from PyPDF2: " + str(e))
+                break 
     if reader == 'textract':
+        #This block of code is not very efficient. We start from an object file (file), we extract its path, and then we pass this path to the library
+        #textract, which will later re-open the file; however, right now there isn't a workaround, because textract does not accept an object file as input.
+        path = file.name #Note: this part will fail with if the object file does not correpond to a locally available file
         try:
             text = [textract.process(path,encoding='utf-8', errors='ignore').decode('utf-8')]
         except Exception as e:
@@ -516,17 +509,16 @@ The correspondence between the values of the string method and the function to c
 
 
 
-def find_identifier(path, method, func_validate=validate,**kwargs):
+def find_identifier(file, method, func_validate=validate,**kwargs):
     """ Tries to find an identifier (e.g. DOI, arxiv ID,...) for the pdf file identified by the input
-    argument 'path', by using the method specified by input argument 'method'. Any found identifier is validated
+    argument 'file', by using the method specified by input argument 'method'. Any found identifier is validated
     by using the function func_validate. If a valid identifier is found with any method different from
     "document_infos" (i.e. by looking into the file metadata) the identifier is also added to the file metadata
     with key "/identifier" (unless config.get('save_identifier_metadata') is set to False)
 
     Parameters
     ----------
-    path : string
-        A valid path to a pdf file
+    file : object file 
     method : string
         Method to be used to look for an identifier. The possible values are specified by the keys of 
         the dictionary finder_methods.
@@ -553,18 +545,111 @@ def find_identifier(path, method, func_validate=validate,**kwargs):
         raise ValueError("The input variable method is not valid. Possible values = \'" + "\',\'".join(finder_methods.keys())+"\'")
     if not callable(func_validate):  func_validate = lambda x : x
 
-    identifier, desc, info = finder_methods[method](path,func_validate,**kwargs)
-    if (config.get('save_identifier_metadata'))==True:
-        if identifier and not(method=="document_infos"):
-            add_found_identifier_to_metadata(path,identifier)
+    identifier, desc, info = finder_methods[method](file,func_validate,**kwargs)
     
     result = {'identifier':identifier,'identifier_type':desc,
-              'path':path, 'method':method}
+              'path':file.name, 'method':method}
     result['validation_info'] = info
+
     return result
 
-def find_identifier_by_googling_title(path, func_validate):
-    titles = find_possible_titles(path)
+def find_identifier_in_pdf_info(file,func_validate,keysToCheckFirst=[]):
+    """ 
+    Try to find a valid DOI in the values of the 'document information' dictionary. If a list of string is specified via the optional
+    input parameter 'keysToCheckFirst', then the corresponding elements of the dictionary (assuming that the key exists) are given
+    priority.
+
+    Parameters
+    ----------
+    file : object file 
+    keysToCheckFirst : list, optional
+        A list of strings. If specified, element of the 'document information' dictionary with these keys (assuming that 
+       they exist) are given priority in the DOI search (following the order they appear in this list)
+    Returns
+    -------
+    result : dictionary with identifier and other info (see above) 
+    """
+
+
+    #This is a list of keys that will NOT be considered when looking for an identifier in the metadata. 
+    #Some of them are known to contain doi-like patterns but not the actual doi of the publication.
+    #For example '/wps-journaldoi' contains the DOI of the journal
+    KeysNotToUse = ['/wps-journaldoi'] 
+    pdfinfo = get_pdf_info(file)
+    identifier, desc, info = None, None, None
+    if pdfinfo:
+        Keys = keysToCheckFirst + list(pdfinfo.keys()) #Quick way to create a list of keys where the elements of keysToCheckFirst appear first. 
+                                            #Some elements of keysToCheckFirst might be duplicated in 'Keys', but this is not a problem
+                                            #because the corresponding element in the pdfinfo dictionary is eliminated after being checked
+        for key in Keys:
+            if key in pdfinfo.keys() and key.lower() not in KeysNotToUse:
+                identifier,desc,info = find_identifier_in_text(pdfinfo[key],func_validate)
+                if identifier: 
+                    logger.info(f"A valid {desc} was found in the document info labelled \'{key}\'.")
+                    break
+                del pdfinfo[key]
+    if identifier:
+        return identifier,desc,info
+    else:
+        logger.info("Could not find a valid identifier in the document info.")
+        return None, None, None
+
+def find_identifier_in_filename(file, func_validate):
+    """ 
+    Parameters
+    ----------
+    file : object file 
+    func_validate : function
+    Returns
+    -------
+    result : dictionary with identifier and other info (see above)
+    """
+    text = os.path.basename(file.name)
+    identifier,desc,info = find_identifier_in_text([text],func_validate)
+    if identifier: 
+        logger.info(f"A valid {desc} was found in the file name.")
+        return identifier,desc,info
+    else:
+        logger.info("Could not find a valid identifier in the file name.")
+        return None, None, None
+
+def find_identifier_in_pdf_text(file, func_validate):
+    """ Try to find a valid identifier in the plain text of the pdf file. The text is extracted via the function
+    get_pdf_text.
+
+    Parameters
+    ----------
+    file : object file 
+    func_validate : function
+    Returns
+    -------
+    result : dictionary with identifier and other info (see above)
+    """
+    for reader in reader_libraries:
+        logger.info(f"Extracting text with the library {reader}...")
+        texts = get_pdf_text(file,reader.lower())
+        
+        if not isinstance(texts,list):
+            texts = [texts]
+        if texts:
+            logger.info(f"Text extracted succesfully. Looking for an identifier in the text...")
+            identifier,desc,info = find_identifier_in_text(texts,func_validate)
+            if identifier: 
+                logger.info(f"A valid {desc} was found in the document text.")
+                return identifier,desc,info
+            else:
+                logger.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
+    logger.info("Could not find a valid identifier in the document text.")
+    return None, None, None
+
+def find_identifier_by_googling_title(file, func_validate):
+    """
+    Parameters
+    ----------
+    file : object file 
+    func_validate : function, optional
+    """
+    titles = find_possible_titles(file)
     if titles:
         if config.get('websearch')==False:
             logging.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
@@ -584,15 +669,22 @@ def find_identifier_by_googling_title(path, func_validate):
         logger.error("It was not possible to find a title for this file.")
         return None, None, None
     
-def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, numb_results=config.get('numb_results_google_search'), numb_characters=config.get('N_characters_in_pdf')):
-    
+def find_identifier_by_googling_first_N_characters_in_pdf(file, func_validate, numb_results=config.get('numb_results_google_search'), numb_characters=config.get('N_characters_in_pdf')):
+    """
+    Parameters
+    ----------
+    file : object file 
+    func_validate : function, optional
+    numb_results : int
+    numb_characters : int
+    """
     if config.get('websearch')==False:
         logger.info("NOTE: Web-search methods are currently disabled by the user. Enable it in order to use this method.")
         return None, None, None
 
     for reader in reader_libraries:
         logger.info(f"Trying to extract the first {numb_characters} characters from the pdf file by using the library {reader}...")
-        text = get_pdf_text(path,reader.lower())
+        text = get_pdf_text(file,reader.lower())
         if text==[] or text=="":
             logger.error(f"The library {reader} could not extract any text from this file.")
             continue
@@ -619,101 +711,7 @@ def find_identifier_by_googling_first_N_characters_in_pdf(path, func_validate, n
 
     logger.info(f"Could not find a valid identifier by googling the first {numb_characters} characters extracted from the pdf file.")
     return None, None, None
-
- 
-
-def find_identifier_in_pdf_info(path,func_validate,keysToCheckFirst=[]):
-    """ 
-    Try to find a valid DOI in the values of the 'document information' dictionary. If a list of string is specified via the optional
-    input parameter 'keysToCheckFirst', then the corresponding elements of the dictionary (assuming that the key exists) are given
-    priority.
-
-    Parameters
-    ----------
-    path : a valid path to a pdf file
-    keysToCheckFirst : list, optional
-        A list of strings. If specified, element of the 'document information' dictionary with these keys (assuming that 
-       they exist) are given priority in the DOI search (following the order they appear in this list)
-    Returns
-    -------
-    result : dictionary with identifier and other info (see above) 
-    """
-
-
-    #This is a list of keys that will NOT be considered when looking for an identifier in the metadata. 
-    #Some of them are known to contain doi-like patterns but not the actual doi of the publication.
-    #For example '/wps-journaldoi' contains the DOI of the journal
-    KeysNotToUse = ['/wps-journaldoi'] 
-    pdfinfo = get_pdf_info(path)
-    identifier, desc, info = None, None, None
-    if pdfinfo:
-        Keys = keysToCheckFirst + list(pdfinfo.keys()) #Quick way to create a list of keys where the elements of keysToCheckFirst appear first. 
-                                            #Some elements of keysToCheckFirst might be duplicated in 'Keys', but this is not a problem
-                                            #because the corresponding element in the pdfinfo dictionary is eliminated after being checked
-        for key in Keys:
-            if key in pdfinfo.keys() and key.lower() not in KeysNotToUse:
-                identifier,desc,info = find_identifier_in_text(pdfinfo[key],func_validate)
-                if identifier: 
-                    logger.info(f"A valid {desc} was found in the document info labelled \'{key}\'.")
-                    break
-                del pdfinfo[key]
-    if identifier:
-        return identifier,desc,info
-    else:
-        logger.info("Could not find a valid identifier in the document info.")
-        return None, None, None
-    
-def find_identifier_in_filename(path, func_validate):
-    """ 
-    Parameters
-    ----------
-    path : a valid path to a pdf file
-    func_validate : function
-    Returns
-    -------
-    result : dictionary with identifier and other info (see above)
-    """
-    text = os.path.basename(path)
-    identifier,desc,info = find_identifier_in_text([text],func_validate)
-    if identifier: 
-        logger.info(f"A valid {desc} was found in the file name.")
-        return identifier,desc,info
-    else:
-        logger.info("Could not find a valid identifier in the file name.")
-        return None, None, None
-
-
-def find_identifier_in_pdf_text(path, func_validate):
-    """ Try to find a valid identifier in the plain text of the pdf file. The text is extracted via the function
-    get_pdf_text.
-
-    Parameters
-    ----------
-    path : a valid path to a pdf file
-    func_validate : function
-    Returns
-    -------
-    result : dictionary with identifier and other info (see above)
-    """
-    for reader in reader_libraries:
-        logger.info(f"Extracting text with the library {reader}...")
-        texts = get_pdf_text(path,reader.lower())
         
-        if not isinstance(texts,list):
-            texts = [texts]
-        if texts:
-            logger.info(f"Text extracted succesfully. Looking for an identifier in the text...")
-            identifier,desc,info = find_identifier_in_text(texts,func_validate)
-            if identifier: 
-                logger.info(f"A valid {desc} was found in the document text.")
-                return identifier,desc,info
-            else:
-                logger.info(f"Could not find a valid identifier in the document text extracted by {reader}.")
-    logger.info("Could not find a valid identifier in the document text.")
-    return None, None, None
-        
-
-
 #The dictionary finder_methods list all the methods currently implemented to find an identifier.
 #Each method is associated to a function.
 #The keys of this dictionary corresponds to the possible values of the input argument 'method' 

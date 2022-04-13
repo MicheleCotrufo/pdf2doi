@@ -13,7 +13,6 @@ def pdf2doi(target):
     If target contains the valid path of a folder, the function tries to extract the DOI/identifer of all pdf files in the folder.
     It returns a dictionary (or a list of dictionaries) containing info(s) about the file(s) examined, or None if an error occurred.
 
-
     Example:
         import pdf2doi
         path = r"Path\to\folder"
@@ -92,14 +91,19 @@ def pdf2doi(target):
         if result['identifier'] == None:
             logger.error("It was not possible to find a valid identifier for this file.")
 
+        if (config.get('save_identifier_metadata'))==True:
+            if result['identifier'] and not(result['method']=="document_infos"):
+                finders.add_found_identifier_to_metadata(filename, result['identifier'])
+
         return result #This will be a dictionary with all entries as None
 
-def pdf2doi_singlefile(filename):
-    ''' This function looks for an identifier of the file specified by filename.  This function does not check wheter filename is a valid path to a pdf file.
+def pdf2doi_singlefile(file):
+    ''' Try to find an identifier of the file specified by the input argument file.  This function does not check wheter filename is a valid path to a pdf file.
+    
     Parameters
     ----------
-    filename : string
-        absolute path of a single .pdf file
+    file : ether a string or an object file
+                if it's a string, it is the absolute path of a single .pdf file
 
     Returns
     -------
@@ -115,6 +119,11 @@ def pdf2doi_singlefile(filename):
 
     ''' 
     logger = logging.getLogger("pdf2doi")
+
+    if isinstance(file,str):
+        flag_closefile = True
+        file = open(file, 'rb')
+
     #Several methods are now applied to find a valid identifier in the .pdf file identified by filename
     
     #First method: we look into the pdf metadata (in the current implementation this is done
@@ -122,39 +131,41 @@ def pdf2doi_singlefile(filename):
     #valid identifier inside it. We first look for the elements of the dictionary with keys 'doi' or '/doi' (if the they exist), 
     #and then any other field of the dictionary 
     logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
-    result = finders.find_identifier(filename,method="document_infos",keysToCheckFirst=['/doi','/identfier'])
+    result = finders.find_identifier(file,method="document_infos",keysToCheckFirst=['/doi','/identfier'])
     if result['identifier']:
         return result 
         
     #Second method: We look for a DOI or arxiv ID inside the filename
     logger.info(f"Method #2: Looking for a valid identifier in the file name...")
-    result = finders.find_identifier(filename,method="filename")
+    result = finders.find_identifier(file,method="filename")
     if result['identifier']:
         return result 
     
     #Third method: We look in the plain text of the pdf and try to find something that matches a valid identifier. 
     logger.info(f"Method #3: Looking for a valid identifier in the document text...")
-    result =  finders.find_identifier(filename,method="document_text")
+    result =  finders.find_identifier(file,method="document_text")
     if result['identifier']:
         return result 
     
     #Fourth method: We look for possible titles of the paper, do a google search with them, 
     # open the first results and look for identifiers in the plain text of the searcg results.
     logger.info(f"Method #4: Looking for possible publication titles...")
-    result =  finders.find_identifier(filename,method="title_google")
+    result =  finders.find_identifier(file,method="title_google")
     if result['identifier']:
         return result
         
     #Fifth method: We extract the first N characters from the file (where N is set by config.get('N_characters_in_pdf')) and we use it as 
     # a query for a google seaerch. We open the first results and look for identifiers in the plain text of the searcg results.
     logger.info(f"Method #5: Trying to do a google search with the first {config.get('N_characters_in_pdf')} characters of this pdf file...")
-    result =  finders.find_identifier(filename,method="first_N_characters_google")
+    result =  finders.find_identifier(file,method="first_N_characters_google")
     if result['identifier']:
         return result
 
+    if flag_closefile:
+        file.close()
+
     return result   #If the execution gets to this line, then no valid identifier was found and
                     #result is a dictionary with result['identifier'] = None 
-
 
 def save_identifiers(filename_identifiers, results, clipboard = False):
     ''' Write all identifiers contained in the input list 'results' into a text file with a path specified by filename_identifiers (if filename_identifiers is a 

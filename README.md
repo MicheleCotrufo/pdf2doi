@@ -229,14 +229,14 @@ The same optional arguments available in the command line operation are now avai
 For example, we can scan the folder [examples](/examples) while soppressing output verbosity by, 
 
 ```python
->>> from pdf2doi import pdf2doi
+>>> import pdf2doi
 >>> pdf2doi.config.set('verbose',False)
->>> results = pdf2doi('.\examples')
+>>> results = pdf2doi.pdf2doi('.\examples')
 ```
 
 The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
-```
+```python
 result['identifier'] = DOI or other identifier (or None if nothing is found)
 result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
 result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info']
@@ -255,7 +255,7 @@ For example, the DOIs/identifiers of each file can be printed by
 ```
 A full list of the library settings can be printed by the method ```pdf2doi.config.print()```
 ```python
->>> from pdf2doi import pdf2doi
+>>> import pdf2doi
 >>> pdf2doi.config.print()
 verbose : False (bool)
 separator : \ (str)

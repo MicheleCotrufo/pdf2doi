@@ -1,6 +1,6 @@
 # pdf2doi 
 
-pdf2doi is a Python library/command-line tool to to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
+pdf2doi is a Python library/command-line tool to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
 (or from a folder containing several .pdf files), and to retrieve bibliographic information.
 It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
 via web queries to public archives (e.g. http://dx.doi.org). 

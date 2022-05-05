@@ -233,6 +233,19 @@ For example, we can scan the folder [examples](/examples) while soppressing outp
 >>> pdf2doi.config.set('verbose',False)
 >>> results = pdf2doi.pdf2doi('.\examples')
 ```
+A full list of the library settings can be printed by the method ```pdf2doi.config.print()```
+```python
+>>> import pdf2doi
+>>> pdf2doi.config.print()
+verbose : False (bool)
+separator : \ (str)
+method_dxdoiorg : application/citeproc+json (str)
+webvalidation : True (bool)
+websearch : True (bool)
+numb_results_google_search : 6 (int)
+N_characters_in_pdf : 1000 (int)
+save_identifier_metadata : True (bool)
+```
 
 The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
 
@@ -253,19 +266,7 @@ For example, the DOIs/identifiers of each file can be printed by
 10.1103/PhysRevLett.116.061102
 10.1038/s41586-019-1666-5
 ```
-A full list of the library settings can be printed by the method ```pdf2doi.config.print()```
-```python
->>> import pdf2doi
->>> pdf2doi.config.print()
-verbose : False (bool)
-separator : \ (str)
-method_dxdoiorg : application/citeproc+json (str)
-webvalidation : True (bool)
-websearch : True (bool)
-numb_results_google_search : 6 (int)
-N_characters_in_pdf : 1000 (int)
-save_identifier_metadata : True (bool)
-```
+
 By default, everytime that a valid DOI/identifier is found, it is stored in the metadata of the pdf file. In this way, subsequent lookups of the same folder/file will be much faster.
 This behaviour can be removed (e.g. if the user does not want or cannot edit the files) by setting save_identifier_metadata to False, via
 ```python

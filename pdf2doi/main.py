@@ -128,10 +128,10 @@ def pdf2doi_singlefile(file):
     
     #First method: we look into the pdf metadata (in the current implementation this is done
     # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
-    #valid identifier inside it. We first look for the elements of the dictionary with keys 'doi' or '/doi' (if the they exist), 
+    #valid identifier inside it. We first look for the elements of the dictionary with keys '/doi' or /identifier'(if the they exist), 
     #and then any other field of the dictionary 
     logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
-    result = finders.find_identifier(file,method="document_infos",keysToCheckFirst=['/doi','/identfier'])
+    result = finders.find_identifier(file,method="document_infos",keysToCheckFirst=['/doi','/identifier'])
     if result['identifier']:
         return result 
         
@@ -301,8 +301,12 @@ def main():
         target = args.path
 
     if target == "":
-        print("pdf2doi: error: the following arguments are required: path. Type \'pdf2doi --h\' for a list of commands.")
+        print("Error: the following arguments are required: path. Type \'pdf2doi --h\' for a list of commands.")
         return
+
+    if not(path.exists(target)):
+        print(f"Error: {target} is not a valid path to a file or a directory.")
+        return None
 
     #If the command -id_input_box was specified, we generate an input box, ask for a string from the user and
     #save it in args.identifier. In this way, the next if block is triggered
@@ -340,8 +344,8 @@ def main():
             print('{:<15s} {:<40s} {:<10s}\n'.format('n.a.', 'n.a.',result['path']) ) 
 
 
-    # We call the function save_identifiers. If args.filename_identifiers is a valid string, it will save all found identifiers in a text file with that name.
-    # If args.save_doi_clipboard is true, it will copy all identifiers into the clipboard
+    #Call the function save_identifiers. If args.filename_identifiers is a valid string, it will save all found identifiers in a text file with that name.
+    # If args.save_doi_clipboard is true, it will copy all identifiers into the clipboard. Otherwise, it will do nothing
     save_identifiers(args.filename_identifiers, results, args.save_doi_clipboard)  
 
     return

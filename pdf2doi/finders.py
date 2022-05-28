@@ -187,15 +187,15 @@ def extract_arxivID_from_text(text,version=0):
 
     Returns
     -------
-    arxivID : string or None
-        It returns a list of all arxiv IDs found
+    arxivID : list
+        It returns a list of all arXiv IDs found (or empty list if no ID was found)
     """   
     try:                                            
         arxiv_ids = re.findall(arxiv_regexp[version] ,text,re.I)
         return arxiv_ids
     except:
         pass
-    return None
+    return []
 
 def extract_doi_from_text(text,version=0):
     """
@@ -212,8 +212,8 @@ def extract_doi_from_text(text,version=0):
 
     Returns
     -------
-    doi_list : string or None
-        It returns a list of all dois found
+    doi_list : list
+        It returns a list of all dois found (or empty list if no doi was found)
 
     """    
     try:
@@ -221,7 +221,7 @@ def extract_doi_from_text(text,version=0):
         return dois
     except:
         pass
-    return None
+    return []
 
 def find_identifier_in_google_search(query,func_validate,numb_results):
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
@@ -400,7 +400,7 @@ def get_pdf_text(file,reader):
             
         for i in range(number_of_pages):
             try:
-                text.append( (pdf.getPage(i)).extractText())
+                text.append( (pdf.getPage(i)).extract_text())
             except Exception as e:
                 logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                 logger.error("Error from PyPDF2: " + str(e))
@@ -472,11 +472,11 @@ def add_found_identifier_to_metadata(target,identifier):
             writer.appendPagesFromReader(pdf)
             metadata = pdf.getDocumentInfo()
             try:
-                writer.addMetadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
+                writer.add_metadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
             except:                             #correctly seen as strings (it happens with old files). Therefore we use the try/except
                 pass                            #to ignore this possible problem
             key = '/identifier'
-            writer.addMetadata({
+            writer.add_metadata({
                 key: identifier
             })
             fout = open(f, 'ab') 

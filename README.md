@@ -1,6 +1,6 @@
 # pdf2doi 
 
-pdf2doi is a Python library/command-line tool to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
+```pdf2doi``` is a Python library/command-line tool to automatically extract the DOI or other identifiers (e.g. arXiv ID) starting from the .pdf file of a publication 
 (or from a folder containing several .pdf files), and to retrieve bibliographic information.
 It exploits several methods (see below for detailed description) to find a valid identifier of a pdf file, and it validates any result
 via web queries to public archives (e.g. http://dx.doi.org). 
@@ -8,6 +8,18 @@ The validation process also returns raw bibtex infos, which can be used for furt
 automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)).
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
+
+## Latest stable version
+The latest stable version of ```pdf2doi``` is the **1.2**. See ([https://github.com/MicheleCotrufo/pdf2doi/releases]here) for the full change log.
+
+### [v1.2] - 2022-05-28
+#### Added
+- Print explicit error when target path is not a valid file or directory (when used via CLI).
+
+#### Fixed
+- Bug due to some functions returning None instead of an empty list (issue https://github.com/MicheleCotrufo/pdf2doi/issues/15).
+- Fixed typo at line 134 of main.py ('/identfier' -> '/identifier')
+
 
 ## Installation
 
@@ -22,7 +34,7 @@ Under Windows, after installation it is also possible to add [shortcuts to the r
 <!--
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 -->
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1)
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 ## Table of Contents
  - [Description](#description)

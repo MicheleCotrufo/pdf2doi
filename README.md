@@ -10,7 +10,7 @@ automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotruf
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.2**. See ([https://github.com/MicheleCotrufo/pdf2doi/releases]here) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.2**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
 ### [v1.2] - 2022-05-28
 #### Added

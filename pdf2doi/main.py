@@ -121,48 +121,44 @@ def pdf2doi_singlefile(file):
     logger = logging.getLogger("pdf2doi")
 
     if isinstance(file,str):
-        flag_closefile = True
-        file = open(file, 'rb')
+        with open(file, 'rb') as file:
 
-    #Several methods are now applied to find a valid identifier in the .pdf file identified by filename
-    
-    #First method: we look into the pdf metadata (in the current implementation this is done
-    # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
-    #valid identifier inside it. We first look for the elements of the dictionary with keys '/doi' or /identifier'(if the they exist), 
-    #and then any other field of the dictionary 
-    logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
-    result = finders.find_identifier(file,method="document_infos",keysToCheckFirst=['/doi','/identifier'])
-    if result['identifier']:
-        return result 
-        
-    #Second method: We look for a DOI or arxiv ID inside the filename
-    logger.info(f"Method #2: Looking for a valid identifier in the file name...")
-    result = finders.find_identifier(file,method="filename")
-    if result['identifier']:
-        return result 
-    
-    #Third method: We look in the plain text of the pdf and try to find something that matches a valid identifier. 
-    logger.info(f"Method #3: Looking for a valid identifier in the document text...")
-    result =  finders.find_identifier(file,method="document_text")
-    if result['identifier']:
-        return result 
-    
-    #Fourth method: We look for possible titles of the paper, do a google search with them, 
-    # open the first results and look for identifiers in the plain text of the searcg results.
-    logger.info(f"Method #4: Looking for possible publication titles...")
-    result =  finders.find_identifier(file,method="title_google")
-    if result['identifier']:
-        return result
-        
-    #Fifth method: We extract the first N characters from the file (where N is set by config.get('N_characters_in_pdf')) and we use it as 
-    # a query for a google seaerch. We open the first results and look for identifiers in the plain text of the searcg results.
-    logger.info(f"Method #5: Trying to do a google search with the first {config.get('N_characters_in_pdf')} characters of this pdf file...")
-    result =  finders.find_identifier(file,method="first_N_characters_google")
-    if result['identifier']:
-        return result
+            #Several methods are now applied to find a valid identifier in the .pdf file identified by filename
 
-    if flag_closefile:
-        file.close()
+            #First method: we look into the pdf metadata (in the current implementation this is done
+            # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
+            #valid identifier inside it. We first look for the elements of the dictionary with keys '/doi' or /identifier'(if the they exist),
+            #and then any other field of the dictionary
+            logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
+            result = finders.find_identifier(file,method="document_infos",keysToCheckFirst=['/doi','/identifier'])
+            if result['identifier']:
+                return result
+
+            #Second method: We look for a DOI or arxiv ID inside the filename
+            logger.info(f"Method #2: Looking for a valid identifier in the file name...")
+            result = finders.find_identifier(file,method="filename")
+            if result['identifier']:
+                return result
+
+            #Third method: We look in the plain text of the pdf and try to find something that matches a valid identifier.
+            logger.info(f"Method #3: Looking for a valid identifier in the document text...")
+            result =  finders.find_identifier(file,method="document_text")
+            if result['identifier']:
+                return result
+
+            #Fourth method: We look for possible titles of the paper, do a google search with them,
+            # open the first results and look for identifiers in the plain text of the searcg results.
+            logger.info(f"Method #4: Looking for possible publication titles...")
+            result =  finders.find_identifier(file,method="title_google")
+            if result['identifier']:
+                return result
+
+            #Fifth method: We extract the first N characters from the file (where N is set by config.get('N_characters_in_pdf')) and we use it as
+            # a query for a google seaerch. We open the first results and look for identifiers in the plain text of the searcg results.
+            logger.info(f"Method #5: Trying to do a google search with the first {config.get('N_characters_in_pdf')} characters of this pdf file...")
+            result =  finders.find_identifier(file,method="first_N_characters_google")
+            if result['identifier']:
+                return result
 
     return result   #If the execution gets to this line, then no valid identifier was found and
                     #result is a dictionary with result['identifier'] = None 

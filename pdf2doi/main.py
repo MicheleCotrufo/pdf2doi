@@ -97,7 +97,7 @@ def pdf2doi(target):
 
         return result #This will be a dictionary with all entries as None
 
-def pdf2doi_singlefile(file):
+def pdf2doi_singlefile(file_path):
     ''' Try to find an identifier of the file specified by the input argument file.  This function does not check wheter filename is a valid path to a pdf file.
     
     Parameters
@@ -120,8 +120,8 @@ def pdf2doi_singlefile(file):
     ''' 
     logger = logging.getLogger("pdf2doi")
 
-    if isinstance(file,str):
-        with open(file, 'rb') as file:
+    if isinstance(file_path,str):
+        with open(file_path, 'rb') as file:
 
             #Several methods are now applied to find a valid identifier in the .pdf file identified by filename
 

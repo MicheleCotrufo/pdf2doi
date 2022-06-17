@@ -127,7 +127,7 @@ def pdf2doi_singlefile(file):
 
     logger = logging.getLogger("pdf2doi")
 
-    result = {}
+    result = {'identifier': None}
 
     try:
         with open(file, 'rb') as f:
@@ -183,6 +183,10 @@ def __find_doi(file: io.IOBase) -> dict:
     result = finders.find_identifier(file, method="first_N_characters_google")
     if result['identifier']:
         return result
+
+    #If execution arrived to this point, it means that no identifier was found. We still return the dictionary returned by the last attempt, for further processing
+    #In this case result['identifier']=None
+    return result 
 
 
 def save_identifiers(filename_identifiers, results, clipboard=False):

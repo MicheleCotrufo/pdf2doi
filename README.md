@@ -15,7 +15,7 @@ The latest stable version of ```pdf2doi``` is the **1.3**. See [here](https://gi
 ### [v1.3] - 2022-06-17
 #### Fixed
 - Object files were not closed after being opened (issue https://github.com/MicheleCotrufo/pdf2doi/issues/17).
-- Make sure that the version 2.0.0 of pypdf2 is used, since the text extracted with newer versions occasionally messes up some DOI.
+- Make sure that the version 2.0.0 of `pypdf2` is used, since the text extracted with newer versions occasionally messes up some DOI.
 
 
 ## Installation

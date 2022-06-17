@@ -10,15 +10,12 @@ automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotruf
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.2**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.3**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.2] - 2022-05-28
-#### Added
-- Print explicit error when target path is not a valid file or directory (when used via CLI).
-
+### [v1.3] - 2022-06-17
 #### Fixed
-- Bug due to some functions returning None instead of an empty list (issue https://github.com/MicheleCotrufo/pdf2doi/issues/15).
-- Fixed typo at line 134 of main.py ('/identfier' -> '/identifier')
+- Object files were not closed after being opened (issue https://github.com/MicheleCotrufo/pdf2doi/issues/17).
+- Make sure that the version 2.0.0 of pypdf2 is used, since the text extracted with newer versions occasionally messes up some DOI.
 
 
 ## Installation

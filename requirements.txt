@@ -1,6 +1,6 @@
 google>=3.0.0
 requests>=2.25.1
-pypdf2>=1.26
+pypdf2==2.0.0
 textract==1.6.4
 pdftitle>=0.3
 feedparser>=6.0.2

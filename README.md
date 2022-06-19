@@ -31,7 +31,7 @@ Under Windows, after installation it is also possible to add [shortcuts to the r
 <!--
 <img src="docs/ContextMenu_pdf.gif" width="500" />
 -->
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)
+[![Downloads](https://pepy.tech/badge/pdf2doi)]([https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3))[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3)
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 ## Table of Contents
  - [Description](#description)

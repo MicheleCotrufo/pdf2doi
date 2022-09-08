@@ -610,7 +610,11 @@ def find_identifier_in_filename(file, func_validate):
     result : dictionary with identifier and other info (see above)
     """
     text = os.path.basename(file.name)
-    identifier,desc,info = find_identifier_in_text([text],func_validate)
+
+    strip_possible_extensions = accumulate(text.split('.'), lambda x,y: '.'.join([x, y]))
+    texts = [text] + list(reversed(strip_possible_extensions))
+
+    identifier,desc,info = find_identifier_in_text(texts,func_validate)
     if identifier: 
         logger.info(f"A valid {desc} was found in the file name.")
         return identifier,desc,info

@@ -1,7 +1,44 @@
-doi_pattern = '\A10\.\d{4,9}/[-._;()/:A-Z0-9]+$' #This regex for the DOI is taken from https://www.crossref.org/blog/dois-and-matching-regular-expressions/
+# This regex for the DOI is taken from https://www.crossref.org/blog/dois-and-matching-regular-expressions/
+# but allows multiple separator types, a prefix, and assumes the DOI is lowercase.
+import re
+
+
+DOI = r"""(?xm)
+  (?P<marker>   doi[:\/\s]{0,3})?
+  (?P<prefix>
+    (?P<namespace> 10)
+    [.]
+    (?P<registrant> \d{2,9})
+  )
+  (?P<sep>     [:.-\/\s\]])
+  (?P<suffix>  [-._;()\/:a-z0-9]+[a-z0-9]) 
+$
+"""
+
+def standardise_doi(identifier):
+    """Standardise a DOI by removing any marker, lowercase, and consistent separator
+    """
+    doi_meta = dict()
+    for match in re.finditer(DOI, identifier.lower()):
+        doi_meta.update(match.groupdict())
+    
+    if any(key not in doi_meta for key in ["registrant", "suffix"]):
+        return None
+    
+    return f"10.{doi_meta['registrant']}/{doi_meta['suffix']}"
+
+# 0.0009% have a non-standard namespace (i.e. not \d{4,9}), all match [\d\.]{1,15}
+# 0% have non-standard separators
+# 32% have interesting characters (i.e. not [.\/a-z0-9])
+# 99.34% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9][a-z0-9]$'
+# 99.43% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9]+$', crossref claim 99.3%
+# 99.880% terminate in alphanumeric characters [a-z0-9]
+# 99.804% match: ^10[.][\d.]{1,15}/[-._;:()/a-z0-9<>]+[a-z0-9]$
+# 99.9999% match: ^10[.][\d.]{1,15}/[-._;()/:a-z0-9<>@\]\[#+?\s&]+$
+doi_pattern = '^10[.]\d{4,9}/[-._;()\/:A-Z0-9]+$' 
                                                 #and it is used to validate a given DOI.
 
-arxiv2007_pattern = '\A(\d{4}\.\d+)(?:v\d+)?$' #This is a regex for arxiv identifiers (in use after 2007) and it is used to validate a given arxiv ID.
+arxiv2007_pattern = '^(\d{4}\.\d+)(?:v\d+)?$' #This is a regex for arxiv identifiers (in use after 2007) and it is used to validate a given arxiv ID.
                                                                             
 
 #The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are (roughly) ordered from stricter to less and less strict.
@@ -14,7 +51,7 @@ doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # ve
               'http[s]?://doi.org/(10\.\d{4,9}/[-._;()/:A-Z0-9]+)(?:[\s\n\"<]|$)', # version 3 is useful when the DOI can be found in a google result as an URL of the form https://doi.org/[DOI]
                                                                             #The regex for [DOI] is 10\.\d{4,9}/[-._;()/:A-Z0-9]+ (taken from here https://www.crossref.org/blog/dois-and-matching-regular-expressions/)
                                                                             #and it must be followed by a valid ending character: either a speace, a new line, a ", a <, or end of string.
-              '\A(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
+              '^(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
                                                                             #However, it requires that the string contains ONLY the doi and nothing else. This is useful for when the DOI is stored in metadata
 
              
@@ -29,5 +66,5 @@ arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #versi
                 '(\d{4}\.\d+)(?:v\d+)?(?:\.pdf)',                         #version 1 is similar to version 0, without the requirement of "arxiv : " at the beginning 
                                                                             #but with the requirement that '.pdf' appears right after the possible arXiv identifier. 
                                                                             #This is helpful when we are trying to extrat the arXiv ID from the file name.
-                '\A(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
+                '^(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
                                                                             #but requires that the string contains ONLY the arXiv ID.

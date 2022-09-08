@@ -18,10 +18,10 @@ import os
 import feedparser
 
 from pdf2doi.patterns import (
-    doi_pattern,
     arxiv2007_pattern,
     doi_regexp,
-    arxiv_regexp
+    arxiv_regexp,
+    standardise_doi
 )
 
 logger = logging.getLogger('pdf2doi')
@@ -48,7 +48,7 @@ def validate_doi_web(doi,method=None):
             # 503 or 504 errors are common
             if r.status_code >= 500 or (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
                 NumberAttempts = NumberAttempts -1
-                logging.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
+                logger.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
                 continue
             else:
                 NumberAttempts = 0
@@ -104,10 +104,14 @@ def validate(identifier,what='doi'):
     if not identifier:
         return None
     if what=='doi':
-        if re.match(doi_pattern,identifier,re.I):
+        doi_id = standardise_doi(identifier)
+        if identifier != doi_id:
+            logger.info(f"Standardised DOI: {identifier} -> {doi_id}")
+
+        if doi_id:
             if config.get('webvalidation'):
-                logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
-                result = validate_doi_web(identifier)
+                logger.info(f"Validating the possible DOI {doi_id} via a query to dx.doi.org...")
+                result = validate_doi_web(doi_id)
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
@@ -115,10 +119,10 @@ def validate(identifier,what='doi'):
                     logger.error(f"The DOI was validated by by dx.doi.org, but the validation string starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return False
                 if result:
-                    logger.info(f"The DOI {identifier} is validated by dx.doi.org.")
+                    logger.info(f"The DOI {doi_id} is validated by dx.doi.org.")
                     return result
                 else:
-                    logger.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
+                    logger.info(f"The DOI {doi_id} is not valid according to dx.doi.org.")
                     return False
             else:
                 logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential DOI on dx.doi.org.")
@@ -192,6 +196,9 @@ def extract_doi_from_text(text,version=0):
 
     """    
     try:
+        # TODO: Consider lookahead wrapping
+        # # Wrap in lookahead to allow overlapping matches
+        # dois = re.findall(f"(?={doi_regexp[version]})",text,re.I)
         dois = re.findall(doi_regexp[version],text,re.I)
         return dois
     except:
@@ -263,6 +270,7 @@ def find_identifier_in_text(texts,func_validate):
         for v in range(len(doi_regexp)):
             identifiers = extract_doi_from_text(text,version=v)
             for identifier in identifiers:
+                logger.debug("Found a potential DOI: " + identifier)
                 validation = func_validate(identifier,'doi')
                 if validation: 
                     return identifier, 'DOI', validation
@@ -584,8 +592,7 @@ def find_identifier_in_filename(file, func_validate):
     result : dictionary with identifier and other info (see above)
     """
     text = os.path.basename(file.name)
-
-    strip_possible_extensions = accumulate(text.split('.'), lambda x,y: '.'.join([x, y]))
+    strip_possible_extensions = list(accumulate(text.split('.'), lambda x,y: '.'.join([x, y])))
     texts = [text] + list(reversed(strip_possible_extensions))
 
     identifier,desc,info = find_identifier_in_text(texts,func_validate)
@@ -635,7 +642,7 @@ def find_identifier_by_googling_title(file, func_validate):
     titles = find_possible_titles(file)
     if titles:
         if config.get('websearch')==False:
-            logging.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
+            logger.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
             logger.info(f"Found {len(titles)} possible title(s).")

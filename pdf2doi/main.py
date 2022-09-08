@@ -135,10 +135,10 @@ def pdf2doi_singlefile(file):
     except TypeError:
         try:
             result = __find_doi(file)
-        except Exception as e:
-            logger.info("File processing error: %s" % e)
-    except Exception as e:
-        logger.info("File processing error: %s" % e)
+        except Exception:
+            logger.exception("File processing error")
+    except Exception:
+        logger.exception("File(open) processing error")
 
     return result
 

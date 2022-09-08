@@ -48,10 +48,10 @@ doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # ve
               '(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)',                 # in version 1 the requirement of having "DOI : " in the beginning is removed
               '(10\.\d{4}[\:\.\-\/a-z]+[\:\.\-\d]+)(?:[\s\na-z\"<]|$)',     # version 2 is useful for cases in which, in plain texts, the DOI is not followed by a space, newline or special characters,
                                                                             #but is instead followed by other letters. In this case we can still isolate the DOI if we assume that the DOI always ends with numbers
-              'http[s]?://doi.org/(10\.\d{4,9}/[-._;()/:A-Z0-9]+)(?:[\s\n\"<]|$)', # version 3 is useful when the DOI can be found in a google result as an URL of the form https://doi.org/[DOI]
-                                                                            #The regex for [DOI] is 10\.\d{4,9}/[-._;()/:A-Z0-9]+ (taken from here https://www.crossref.org/blog/dois-and-matching-regular-expressions/)
+              'https?://[ -~]*doi[ -~]*/(10\.\d{4,9}/[-._;()/:a-z0-9]+)(?:[\s\n\"<]|$)', # version 3 is useful when the DOI can be found in a google result as an URL of the form https://doi.org/[DOI]
+                                                                            #The regex for [DOI] is 10\.\d{4,9}/[-._;()/:a-z0-9]+ (taken from here https://www.crossref.org/blog/dois-and-matching-regular-expressions/)
                                                                             #and it must be followed by a valid ending character: either a speace, a new line, a ", a <, or end of string.
-              '^(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
+              '^(10\.\d{4,9}/[-._;()/:a-z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
                                                                             #However, it requires that the string contains ONLY the doi and nothing else. This is useful for when the DOI is stored in metadata
 
              

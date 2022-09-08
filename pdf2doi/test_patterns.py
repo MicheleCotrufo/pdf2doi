@@ -54,16 +54,19 @@ def test_standardise_doi(suspected, expected):
 
 @pytest.mark.parametrize(["suspected", "expected"], [
     ["10.1109/sp.2011.40"] * 2,
-    ["doi10.1177:0146167297234003", "doi10.1177:0146167297234003"],
-    ["10.1177:0146167297234003.pdf", "10.1177:0146167297234003.pdf"],
+    ["doi10.1177:0146167297234003", "10.1177/0146167297234003"],
+    ["10.1177:0146167297234003.pdf", "10.1177/0146167297234003.pdf"],
+    ["https://journals.sagepub.com/doi/pdf/10.1177/0146167297234003", "10.1177/0146167297234003"],
+    ["https://doi.org/10.1109/sp.2011.40", "10.1109/sp.2011.40"]
 ])
 def test_is_loose_doi_match(suspected, expected):
     print(suspected)
     for ver, regex in enumerate(doi_regexp):
-        match = re.match(regex, suspected,re.I)
-        if match is not None:
-            assert match.group() == expected
-            print(f"{ver} matched.")
+        
+        identifiers = re.findall(regex, suspected.lower())
+        if identifiers:
+            print(f"Matched with {ver} - {identifiers}")
+            assert standardise_doi(identifiers[0]) == expected
             return
         print(f"{ver} failed.")
     assert False

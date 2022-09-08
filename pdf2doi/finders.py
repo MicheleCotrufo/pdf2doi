@@ -71,7 +71,8 @@ def validate_doi_web(doi,method=None):
             r = requests.get(url, headers = headers)
             r.encoding = 'utf-8' #This forces to encode the obtained text with utf-8
             text = r.text
-            if (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
+            # 503 or 504 errors are common
+            if r.status_code >= 500 or (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
                 NumberAttempts = NumberAttempts -1
                 logging.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
                 continue

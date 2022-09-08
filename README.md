@@ -9,6 +9,12 @@ automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotruf
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
+<!--
+<img src="docs/ContextMenu_pdf.gif" width="500" />
+-->
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)
+[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
+
 ## Latest stable version
 The latest stable version of ```pdf2doi``` is the **1.3**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
@@ -28,14 +34,19 @@ pip install pdf2doi
 
 Under Windows, after installation it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).
 
-<!--
-<img src="docs/ContextMenu_pdf.gif" width="500" />
--->
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=0.5&versions=0.6&versions=1.0&versions=1.0.1&versions=1.1&versions=1.2)
-[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
+## Used by
+
+Here is a list of applications/repository that make use of ```pdf2doi```. If you use ```pdf2doi``` in your application and you wish to add it to this list, send me a message.
+
+* [pub2sum](https://github.com/SamuelKnaus/pub2sum)
+* [DataIngest](https://github.com/workfor-webapps/DataIngest)
+* [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)
+* [pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)
+
+
 ## Table of Contents
- - [Description](#description)
  - [Installation](#installation)
+ - [Description](#description)
  - [Usage](#usage)
     * [Command line usage](#command-line-usage)
         + [Manually associate the correct identifier to a file from command line](#manually-associate-the-correct-identifier-to-a-file-from-command-line)

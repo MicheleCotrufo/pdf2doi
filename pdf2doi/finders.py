@@ -237,6 +237,10 @@ def find_identifier_in_google_search(query,func_validate,numb_results):
     i=1
     try:
         for url in search(query, stop=numb_results):
+            identifier,desc,info = find_identifier_in_text([url],func_validate)
+            if identifier: 
+                logger.info(f"A valid {desc} was found in the search URL.")
+                return identifier,desc,info
             logger.info(f"Looking for a valid identifier in the search result #{str(i)} : {url}")
             response = requests.get(url,headers=headers)
             text = response.text

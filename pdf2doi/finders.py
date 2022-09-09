@@ -104,14 +104,14 @@ def validate(identifier,what='doi'):
     if not identifier:
         return None
     if what=='doi':
-        doi_id = standardise_doi(identifier)
-        if identifier != doi_id:
-            logger.info(f"Standardised DOI: {identifier} -> {doi_id}")
+        standard_doi = standardise_doi(identifier)
+        if identifier != standard_doi:
+            logger.info(f"Standardised DOI: {identifier} -> {standard_doi}")
 
-        if doi_id:
+        if standard_doi:
             if config.get('webvalidation'):
-                logger.info(f"Validating the possible DOI {doi_id} via a query to dx.doi.org...")
-                result = validate_doi_web(doi_id)
+                logger.info(f"Validating the possible DOI {standard_doi} via a query to dx.doi.org...")
+                result = validate_doi_web(standard_doi)
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
@@ -119,10 +119,10 @@ def validate(identifier,what='doi'):
                     logger.error(f"The DOI was validated by by dx.doi.org, but the validation string starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return False
                 if result:
-                    logger.info(f"The DOI {doi_id} is validated by dx.doi.org.")
+                    logger.info(f"The DOI {standard_doi} is validated by dx.doi.org.")
                     return result
                 else:
-                    logger.info(f"The DOI {doi_id} is not valid according to dx.doi.org.")
+                    logger.info(f"The DOI {standard_doi} is not valid according to dx.doi.org.")
                     return False
             else:
                 logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential DOI on dx.doi.org.")

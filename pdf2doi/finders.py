@@ -196,9 +196,6 @@ def extract_doi_from_text(text,version=0):
 
     """    
     try:
-        # TODO: Consider lookahead wrapping
-        # # Wrap in lookahead to allow overlapping matches
-        # dois = re.findall(f"(?={doi_regexp[version]})",text,re.I)
         dois = re.findall(doi_regexp[version],text,re.I)
         return dois
     except:

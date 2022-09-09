@@ -589,8 +589,11 @@ def find_identifier_in_filename(file, func_validate):
     result : dictionary with identifier and other info (see above)
     """
     text = os.path.basename(file.name)
+    # 10.1227/12345678.pdf is both a valid filename and a valid doi
+    # We want to still discover the "actual" doi which requires the .pdf extension to be removed.
+    # We try repeatedly stripping the extension until we find a valid doi (works best with online validation, which is default). 
     strip_possible_extensions = list(accumulate(text.split('.'), lambda x,y: '.'.join([x, y])))
-    texts = [text] + list(reversed(strip_possible_extensions))
+    texts = list(reversed(strip_possible_extensions))
 
     identifier,desc,info = find_identifier_in_text(texts,func_validate)
     if identifier: 

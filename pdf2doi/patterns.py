@@ -2,7 +2,15 @@
 # but allows multiple separator types, a prefix, and assumes the DOI is lowercase.
 import re
 
-
+# Based on local DOI corpus:
+# 0% have non-standard separators (e.g. 10.1177:0146167297234003)
+# 0.0009% have a non-standard namespace (i.e. not \d{4,9}), all match [\d\.]{1,15}
+# 32% have interesting characters (i.e. not [.\/a-z0-9])
+# 99.34% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9][a-z0-9]$'
+# 99.43% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9]+$', crossref claim 99.3%
+# 99.880% terminate in alphanumeric characters [a-z0-9]
+# 99.804% match: ^10[.][\d.]{1,15}/[-._;:()/a-z0-9<>]+[a-z0-9]$
+# 99.9999% match: ^10[.][\d.]{1,15}/[-._;()/:a-z0-9<>@\]\[#+?\s&]+$
 DOI = r"""(?xm)
   (?P<marker>   doi[:\/\s]{0,3})?
   (?P<prefix>
@@ -12,11 +20,12 @@ DOI = r"""(?xm)
   )
   (?P<sep>     [:.-\/\s\]])
   (?P<suffix>  [-._;()\/:a-z0-9]+[a-z0-9]) 
-$
+  (?P<trailing> ([\s\n\"<.]|$))
 """
 
 def standardise_doi(identifier):
-    """Standardise a DOI by removing any marker, lowercase, and consistent separator
+    """
+    Standardise a DOI by removing any marker, lowercase, and applying a consistent separator
     """
     doi_meta = dict()
     for match in re.finditer(DOI, identifier.lower()):
@@ -27,21 +36,12 @@ def standardise_doi(identifier):
     
     return f"10.{doi_meta['registrant']}/{doi_meta['suffix']}"
 
-# 0.0009% have a non-standard namespace (i.e. not \d{4,9}), all match [\d\.]{1,15}
-# 0% have non-standard separators
-# 32% have interesting characters (i.e. not [.\/a-z0-9])
-# 99.34% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9][a-z0-9]$'
-# 99.43% match this pattern: '^10\.\d{4,9}/[-._;()\/:a-z0-9]+$', crossref claim 99.3%
-# 99.880% terminate in alphanumeric characters [a-z0-9]
-# 99.804% match: ^10[.][\d.]{1,15}/[-._;:()/a-z0-9<>]+[a-z0-9]$
-# 99.9999% match: ^10[.][\d.]{1,15}/[-._;()/:a-z0-9<>@\]\[#+?\s&]+$
-doi_pattern = '^10[.]\d{4,9}/[-._;()\/:A-Z0-9]+$' 
-                                                #and it is used to validate a given DOI.
 
-arxiv2007_pattern = '^(\d{4}\.\d+)(?:v\d+)?$' #This is a regex for arxiv identifiers (in use after 2007) and it is used to validate a given arxiv ID.
+# This is a regex for arxiv identifiers (in use after 2007) and it is used to validate a given arxiv ID.
+arxiv2007_pattern = '^(\d{4}\.\d+)(?:v\d+)?$'
                                                                             
 
-#The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are (roughly) ordered from stricter to less and less strict.
+# The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are (roughly) ordered from stricter to less and less strict.
 doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # version 0 looks for something like "DOI : 10.xxxxS[end characters] where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
                                                                             # [end characters] is either a space, newline, " , < or the end of the string. The initial part could be either "DOI : ", "DOI", "DOI:", "DOI.:", ""DOI:." 
                                                                             # and with possible spaces or lower cases.

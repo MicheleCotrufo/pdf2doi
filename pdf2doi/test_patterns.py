@@ -1,7 +1,6 @@
 import pytest
 import re
 from pdf2doi.patterns import (
-    doi_pattern,
     doi_regexp,
     standardise_doi
 )
@@ -34,6 +33,7 @@ DOIS_WITH_SHORT_NAMESPACES = [
     "10.16/j.reuma.2008.12.011"
 ]
 
+# Note that these are NOT supported, but useful to collate in future versions
 STRANGE_BUT_VALID_DOIS = [
     "10.1642/0004-8038(2005)122[0121:POTPIS]2.0.CO;2",
     "10.1002/1521-4141(200106)31:6<1685::aid-immu1685>3.0.co;2-v",
@@ -41,18 +41,16 @@ STRANGE_BUT_VALID_DOIS = [
     "10.1061/(asce)0733-9429(2008)134:4(390)" # terminates in a closing parenthesis
 ]
 
-@pytest.mark.parametrize("suspected", BASIC_DOIS)
-def test_is_strict_doi_match(suspected):
-    assert re.match(doi_pattern, suspected, re.I) is not None
-
 @pytest.mark.parametrize(["suspected", "expected"], [
     ["10.1177:0146167297234003", "10.1177/0146167297234003"],
-    *zip(DOIS_WITH_NON_STANDARD_SEPARTORS, BASIC_DOIS + BASIC_DOIS + BASIC_DOIS),
+    ["10.1109/CVPR.2016.90.", "10.1109/cvpr.2016.90"],
+    *zip(DOIS_WITH_NON_STANDARD_SEPARTORS, BASIC_DOIS + BASIC_DOIS + BASIC_DOIS)
 ])
 def test_standardise_doi(suspected, expected): 
     assert standardise_doi(suspected) == expected
 
 @pytest.mark.parametrize(["suspected", "expected"], [
+    *zip(BASIC_DOIS, BASIC_DOIS),
     ["10.1109/sp.2011.40"] * 2,
     ["doi10.1177:0146167297234003", "10.1177/0146167297234003"],
     ["10.1177:0146167297234003.pdf", "10.1177/0146167297234003.pdf"],

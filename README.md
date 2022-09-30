@@ -32,8 +32,9 @@ Under Windows, after installation it is also possible to add [shortcuts to the r
 
 ## Used by
 
-Here is a list of applications/repository that make use of ```pdf2doi```. If you use ```pdf2doi``` in your application and you wish to add it to this list, send me a message.
+Here is a list of applications/repositories that make use of ```pdf2doi```. If you use ```pdf2doi``` in your application and you wish to add it to this list, send me a message.
 
+* [mendeley-migration](https://github.com/newmanrs/mendeley-migration)
 * [pub2sum](https://github.com/SamuelKnaus/pub2sum)
 * [DataIngest](https://github.com/workfor-webapps/DataIngest)
 * [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib)

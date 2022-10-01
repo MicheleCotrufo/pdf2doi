@@ -38,6 +38,7 @@ def validate_doi_web(doi,method=None):
     if method == None:
         method = config.get('method_dxdoiorg')
     try:
+        # TODO(DJRHails): This should really use the handle API (https://www.doi.org/factsheets/DOIProxy.html)
         url = "http://dx.doi.org/" + doi
         headers = {"accept": method}
         NumberAttempts = 10
@@ -52,12 +53,16 @@ def validate_doi_web(doi,method=None):
                 continue
             else:
                 NumberAttempts = 0
-            if (text.lower().find( "DOI Not Found".lower() ))==-1:
-                return text
-                #metadata = parse_bib_from_dxdoiorg(text, method)
-                #return {'bibtex_entry':make_bibtex(metadata), 'bibtex_data':metadata}
-            else:
+
+            # 404 = DOI Not Found, or DOI Prefix Not Found
+            if r.status_code == 404:
                 return None
+
+            # Backup check for HTML error page content
+            if text.lower().find("DOI cannot be found".lower()) != -1:
+                return None
+                
+            return text
     except Exception as e:
         logger.error(r"Some error occured within the function validate_doi_web")
         logger.error(e)

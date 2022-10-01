@@ -269,8 +269,12 @@ def find_identifier_in_text(texts,func_validate):
             for identifier in identifiers:
                 logger.debug("Found a potential DOI: " + identifier)
                 validation = func_validate(identifier,'doi')
+                standard_doi = standardise_doi(identifier)
+                if identifier != standard_doi:
+                    logger.info(f"Standardised DOI: {identifier} -> {standard_doi}")
+
                 if validation: 
-                    return identifier, 'DOI', validation
+                    return standard_doi, 'DOI', validation
             
         #Then we look for an Arxiv ID
         for v in range(len(arxiv_regexp)):

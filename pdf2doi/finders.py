@@ -232,8 +232,8 @@ def find_identifier_in_google_search(query,func_validate,numb_results):
             if identifier: 
                 return identifier,desc,info
             i=i+1
-    except Exception as e: 
-        logger.error('Some error occured while doing a google search (maybe the string is too long?): \n '+ str(e))
+    except Exception: 
+        logger.exception('Some error occured while doing a google search (maybe the string is too long?)')
     return None, None, None
 
 def find_identifier_in_text(texts,func_validate):
@@ -660,12 +660,12 @@ def find_identifier_by_googling_title(file, func_validate):
         else:
             logger.info(f"Found {len(titles)} possible title(s).")
             titles.sort(key=len, reverse=True)
-            for index_title,title in enumerate(titles):
-                logger.info(f"Trying possible title #{index_title+1}")
+            for index_title, title in enumerate(titles):
+                logger.info(f"Trying possible title #{index_title+1} '{title}'")
                 identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results=config.get('numb_results_google_search'))
                 if identifier:
                     logger.info(f"A valid {desc} was found with this google search.")
-                    return identifier,desc,info
+                    return identifier, desc, info
             logger.info("None of the search results contained a valid identifier.")     
             return None, None, None
     else:

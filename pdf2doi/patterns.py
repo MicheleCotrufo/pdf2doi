@@ -18,7 +18,7 @@ DOI = r"""(?xm)
     [.]
     (?P<registrant> \d{2,9})
   )
-  (?P<sep>     [:.-\/\s\]])
+  (?P<sep>     [:-\/\s\]])
   (?P<suffix>  [-._;()\/:a-z0-9]+[a-z0-9]) 
   (?P<trailing> ([\s\n\"<.]|$))
 """

@@ -5,6 +5,7 @@ The module is divided in two parts. The first part contains low-level functions.
 any part of the main script main.py. Instead, they are called by the high-level finder functions, defined in the second part of 
 this module.
 """
+from urllib.parse import unquote
 from itertools import accumulate
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import textract
@@ -597,8 +598,11 @@ def find_identifier_in_filename(file, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    text = os.path.basename(file.name)
-    # 10.1227/12345678.pdf is both a valid filename and a valid doi
+    # We unquote here to allow / to be placed in filenames as %2F
+    # particularly useful for DOIs with multiple slashes
+    text = unquote(os.path.basename(file.name))
+
+    # 10.1227/12345678.pdf is both a valid filepath and a valid doi
     # We want to still discover the "actual" doi which requires the .pdf extension to be removed.
     # We try repeatedly stripping the extension until we find a valid doi (works best with online validation, which is default). 
     strip_possible_extensions = list(accumulate(text.split('.'), lambda x,y: '.'.join([x, y])))

@@ -5,6 +5,8 @@ The module is divided in two parts. The first part contains low-level functions.
 any part of the main script main.py. Instead, they are called by the high-level finder functions, defined in the second part of 
 this module.
 """
+from urllib.parse import unquote
+from itertools import accumulate
 from PyPDF2 import PdfFileReader, PdfFileWriter
 import textract
 import requests
@@ -16,43 +18,16 @@ import pdf2doi.config as config
 import os
 import feedparser
 
+from pdf2doi.patterns import (
+    arxiv2007_pattern,
+    doi_regexp,
+    arxiv_regexp,
+    standardise_doi
+)
+
 logger = logging.getLogger('pdf2doi')
 
 ######## Beginning first part, low-level functions ######## 
-
-doi_pattern = '\A10\.\d{4,9}/[-._;()/:A-Z0-9]+$' #This regex for the DOI is taken from https://www.crossref.org/blog/dois-and-matching-regular-expressions/
-                                                #and it is used to validate a given DOI.
-
-arxiv2007_pattern = '\A(\d{4}\.\d+)(?:v\d+)?$' #This is a regex for arxiv identifiers (in use after 2007) and it is used to validate a given arxiv ID.
-                                                                            
-
-#The list doi_regexp contains several regular expressions used to identify a DOI in a string. They are (roughly) ordered from stricter to less and less strict.
-doi_regexp = ['doi[\s\.\:]{0,2}(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)', # version 0 looks for something like "DOI : 10.xxxxS[end characters] where xxxx=4 digits, S=combination of characters, digits, ., :, -, and / of any length
-                                                                            # [end characters] is either a space, newline, " , < or the end of the string. The initial part could be either "DOI : ", "DOI", "DOI:", "DOI.:", ""DOI:." 
-                                                                            # and with possible spaces or lower cases.
-              '(10\.\d{4}[\d\:\.\-\/a-z]+)(?:[\s\n\"<]|$)',                 # in version 1 the requirement of having "DOI : " in the beginning is removed
-              '(10\.\d{4}[\:\.\-\/a-z]+[\:\.\-\d]+)(?:[\s\na-z\"<]|$)',     # version 2 is useful for cases in which, in plain texts, the DOI is not followed by a space, newline or special characters,
-                                                                            #but is instead followed by other letters. In this case we can still isolate the DOI if we assume that the DOI always ends with numbers
-              'http[s]?://doi.org/(10\.\d{4,9}/[-._;()/:A-Z0-9]+)(?:[\s\n\"<]|$)', # version 3 is useful when the DOI can be found in a google result as an URL of the form https://doi.org/[DOI]
-                                                                            #The regex for [DOI] is 10\.\d{4,9}/[-._;()/:A-Z0-9]+ (taken from here https://www.crossref.org/blog/dois-and-matching-regular-expressions/)
-                                                                            #and it must be followed by a valid ending character: either a speace, a new line, a ", a <, or end of string.
-              '\A(10\.\d{4,9}/[-._;()/:A-Z0-9]+)$']                         # version 4 is like version 3, but without the requirement of the url https://doi.org/ in front of it.
-                                                                            #However, it requires that the string contains ONLY the doi and nothing else. This is useful for when the DOI is stored in metadata
-
-             
-#Similarly, arxiv_regexp is a list of regular expressions used to identify an arXiv identifier in a string. They are (roughly) ordered from stricter to less and less strict. Moreover,
-#the regexp corresponding to older arXiv notations have less priority.
-#NOTE: currently only one regexp is implemented for arxiv. 
-arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #version 0 looks for something like "arXiv:YYMM.number(vn)" 
-                                                                            #where YYMM are 4 digits, numbers are up to 5 digits and (vn) is
-                                                                            #an additional optional term specifying the version. n is an integer starting from 1
-                                                                            #This is the official format for Arxiv indentifier starting from 1 April 2007
-                                                                            #This is the official format for Arxiv indentifier starting from 1 April 2007
-                '(\d{4}\.\d+)(?:v\d+)?(?:\.pdf)',                         #version 1 is similar to version 0, without the requirement of "arxiv : " at the beginning 
-                                                                            #but with the requirement that '.pdf' appears right after the possible arXiv identifier. 
-                                                                            #This is helpful when we are trying to extrat the arXiv ID from the file name.
-                '\A(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
-                                                                            #but requires that the string contains ONLY the arXiv ID.
 
 def validate_doi_web(doi,method=None):
     """ It queries dx.doi.org for a certain doi, to check that the doi exists.
@@ -64,6 +39,7 @@ def validate_doi_web(doi,method=None):
     if method == None:
         method = config.get('method_dxdoiorg')
     try:
+        # TODO(DJRHails): This should really use the handle API (https://www.doi.org/factsheets/DOIProxy.html)
         url = "http://dx.doi.org/" + doi
         headers = {"accept": method}
         NumberAttempts = 10
@@ -71,18 +47,23 @@ def validate_doi_web(doi,method=None):
             r = requests.get(url, headers = headers)
             r.encoding = 'utf-8' #This forces to encode the obtained text with utf-8
             text = r.text
-            if (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
+            # 503 or 504 errors are common
+            if r.status_code >= 500 or (text.lower().find("503 Service Unavailable".lower() )>=0) or (not text):
                 NumberAttempts = NumberAttempts -1
-                logging.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
+                logger.info("Could not reach dx.doi.org. Trying again. Attempts left: " + str(NumberAttempts))
                 continue
             else:
                 NumberAttempts = 0
-            if (text.lower().find( "DOI Not Found".lower() ))==-1:
-                return text
-                #metadata = parse_bib_from_dxdoiorg(text, method)
-                #return {'bibtex_entry':make_bibtex(metadata), 'bibtex_data':metadata}
-            else:
+
+            # 404 = DOI Not Found, or DOI Prefix Not Found
+            if r.status_code == 404:
                 return None
+
+            # Backup check for HTML error page content
+            if text.lower().find("DOI cannot be found".lower()) != -1:
+                return None
+                
+            return text
     except Exception as e:
         logger.error(r"Some error occured within the function validate_doi_web")
         logger.error(e)
@@ -129,10 +110,14 @@ def validate(identifier,what='doi'):
     if not identifier:
         return None
     if what=='doi':
-        if re.match(doi_pattern,identifier,re.I):
+        standard_doi = standardise_doi(identifier)
+        if identifier != standard_doi:
+            logger.info(f"Standardised DOI: {identifier} -> {standard_doi}")
+
+        if standard_doi:
             if config.get('webvalidation'):
-                logger.info(f"Validating the possible DOI {identifier} via a query to dx.doi.org...")
-                result = validate_doi_web(identifier)
+                logger.info(f"Validating the possible DOI {standard_doi} via a query to dx.doi.org...")
+                result = validate_doi_web(standard_doi)
                 if result==-1:
                     logger.error(f"Some error occured during connection to dx.doi.org.")
                     return None
@@ -140,10 +125,10 @@ def validate(identifier,what='doi'):
                     logger.error(f"The DOI was validated by by dx.doi.org, but the validation string starts with the tag \"@misc\". This might be the DOI of the journal and not the article itself.")
                     return False
                 if result:
-                    logger.info(f"The DOI {identifier} is validated by dx.doi.org.")
+                    logger.info(f"The DOI {standard_doi} is validated by dx.doi.org.")
                     return result
                 else:
-                    logger.info(f"The DOI {identifier} is not valid according to dx.doi.org.")
+                    logger.info(f"The DOI {standard_doi} is not valid according to dx.doi.org.")
                     return False
             else:
                 logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential DOI on dx.doi.org.")
@@ -236,6 +221,10 @@ def find_identifier_in_google_search(query,func_validate,numb_results):
     i=1
     try:
         for url in search(query, stop=numb_results):
+            identifier,desc,info = find_identifier_in_text([url],func_validate)
+            if identifier: 
+                logger.info(f"A valid {desc} was found in the search URL.")
+                return identifier,desc,info
             logger.info(f"Looking for a valid identifier in the search result #{str(i)} : {url}")
             response = requests.get(url,headers=headers)
             text = response.text
@@ -243,8 +232,8 @@ def find_identifier_in_google_search(query,func_validate,numb_results):
             if identifier: 
                 return identifier,desc,info
             i=i+1
-    except Exception as e: 
-        logger.error('Some error occured while doing a google search (maybe the string is too long?): \n '+ str(e))
+    except Exception: 
+        logger.exception('Some error occured while doing a google search (maybe the string is too long?)')
     return None, None, None
 
 def find_identifier_in_text(texts,func_validate):
@@ -284,9 +273,14 @@ def find_identifier_in_text(texts,func_validate):
         for v in range(len(doi_regexp)):
             identifiers = extract_doi_from_text(text,version=v)
             for identifier in identifiers:
+                logger.debug("Found a potential DOI: " + identifier)
                 validation = func_validate(identifier,'doi')
+                standard_doi = standardise_doi(identifier)
+                if identifier != standard_doi:
+                    logger.info(f"Standardised DOI: {identifier} -> {standard_doi}")
+
                 if validation: 
-                    return identifier, 'DOI', validation
+                    return standard_doi, 'DOI', validation
             
         #Then we look for an Arxiv ID
         for v in range(len(arxiv_regexp)):
@@ -604,8 +598,17 @@ def find_identifier_in_filename(file, func_validate):
     -------
     result : dictionary with identifier and other info (see above)
     """
-    text = os.path.basename(file.name)
-    identifier,desc,info = find_identifier_in_text([text],func_validate)
+    # We unquote here to allow / to be placed in filenames as %2F
+    # particularly useful for DOIs with multiple slashes
+    text = unquote(os.path.basename(file.name))
+
+    # 10.1227/12345678.pdf is both a valid filepath and a valid doi
+    # We want to still discover the "actual" doi which requires the .pdf extension to be removed.
+    # We try repeatedly stripping the extension until we find a valid doi (works best with online validation, which is default). 
+    strip_possible_extensions = list(accumulate(text.split('.'), lambda x,y: '.'.join([x, y])))
+    texts = list(reversed(strip_possible_extensions))
+
+    identifier,desc,info = find_identifier_in_text(texts,func_validate)
     if identifier: 
         logger.info(f"A valid {desc} was found in the file name.")
         return identifier,desc,info
@@ -652,17 +655,17 @@ def find_identifier_by_googling_title(file, func_validate):
     titles = find_possible_titles(file)
     if titles:
         if config.get('websearch')==False:
-            logging.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
+            logger.info("NOTE: Possible titles of the paper were found, but the web-search method is currently disabled by the user. Enable it in order to perform a qoogle query.")
             return None, None, None
         else:
             logger.info(f"Found {len(titles)} possible title(s).")
             titles.sort(key=len, reverse=True)
-            for index_title,title in enumerate(titles):
-                logger.info(f"Trying possible title #{index_title+1}")
+            for index_title, title in enumerate(titles):
+                logger.info(f"Trying possible title #{index_title+1} '{title}'")
                 identifier,desc,info = find_identifier_in_google_search(title,func_validate,numb_results=config.get('numb_results_google_search'))
                 if identifier:
                     logger.info(f"A valid {desc} was found with this google search.")
-                    return identifier,desc,info
+                    return identifier, desc, info
             logger.info("None of the search results contained a valid identifier.")     
             return None, None, None
     else:

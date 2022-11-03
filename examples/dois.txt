@@ -1,0 +1,5 @@
+DOI             10.1016/0021-9991(86)90093-8             examples\1-s2.0-0021999186900938-main.pdf
+DOI             10.1063/1.2409490                        examples\chaumet_JAP_07.pdf
+DOI             10.1037/a0015278                         examples\paper12.2009_unknown_040916_440842.pdf
+DOI             10.1103/PhysRevLett.116.061102           examples\PhysRevLett.116.061102.pdf
+DOI             10.1038/s41586-019-1666-5                examples\s41586-019-1666-5.pdf

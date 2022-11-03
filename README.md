@@ -12,12 +12,20 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 [![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3)[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.3**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.4**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.3] - 2022-06-17
-#### Fixed
-- Object files were not closed after being opened (issue https://github.com/MicheleCotrufo/pdf2doi/issues/17).
-- Make sure that the version 2.0.0 of `pypdf2` is used, since the text extracted with newer versions occasionally messes up some DOI.
+### [v1.4] - 2022-11-02
+
+#### Main improvements (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
+- Check for server error status codes when validating on dx.doi.org as 504 errors can occur
+- When performing google searches, it looks for DOIs also in the URLs.
+    - Support any URL with a matching DOI and the doi keyword in the URL.
+- Attempt to strip extensions from filenames doi10.111/1111.pdf will fail to locate the doi as 10.111/1111.pdf is a valid, if uncommon DOI.
+- "Standardise" DOIs to handle loose matches e.g. case variations, or trailing punctuation.
+### Minor code changes (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
+- Moved regex patterns to patterns.py + add pytest tests for common DOI patterns
+- Update to use logger.exception which provides tracebacks on errors.
+- Moved code to add the '/identifier' tag to a general function add_metadata() in finders.py
 
 
 ## Installation

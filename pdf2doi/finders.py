@@ -414,19 +414,17 @@ def get_pdf_text(file,reader):
                 logger.error("Error from textract: " + str(e))
     return text
 
-def add_found_identifier_to_metadata(target,identifier):
-    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label '/identifier'
-    and containing the content of the input variable identifier to all pdf files specified by target (either a single file or
-    all the pdf files in a folder). This can be useful to make sure that the next time
-    this same pdf is analysed, the identifier is found more easily.
-    It can also be useful when one want to reset to '' the '/identifier' of all pdf files in a certain folder.
+def add_metadata(target,key,value):
+    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label equal to key
+    and containing the content of the input variable value to all pdf files specified by target (either a single file or
+    all the pdf files in a folder). 
 
     Parameters
     ----------
     target : string
         a valid path to a pdf file or a folder
-    identifier : string
-        a valid identifier, which will be stored in the pdf metadata with name '/identifier'
+    key : string
+    value : string
     Returns
     -------
     True if the the metadata was added succesfully, false otherwise
@@ -448,7 +446,7 @@ def add_found_identifier_to_metadata(target,identifier):
         list_files = [target]
 
     for f in list_files:
-        logger.info(f"Trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'...")
+        logger.info(f"Trying to add the tag \'{key}\'-> \'{value}\' into the metadata of the file \'{f}\'...")
         try:
             file = open(f, 'rb') 
         except (FileNotFoundError, IOError):
@@ -469,20 +467,38 @@ def add_found_identifier_to_metadata(target,identifier):
                 writer.add_metadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
             except:                             #correctly seen as strings (it happens with old files). Therefore we use the try/except
                 pass                            #to ignore this possible problem
-            key = '/identifier'
             writer.add_metadata({
-                key: identifier
+                key: value
             })
             fout = open(f, 'ab') 
             writer.write(fout)
             file.close()
             fout.close()
-            logger.info(f"The identifier \'{identifier}\' was added succesfully to the metadata of the file \'{f}\' with key \'{key}\'...")
+            logger.info(f"The tag \'{key}\'-> \'{value}\' was added succesfully to the metadata of the file \'{f}\'...")
         except Exception as e:
             logger.error("Error from PyPDF2: " + str(e))
-            msg = f"An error occured while trying to write the identifier \'{identifier}\' into the metadata of the file \'{f}\'. Maybe the file is open elsewhere?"
+            msg = f"An error occured while trying to write the tag \'{key}\'-> \'{value}\'  into the metadata of the file \'{f}\'. Maybe the file is open elsewhere?"
             logger.error(msg)
             return False, msg
+
+def add_found_identifier_to_metadata(target,identifier):
+    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label '/identifier'
+    and containing the content of the input variable identifier to all pdf files specified by target (either a single file or
+    all the pdf files in a folder). This can be useful to make sure that the next time
+    this same pdf is analysed, the identifier is found more easily.
+    It can also be useful when one want to reset to '' the '/identifier' of all pdf files in a certain folder.
+
+    Parameters
+    ----------
+    target : string
+        a valid path to a pdf file or a folder
+    identifier : string
+        a valid identifier, which will be stored in the pdf metadata with name '/identifier'
+    Returns
+    -------
+    True if the the metadata was added succesfully, false otherwise
+    """
+    add_metadata(target,key='/identifier',value=identifier)
 
 
 ######## End first part ######## 

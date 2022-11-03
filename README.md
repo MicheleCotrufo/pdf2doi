@@ -33,7 +33,7 @@ The latest stable version of ```pdf2doi``` is the **1.4**. See [here](https://gi
 Use the package manager pip to install pdf2doi.
 
 ```bash
-pip install pdf2doi
+pip install pdf2doi==1.4.post1
 ```
 
 Under Windows, after installation it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).

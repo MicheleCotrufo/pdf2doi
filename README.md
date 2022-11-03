@@ -22,7 +22,7 @@ The latest stable version of ```pdf2doi``` is the **1.4**. See [here](https://gi
     - Support any URL with a matching DOI and the doi keyword in the URL.
 - Attempt to strip extensions from filenames doi10.111/1111.pdf will fail to locate the doi as 10.111/1111.pdf is a valid, if uncommon DOI.
 - "Standardise" DOIs to handle loose matches e.g. case variations, or trailing punctuation.
-### Minor code changes (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
+#### Minor code changes (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
 - Moved regex patterns to patterns.py + add pytest tests for common DOI patterns
 - Update to use logger.exception which provides tracebacks on errors.
 - Moved code to add the '/identifier' tag to a general function add_metadata() in finders.py

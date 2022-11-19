@@ -266,6 +266,10 @@ def main():
                         "--no_store_identifier_metadata",
                         help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By using this additional option, the identifier is not stored in the file metadata.",
                         action="store_true")
+    parser.add_argument("-no_arxiv2doi",
+                        help="If a valid arXiv ID is found for a given .pdf file, by default pdf2doi will try to also look for a DOI (either because the paper has been published in a journal or because arXiv has assigned to it a DOI of the form \"10.48550/arXivID\")." +
+                            " By adding this command, the arXiv ID is instead always returned.",
+                        action="store_true")
     parser.add_argument('-id',
                         help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                              " are ignored. ",
@@ -273,8 +277,7 @@ def main():
     parser.add_argument("-id_input_box",  # When called with this argument, an input box is generated in order
                         # to acquire a string from the user, which is then stored in the metadata
                         # of the target pdf file, with key \'/identifier\'
-                        # This is normally used when calling pdf2doi by right-clicking on a
-                        # .pdf file in Windows
+                        # This is normally used when calling pdf2doi by right-clicking on a .pdf file in Windows
                         help=argparse.SUPPRESS,
                         action="store_true")
     parser.add_argument('-google',
@@ -349,6 +352,7 @@ def main():
                     easygui.msgbox(result[1])
         return
 
+    config.set('replace_arxivID_by_DOI_when_available', not(args.no_arxiv2doi))
     config.set('websearch', not (args.no_web_search))
     config.set('webvalidation', not (args.no_web_validation))
     config.set('save_identifier_metadata', not (args.no_store_identifier_metadata))

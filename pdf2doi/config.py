@@ -42,7 +42,8 @@ class config():
             'websearch' : True,
             'numb_results_google_search' : 6,
             'N_characters_in_pdf' : 1000,
-            'save_identifier_metadata' : True
+            'save_identifier_metadata' : True,
+            'replace_arxivID_by_DOI_when_available' : True
             }
     __setters = __params.keys()
 

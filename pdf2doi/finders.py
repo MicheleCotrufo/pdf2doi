@@ -144,10 +144,12 @@ def validate(identifier,what='doi'):
                     logger.error(f"Some error occured during connection to export.arxiv.org.")
                     return None
                 if result:
-                    logger.info(f"The Arxiv ID {identifier} is validated by export.arxiv.org")
+                    logger.info(f"The arXiv ID {identifier} is validated by export.arxiv.org")
+                    if 'arxiv_doi' in result.keys():
+                        logger.info(f"Moreover, export.arxiv.org told us that this paper has actually a DOI: {result['arxiv_doi']}")
                     return result
                 else:
-                    logger.info(f"The Arxiv ID {identifier} is not valid according to export.arxiv.org.")
+                    logger.info(f"The arXiv ID {identifier} is not valid according to export.arxiv.org.")
                     return False
             else:
                 logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential arxiv ID on export.arxiv.org.")
@@ -557,6 +559,20 @@ def find_identifier(file, method, func_validate=validate,**kwargs):
 
     identifier, desc, info = finder_methods[method](file,func_validate,**kwargs)
     
+    ### The next block of code check if the identifier found is an arXiv ID, and tried to replace it with a DOI (either from a journal publication or with the arXiv DOI)
+    ### This needs to be implemented more elegantly, probably in a dedicated function
+    if identifier:
+        if desc == 'arxiv ID' and  config.get('replace_arxivID_by_DOI_when_available')==True:
+            if 'arxiv_doi' in info.keys() and info['arxiv_doi']:
+                arxiv_doi = info['arxiv_doi']
+            else:
+                arxiv_doi = f"10.48550/arXiv.{identifier}"
+            identifier = arxiv_doi
+            desc = 'DOI'
+            method = method + ' + arxiv2doi'
+            logger.info(f"The arXiv ID will be replaced by the DOI {identifier}. If you prefer to keep the arXiv ID, use to command -no_arxiv2doi when invoking pdf2doi")
+    ######     
+            
     result = {'identifier':identifier,'identifier_type':desc,
               'path':file.name, 'method':method}
     result['validation_info'] = info

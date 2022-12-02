@@ -1,4 +1,5 @@
 import logging
+import importlib.util
 
 # Setup logging
 logger = logging.getLogger("pdf2doi")
@@ -12,6 +13,14 @@ logger.propagate = False
 
 from .config import config
 config.ReadParamsINIfile()  #Load all current configuration from the .ini file. If the .ini file is not present, it generates it using default values
+
+#Determine the list of libraries to be used to extract text from pdf files
+reader_libraries = ['pdfminer','PyPdf']
+
+is_textract_installed = importlib.util.find_spec('textract')
+if is_textract_installed:
+    reader_libraries. append('textract')
+    
 
 config.set('verbose',config.get('verbose')) #This is a quick and dirty way (to improve in the future) to make sure that the verbosity of the pdf2doi logger is properly set according
                                             #to the current value of config.get('verbose') (see config.py file for details)

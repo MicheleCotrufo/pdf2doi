@@ -8,13 +8,16 @@ this module.
 from urllib.parse import unquote
 from itertools import accumulate
 from PyPDF2 import PdfFileReader, PdfFileWriter
-import textract
+from pdfminer.high_level import extract_text
+
 import requests
 import pdftitle
 import re
 import logging
 from googlesearch import search
 import pdf2doi.config as config
+from pdf2doi import reader_libraries
+from pdf2doi.find_title_via_pymupdf import find_title_via_pymupdf
 import os
 import feedparser
 
@@ -146,7 +149,7 @@ def validate(identifier,what='doi'):
                 if result:
                     logger.info(f"The arXiv ID {identifier} is validated by export.arxiv.org")
                     if 'arxiv_doi' in result.keys():
-                        logger.info(f"Moreover, export.arxiv.org told us that this paper has actually a DOI: {result['arxiv_doi']}")
+                        logger.info(f"Moreover, export.arxiv.org told us that this paper actually has a DOI: {result['arxiv_doi']}")
                     return result
                 else:
                     logger.info(f"The arXiv ID {identifier} is not valid according to export.arxiv.org.")
@@ -322,6 +325,7 @@ def get_pdf_info(file):
 
     #file.close()
     return info
+
     
 def find_possible_titles(file):
     """
@@ -344,24 +348,38 @@ def find_possible_titles(file):
         title = pdftitle.get_title_from_io(file)
     except:
         title = ''
-    if not(isinstance(title, str)):
-        return
-    if len(title.strip())>12:#This is to check that the title found is neither empty nor just few characters
-        titles.append(title)  
+    if isinstance(title, str):
+        if len(title.strip())>12:#This is to check that the title found is neither empty nor just few characters
+            logger.info(f"pdftitle found the title \"{title}\"")
+            titles.append(title.strip())  
+    # (2)    
+    try:
+        title = find_title_via_pymupdf(file)
+    except:
+        title = ''
+    if isinstance(title, str):
+        if len(title.strip())>12:#This is to check that the title found is neither empty nor just few characters
+            logger.info(f"pymupdf found the title \"{title}\"")
+            titles.append(title.strip())  
         
-    # (2)
-    info = get_pdf_info(file)
-    if not(info): return None
-    
-    for key, value in info.items():
-        if 'title' in key.lower():
-            if isinstance(value,str) and len(value.strip())>12 and len(value.split())>3: #This is to check that the title found is neither empty nor just few characters or few words
-                titles.append(value)         
     # (3)
+    info = get_pdf_info(file)
+    if info:
+        for key, value in info.items():
+            if 'title' in key.lower():
+                if isinstance(value,str) and len(value.strip())>12 and len(value.split())>3: #This is to check that the title found is neither empty nor just few characters or few words
+                    logger.info(f"PyPDF2 found the title \"{title}\"")
+                    titles.append(value.strip())         
+    # (4)
     title = os.path.basename(file.name)
     if len(title.strip())>30:#This is to check that the title found is neither empty nor just few characters
-        titles.append(title)
+        logger.info(f"Using the filename as potential title, \"{title}\"")
+        titles.append(title.strip())
         
+    # remove possible duplicates
+    titles_temp = titles
+    titles = []
+    [titles.append(x) for x in titles_temp if x not in titles]
     return titles
         
 def get_pdf_text(file,reader):
@@ -374,12 +392,25 @@ def get_pdf_text(file,reader):
     file : file object, opened as 'rb
     reader : string
         It specifies which library is used to extract the text from the pdf.
-        The supported values are either 'pypdf' (uses the PyPDF2 module) or 'textract' (uses the 'textract' module)
+        The currently supported values are either 
+            'pypdf' (uses the PyPDF2 module)
+            'textract' (uses the 'textract' module)
     Returns
     -------
     text : list of strings
     """
     text =[]
+
+    if reader == 'pdfminer':
+        try:
+            pdf_text = extract_text(file)
+        except Exception as e:
+            logger.error(f"An error occurred when reading the content of this file with pdfminer.")
+            logger.error("Error from pdfminer: " + str(e))
+            return None
+            
+        text.append(pdf_text)
+
     if reader == 'pypdf':
         try:
             pdf = PdfFileReader(file,strict=False)
@@ -401,7 +432,17 @@ def get_pdf_text(file,reader):
                 logger.error("An error occured while loading the document text with PyPDF2. The pdf version might be not supported.")
                 logger.error("Error from PyPDF2: " + str(e))
                 break 
+
+        # Checking if there are annotations
+        for page in pdf.pages:
+            if "/Annots" in page:
+                for annot in page["/Annots"]:
+                    subtype = annot.get_object()["/Subtype"]
+                    if subtype in ["/FreeText", "/Text"]:
+                        text.append(annot.get_object()["/Contents"])
+
     if reader == 'textract':
+        import textract
         #This block of code is not very efficient. We start from an object file (file), we extract its path, and then we pass this path to the library
         #textract, which will later re-open the file; however, right now there isn't a workaround, because textract does not accept an object file as input.
         path = file.name #Note: this part will fail with if the object file does not correpond to a locally available file
@@ -484,23 +525,23 @@ def add_metadata(target,key,value):
             return False, msg
 
 def add_found_identifier_to_metadata(target,identifier):
-    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label '/identifier'
+    """Given a pdf file or a folder identified by the input variable target, it adds a metadata with label '/pdf2doi_identifier'
     and containing the content of the input variable identifier to all pdf files specified by target (either a single file or
     all the pdf files in a folder). This can be useful to make sure that the next time
     this same pdf is analysed, the identifier is found more easily.
-    It can also be useful when one want to reset to '' the '/identifier' of all pdf files in a certain folder.
+    It can also be useful when one want to reset to '' the '/pdf2doi_identifier' of all pdf files in a certain folder.
 
     Parameters
     ----------
     target : string
         a valid path to a pdf file or a folder
     identifier : string
-        a valid identifier, which will be stored in the pdf metadata with name '/identifier'
+        a valid identifier, which will be stored in the pdf metadata with name '/pdf2doi_identifier'
     Returns
     -------
     True if the the metadata was added succesfully, false otherwise
     """
-    add_metadata(target,key='/identifier',value=identifier)
+    add_metadata(target,key='/pdf2doi_identifier',value=identifier)
 
 
 ######## End first part ######## 
@@ -519,14 +560,12 @@ The correspondence between the values of the string method and the function to c
 (see bottom of this module).
 '''
 
-
-
 def find_identifier(file, method, func_validate=validate,**kwargs):
     """ Tries to find an identifier (e.g. DOI, arxiv ID,...) for the pdf file identified by the input
     argument 'file', by using the method specified by input argument 'method'. Any found identifier is validated
     by using the function func_validate. If a valid identifier is found with any method different from
     "document_infos" (i.e. by looking into the file metadata) the identifier is also added to the file metadata
-    with key "/identifier" (unless config.get('save_identifier_metadata') is set to False)
+    with key "/pdf2doi_identifier" (unless config.get('save_identifier_metadata') is set to False)
 
     Parameters
     ----------
@@ -560,17 +599,26 @@ def find_identifier(file, method, func_validate=validate,**kwargs):
     identifier, desc, info = finder_methods[method](file,func_validate,**kwargs)
     
     ### The next block of code check if the identifier found is an arXiv ID, and tried to replace it with a DOI (either from a journal publication or with the arXiv DOI)
+    ### If the new DOI is from a journal, it also validates it again, in order to store the correct bibtex info inside the result['info'] string 
     ### This needs to be implemented more elegantly, probably in a dedicated function
     if identifier:
-        if desc == 'arxiv ID' and  config.get('replace_arxivID_by_DOI_when_available')==True:
+        if desc == 'arxiv ID' and config.get('replace_arxivID_by_DOI_when_available') == True:
             if 'arxiv_doi' in info.keys() and info['arxiv_doi']:
+                logger.info(f"Checking if the DOI {info['arxiv_doi']} is valid...")
                 arxiv_doi = info['arxiv_doi']
+                info = validate(arxiv_doi,'doi')
+                if info:
+                    logger.info(f"The arXiv ID will be replaced by the Journal DOI {identifier}. If you prefer to keep the arXiv ID, use the command -no_arxiv2doi when invoking pdf2doi")
+                    desc = 'DOI'
+                    identifier = arxiv_doi
+                    method = method + ' + arxiv2doi'
             else:
                 arxiv_doi = f"10.48550/arXiv.{identifier}"
-            identifier = arxiv_doi
-            desc = 'DOI'
-            method = method + ' + arxiv2doi'
-            logger.info(f"The arXiv ID will be replaced by the DOI {identifier}. If you prefer to keep the arXiv ID, use to command -no_arxiv2doi when invoking pdf2doi")
+                logger.info(f"The arXiv ID will be replaced by the arXiv DOI {arxiv_doi}. If you prefer to keep the arXiv ID, use the command -no_arxiv2doi when invoking pdf2doi")
+                desc = 'arxiv DOI'
+                identifier = arxiv_doi
+                method = method + ' + arxiv2doi'
+            
     ######     
             
     result = {'identifier':identifier,'identifier_type':desc,
@@ -684,6 +732,7 @@ def find_identifier_by_googling_title(file, func_validate):
     file : object file 
     func_validate : function, optional
     """
+    logger.info(f"Trying to find the title of this publication...")
     titles = find_possible_titles(file)
     if titles:
         if config.get('websearch')==False:
@@ -758,7 +807,5 @@ finder_methods = {
                     "title_google"              : find_identifier_by_googling_title,
                     "first_N_characters_google" : find_identifier_by_googling_first_N_characters_in_pdf
                     }
-
-reader_libraries = ['PyPdf','textract']
 
 ######## End second part ######## 

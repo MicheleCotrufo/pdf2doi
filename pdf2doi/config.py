@@ -31,6 +31,8 @@ save_identifier_metadata                Sets the default value of the global set
                                         If set True, when a valid identifier is found with any method different than the metadata lookup the identifier
                                         is also written inside the file metadata with key "/identifier". If set False, this does not happen.
                                  
+'replace_arxivID_by_DOI_when_available' 
+
 '''
 
 

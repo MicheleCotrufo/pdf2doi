@@ -1,1 +1,2 @@
 include pdf2doi/*.ini
+include requirements.txt

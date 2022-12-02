@@ -150,10 +150,10 @@ def __find_doi(file: io.IOBase) -> dict:
 
     # First method: we look into the pdf metadata (in the current implementation this is done
     # via the getDocumentInfo() method of the library PyPdf) and see if any of them is a string which containts a
-    # valid identifier inside it. We first look for the elements of the dictionary with keys '/doi' or /identifier'(if the they exist),
+    # valid identifier inside it. We first look for the elements of the dictionary with keys '/doi' or /pdf2doi_identifier'(if the they exist),
     # and then any other field of the dictionary
     logger.info(f"Method #1: Looking for a valid identifier in the document infos...")
-    result = finders.find_identifier(file, method="document_infos", keysToCheckFirst=['/doi', '/identifier'])
+    result = finders.find_identifier(file, method="document_infos", keysToCheckFirst=['/doi', '/pdf2doi_identifier'])
     if result['identifier']:
         return result
 
@@ -271,12 +271,12 @@ def main():
                             " By adding this command, the arXiv ID is instead always returned.",
                         action="store_true")
     parser.add_argument('-id',
-                        help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
+                        help=f"Stores the string IDENTIFIER in the metadata of the target pdf file, with key \'/pdf2doi_identifier\'. Note: when this argument is passed, all other arguments (except for the path to the pdf file)" +
                              " are ignored. ",
                         action="store", dest="identifier", type=str, default=False)
     parser.add_argument("-id_input_box",  # When called with this argument, an input box is generated in order
                         # to acquire a string from the user, which is then stored in the metadata
-                        # of the target pdf file, with key \'/identifier\'
+                        # of the target pdf file
                         # This is normally used when calling pdf2doi by right-clicking on a .pdf file in Windows
                         help=argparse.SUPPRESS,
                         action="store_true")

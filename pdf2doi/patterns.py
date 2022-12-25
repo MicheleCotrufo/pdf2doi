@@ -68,3 +68,14 @@ arxiv_regexp = ['arxiv[\s]*\:[\s]*(\d{4}\.\d+)(?:v\d+)?(?:[\s\n\"<]|$)',  #versi
                                                                             #This is helpful when we are trying to extrat the arXiv ID from the file name.
                 '^(\d{4}\.\d+)(?:v\d+)?$']                               #version 2 is similar to version 0, without the requirement of "arxiv : " at the beginning 
                                                                             #but requires that the string contains ONLY the arXiv ID.
+
+
+##Following regexp is taken from https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
+#isbn_regexp = [''.join(['(?:ISBN(?:-1[03])?:? )?(?=[0-9X]{10}$|' ,
+#                        '(?=(?:[0-9]+[- ]){3})[- 0-9X]{13}$|97[89][0-9]{10}$|' , 
+#                        '(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)(?:97[89][- ]?)?[0-9]{1,5}[- ]?' ,
+#                        '[0-9]+[- ]?[0-9]+[- ]?[0-9X]$']),
+#               ''.join(['\bISBN(?:-1[03])?:? (?=[0-9X]{10}$|(?=(?:[0-9]+[- ]){3})',
+#                        '[- 0-9X]{13}$|97[89][0-9]{10}$|(?=(?:[0-9]+[- ]){4})[- 0-9]{17}$)',
+#                        '(?:97[89][- ]?)?[0-9]{1,5}[- ]?[0-9]+[- ]?[0-9]+[- ]?[0-9X]\b'])
+#               ]

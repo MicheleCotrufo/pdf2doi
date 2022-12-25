@@ -15,7 +15,8 @@ from .config import config
 config.ReadParamsINIfile()  #Load all current configuration from the .ini file. If the .ini file is not present, it generates it using default values
 
 #Determine the list of libraries to be used to extract text from pdf files
-reader_libraries = ['pdfminer','PyPdf']
+reader_libraries = ['PyPdf','pdfminer'] 
+# Using PyPdf before pdfminer makes sure that, in arxiv pdf files, the DOI which is sometimes written on the left margin of the first page is correctly detected
 
 is_textract_installed = importlib.util.find_spec('textract')
 if is_textract_installed:

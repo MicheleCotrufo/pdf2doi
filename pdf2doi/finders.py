@@ -25,7 +25,8 @@ from pdf2doi.patterns import (
     arxiv2007_pattern,
     doi_regexp,
     arxiv_regexp,
-    standardise_doi
+    standardise_doi#,
+    #isbn_regexp
 )
 
 logger = logging.getLogger('pdf2doi')
@@ -159,13 +160,35 @@ def validate(identifier,what='doi'):
                 return True
         else: return False
 
+    #elif what=='isbn':
+    #    # code taken from https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
+    #    # Remove non ISBN digits, then split into a list
+    #    chars = list(re.sub("[- ]|^ISBN(?:-1[03])?:?", "", identifier))
+    #    # Remove the final ISBN digit from `chars`, and assign it to `last`
+    #    last = chars.pop()
+    #    if len(chars) == 9:
+    #        # Compute the ISBN-10 check digit
+    #        val = sum((x + 2) * int(y) for x,y in enumerate(reversed(chars)))
+    #        check = 11 - (val % 11)
+    #        if check == 10:
+    #            check = "X"
+    #        elif check == 11:
+    #            check = "0"
+    #    else:
+    #        # Compute the ISBN-13 check digit
+    #        val = sum((x % 2 * 2 + 1) * int(y) for x,y in enumerate(chars))
+    #        check = 10 - (val % 10)
+    #        if check == 10:
+    #            check = "0"
+    #    if (str(check) == last):
+    #        return True
     return False
 
 
 def extract_arxivID_from_text(text,version=0):   
     """
     It looks for an arxiv ID in the input argument 'text', by using the regexp specified by arxiv_regexp[version],
-    where arxiv_regexp is a list of strings defined in this file and 'version' is an input value.
+    where arxiv_regexp is a list of strings defined in patterns.py and 'version' is an integer value.
 
     Parameters
     ----------
@@ -190,7 +213,7 @@ def extract_arxivID_from_text(text,version=0):
 def extract_doi_from_text(text,version=0):
     """
     It looks for a DOI in the input argument 'text', by using the regexp specified by doi_regexp[version],
-    where doi_regexp is a list of strings defined in this file and 'version' is an input value.
+    where doi_regexp is a list of strings defined in patterns.py and 'version' is an integer value.
 
     Parameters
     ----------
@@ -212,6 +235,32 @@ def extract_doi_from_text(text,version=0):
     except:
         pass
     return []
+
+#def extract_isbn_from_text(text,version=0):
+#    """
+#    It looks for a ISBN in the input argument 'text', by using the regexp specified by isbn_regexp[version],
+#    where isbn_regexp is a list of strings defined in patterns.py and 'version' is an integer value.
+
+#    Parameters
+#    ----------
+#    text : string
+#        Text to analyse
+#    version : integer, optional
+#        Numerical value defined between 0 and len(doi_regexp)-1. It specifies which element of the list
+#        isbn_regexp is used for the regular expression
+
+#    Returns
+#    -------
+#    isbn_list : list
+#        It returns a list of all ISBNs found (or empty list if no one was found)
+
+#    """    
+#    try:
+#        isbns = re.findall(isbn_regexp[version],text,re.I)
+#        return isbns
+#    except:
+#        pass
+#    return []
 
 def find_identifier_in_google_search(query,func_validate,numb_results):
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
@@ -274,6 +323,7 @@ def find_identifier_in_text(texts,func_validate):
 
         if isinstance(text, bytes):
             text = text.decode()
+
         #First we look for DOI
         for v in range(len(doi_regexp)):
             identifiers = extract_doi_from_text(text,version=v)
@@ -294,6 +344,15 @@ def find_identifier_in_text(texts,func_validate):
                 validation = func_validate(identifier,'arxiv')
                 if validation:
                     return identifier,'arxiv ID', validation
+
+        ##Then we look for ISBNs
+        #for v in range(len(isbn_regexp)):
+        #    identifiers = extract_isbn_from_text(text,version=v)
+        #    for identifier in identifiers:
+        #        validation = func_validate(identifier,'isbn')
+        #        if validation:
+        #            return identifier,'isbn', validation
+
     return None, None, None
 
 

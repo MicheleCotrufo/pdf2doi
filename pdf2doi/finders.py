@@ -564,14 +564,23 @@ def add_metadata(target,key,value):
         try:
             writer = PdfFileWriter()
             writer.appendPagesFromReader(pdf)
-            metadata = pdf.getDocumentInfo()
-            try:
-                writer.add_metadata(metadata)    #This instruction might generate an error if the pre-existing metadata are weird and are not
-            except:                             #correctly seen as strings (it happens with old files). Therefore we use the try/except
-                pass                            #to ignore this possible problem
-            writer.add_metadata({
-                key: value
-            })
+            metadata = pdf.getDocumentInfo() #Extract all the current info
+            metadata_dict = dict(metadata)   #Convert them to a regular python dictionary
+            metadata_dict[key] = value       #Add the new info
+            try:                             #Add all infos to a "new" file
+                for k, v in metadata_dict.items():
+                    try:
+                        writer.add_metadata({
+                            k: v
+                        })
+                    except Exception as e: 
+                        #logger.error("Error from PyPDF2 when parsing pre-existing metadata: " + str(e))
+                        pass    
+            except Exception as e:                
+                #logger.error("Error when parsing pre-existing metadata: " + str(e))  
+                pass
+
+            #Overwrite the file
             fout = open(f, 'ab') 
             writer.write(fout)
             file.close()

@@ -12,20 +12,26 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 [![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3)[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.4**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.5**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.4] - 2022-11-02
+### [v1.5] - 2022-11-02
 
-#### Main improvements (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
-- Check for server error status codes when validating on dx.doi.org as 504 errors can occur
-- When performing google searches, it looks for DOIs also in the URLs.
-    - Support any URL with a matching DOI and the doi keyword in the URL.
-- Attempt to strip extensions from filenames doi10.111/1111.pdf will fail to locate the doi as 10.111/1111.pdf is a valid, if uncommon DOI.
-- "Standardise" DOIs to handle loose matches e.g. case variations, or trailing punctuation.
-#### Minor code changes (see also merge from https://github.com/MicheleCotrufo/pdf2doi/pull/20)
-- Moved regex patterns to patterns.py + add pytest tests for common DOI patterns
-- Update to use logger.exception which provides tracebacks on errors.
-- Moved code to add the '/identifier' tag to a general function add_metadata() in finders.py
+#### Main changes
+- The library ```textract``` has been removed from the required dependencies because it often creates problems during installation (due to conflicts between library versions),
+and because it generally requires installing many other dependencies which are not needed by ```pdf2doi```. The user can still decide to install  ```textract==1.6.4``` if desired.
+```pdf2doi``` will use ```textract``` only if it is installed.
+- ```pdf2doi``` now stores any found identifier into a tag called ```/pdf2doi_identifier``` (previously was ```/identifier```).
+
+#### Added
+- The library ```pdfminer``` is now directly used by ```pdf2doi``` to exctract the pdf text (instead of indirectly via ```textract```)
+- An additional method to find the title of a pdf file, based on the library ```pymupdf```, has been added .
+- [Issue https://github.com/MicheleCotrufo/pdf2doi/issues/21]: When an arXiv ID is found, a corresponding DOI is also returned when available. This could be either the standard arXiv DOI (see also [here](https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/)),
+ or the DOI of the corresponding journal publication. This behavior can be disabled by adding the optional command ```-no_arxiv2doi``` to the ```pdf2doi``` invocation.
+- [Issue https://github.com/MicheleCotrufo/pdf2doi/issues/22]: The function ```get_pdf_text``` (finders.py) has been modified to allow the library ```PyPDF2``` to extract also the text of any annotation/comment present in the pdf file.
+
+#### Fixed
+- Potential titles of the papers were often not correctly found, because the function ```find_possible_titles()``` (finders.py) would mistakenly disregard all the results if one of the three methods (pdftitle, PyPDF2, filename) generated an error.
+- [Commit https://github.com/MicheleCotrufo/pdf2doi/commit/0804439f2d31191e476ea56369d1257d293d92dd]: Fixed bug in the function ```add_metadata()``` (finders.py). In previous versions, some of the pre-existing metadata were not preserved when a new one was added.
 
 
 ## Installation
@@ -33,10 +39,18 @@ The latest stable version of ```pdf2doi``` is the **1.4**. See [here](https://gi
 Use the package manager pip to install pdf2doi.
 
 ```bash
-pip install pdf2doi==1.4.post1
+pip install pdf2doi==1.5
 ```
 
-Under Windows, after installation it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).
+The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 
+The user can decide whether to install it or not. ```pdf2doi``` will only try to use this library if it detects that it is installed.
+To install it,
+```bash
+pip install textract==1.6.4
+pip install pdfminer.six==20191110
+```
+
+Under Windows, after installation of ```pdf2doi``` it is also possible to add [shortcuts to the right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows).
 
 ## Used by
 
@@ -208,14 +222,14 @@ In the final output, the first column specifies the kind of identifier (currentl
 A list of all optional arguments can be generated by ```pdf2doi --h```
 ```
 $ pdf2doi --h
-usage: pdf2doi [-h] [-v] [-nws] [-nwv] [-nostore] [-id IDENTIFIER] [-google GOOGLE_RESULTS] [-s FILENAME_IDENTIFIERS] [-clip] [-install--right--click] [-uninstall--right--click] [path [path ...]]
+usage: pdf2doi [-h] [-v] [-nws] [-nwv] [-nostore] [-no_arxiv2doi] [-id IDENTIFIER] [-google GOOGLE_RESULTS] [-s FILENAME_IDENTIFIERS] [-clip] [-install--right--click] [-uninstall--right--click] [path ...]
 
 Retrieves the DOI or other identifiers (e.g. arXiv) from pdf files of a publications.
 
 positional arguments:
   path                  Relative path of the target pdf file or of the targe folder.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -v, --verbose         Increase verbosity. By default (i.e. when not using -v), only a table with the found identifiers will be printed as output.
   -nws, --no_web_search
@@ -223,20 +237,24 @@ optional arguments:
   -nwv, --no_web_validation
                         Disable the online validation of identifiers (e.g., via queries to http://dx.doi.org/).
   -nostore, --no_store_identifier_metadata
-                        By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By using this additional option, the identifier is not stored in the file metadata.
-  -id IDENTIFIER        Stores the string IDENTIFIER in the metadata of the target pdf file, with key '/identifier'. Note: when this argument is passed, all other arguments (except for the path to the pdf file) are ignored.
+                        By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By using this additional option, the identifier is not stored in the file
+                        metadata.
+  -no_arxiv2doi         If a valid arXiv ID is found for a given .pdf file, by default pdf2doi will try to also look for a DOI (either because the paper has been published in a journal or because arXiv has
+                        assigned to it a DOI of the form "10.48550/arXivID"). By adding this command, the arXiv ID is instead always returned.
+  -id IDENTIFIER        Stores the string IDENTIFIER in the metadata of the target pdf file, with key '/pdf2doi_identifier'. Note: when this argument is passed, all other arguments (except for the path to the
+                        pdf file) are ignored.
   -google GOOGLE_RESULTS
                         Set how many results should be considered when doing a google search for the DOI (default=6).
   -s FILENAME_IDENTIFIERS, --save_identifiers_file FILENAME_IDENTIFIERS
-                        Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS. This option is only available when a folder is targeted.
+                        Save all the identifiers found in the target folder in a text file inside the same folder with name specified by FILENAME_IDENTIFIERS. This option is only available when a folder is
+                        targeted.
   -clip, --save_doi_clipboard
                         Store all found DOI/identifiers into the clipboard.
   -install--right--click
-                        Add a shortcut to pdf2doi in the right-click context menu of Windows. You can copy the identifier and/or bibtex entry of a pdf file (or all pdf files in a folder) into the clipboard by just right clicking on it!
-                        NOTE: this feature is only available on Windows.
+                        Add a shortcut to pdf2doi in the right-click context menu of Windows. You can copy the identifier and/or bibtex entry of a pdf file (or all pdf files in a folder) into the clipboard by
+                        just right clicking on it! NOTE: this feature is only available on Windows.
   -uninstall--right--click
-                        Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.
-```
+                        Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.```
 
 #### Manually associate the correct identifier to a file from command line
 Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. In these (hopefully rare) occasions
@@ -244,7 +262,7 @@ it is possible to manually add the correct DOI/identifier to the pdf metadata, b
 ```
 $ pdf2doi "path\to\pdf" -id "doi1234"
 ```
-This creates a new metadata in the pdf file with label '/identifier' and containing the string ```doi1234```.  Future lookups of this same file via ```pdf2doi``` (in particular when used by other tools such as [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
+This creates a new metadata in the pdf file with label '/pdf2doi_identifier' and containing the string ```doi1234```.  Future lookups of this same file via ```pdf2doi``` (in particular when used by other tools such as [pdf2bib](https://github.com/MicheleCotrufo/pdf2bib) or
 [pdf-renamer](https://github.com/MicheleCotrufo/pdf-renamer)) will then return the correct identifier and BibTeX infos.
 
 ### Usage inside a python script
@@ -262,7 +280,7 @@ A full list of the library settings can be printed by the method ```pdf2doi.conf
 ```python
 >>> import pdf2doi
 >>> pdf2doi.config.print()
-verbose : False (bool)
+verbose : True (bool)
 separator : \ (str)
 method_dxdoiorg : application/citeproc+json (str)
 webvalidation : True (bool)
@@ -270,6 +288,7 @@ websearch : True (bool)
 numb_results_google_search : 6 (int)
 N_characters_in_pdf : 1000 (int)
 save_identifier_metadata : True (bool)
+replace_arxivID_by_DOI_when_available : True (bool)
 ```
 
 The output of the function ```pdf2doi``` is a list of dictionaries (or just a single dictionary if a single file was targeted). Each dictionary has the following keys
@@ -306,7 +325,7 @@ identifier to a pdf file also from within python, by using the function ```pdf2d
 >>> import pdf2doi
 >>> pdf2doi.add_found_identifier_to_metadata(path_to_pdf_file, identifier)
 ```
-this creates a new metadata in the pdf file with label '/identifier' and containing the string ```identifier```.  
+this creates a new metadata in the pdf file with label '/pdf2doi_identifier' and containing the string ```identifier```.  
 
 ## Installing the shortcuts in the right-click context menu of Windows
 This functionality is only available on Windows (and so far it has been tested only on Windows 10). It adds additional commands to the context menu of Windows

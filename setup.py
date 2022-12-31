@@ -7,18 +7,19 @@ with open(path.join(this_directory, 'README.md'),encoding ='unicode_escape') as 
 
 with open("requirements.txt") as f:
     required_packages = f.read().splitlines()
+
 setuptools.setup(name='pdf2doi',
-      version='1.5rc1',
-      description='A  python library/command-line tool to extract the DOI or other identifiers of a scientific paper from a pdf file.',
-      long_description=long_description,
-      long_description_content_type='text/markdown',
-      url='https://github.com/MicheleCotrufo/pdf2doi',
-      author='Michele Cotrufo',
-      author_email='michele.cotrufo@gmail.com',
-      license='MIT',
+      version='1.5',
+      description = 'A  python library/command-line tool to extract the DOI or other identifiers of a scientific paper from a pdf file.',
+      long_description = long_description,
+      long_description_content_type = 'text/markdown',
+      url = 'https://github.com/MicheleCotrufo/pdf2doi',
+      author = 'Michele Cotrufo',
+      author_email = 'michele.cotrufo@gmail.com',
+      license = 'MIT',
       entry_points = {
         'console_scripts': ["pdf2doi = pdf2doi.main:main"],
       },
       packages=['pdf2doi'],
-      install_requires= required_packages,
-      zip_safe=False)
+      install_requires = required_packages,
+      zip_safe = False)

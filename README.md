@@ -14,7 +14,7 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 ## Latest stable version
 The latest stable version of ```pdf2doi``` is the **1.5**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.5] - 2022-11-02
+### [v1.5] - 2022-12-31
 
 #### Main changes
 - The library ```textract``` has been removed from the required dependencies because it often creates problems during installation (due to conflicts between library versions),
@@ -23,7 +23,7 @@ and because it generally requires installing many other dependencies which are n
 - ```pdf2doi``` now stores any found identifier into a tag called ```/pdf2doi_identifier``` (previously was ```/identifier```).
 
 #### Added
-- The library ```pdfminer``` is now directly used by ```pdf2doi``` to exctract the pdf text (instead of indirectly via ```textract```)
+- The library ```pdfminer``` is now directly used by ```pdf2doi``` to extract the text from a pdf file (instead of doing it indirectly via ```textract```)
 - An additional method to find the title of a pdf file, based on the library ```pymupdf```, has been added .
 - [Issue https://github.com/MicheleCotrufo/pdf2doi/issues/21]: When an arXiv ID is found, a corresponding DOI is also returned when available. This could be either the standard arXiv DOI (see also [here](https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/)),
  or the DOI of the corresponding journal publication. This behavior can be disabled by adding the optional command ```-no_arxiv2doi``` to the ```pdf2doi``` invocation.
@@ -31,7 +31,7 @@ and because it generally requires installing many other dependencies which are n
 
 #### Fixed
 - Potential titles of the papers were often not correctly found, because the function ```find_possible_titles()``` (finders.py) would mistakenly disregard all the results if one of the three methods (pdftitle, PyPDF2, filename) generated an error.
-- [Commit https://github.com/MicheleCotrufo/pdf2doi/commit/0804439f2d31191e476ea56369d1257d293d92dd]: Fixed bug in the function ```add_metadata()``` (finders.py). In previous versions, some of the pre-existing metadata were not preserved when a new one was added.
+- Fixed bug in the function ```add_metadata()``` (finders.py). In previous versions, some of the pre-existing metadata were not preserved when a new one was added  ([Commit](https://github.com/MicheleCotrufo/pdf2doi/commit/0804439f2d31191e476ea56369d1257d293d92dd)). 
 
 
 ## Installation
@@ -94,10 +94,11 @@ a DOI or an arXiv ID. Priority is given to metadata which contain the word 'doi'
 a DOI or an arXiv ID.
 
 3. Scan the text inside the .pdf file, and check for any string that matches the pattern of 
-a DOI or an arXiv ID. The text is extracted with the libraries [PyPDF2](https://github.com/mstamy2/PyPDF2) and [textract](https://github.com/deanmalmgren/textract).
+a DOI or an arXiv ID. The text is extracted with the libraries [PyPDF2](https://github.com/mstamy2/PyPDF2) and [pdfminer](https://github.com/pdfminer/pdfminer.six). If the library 
+[textract](https://github.com/deanmalmgren/textract) is installed, ```pdf2doi``` will try to use that too.
 
 4. Try to find possible titles of the publication. In the current version, possible titles are identified via 
-the library [pdftitle](https://github.com/metebalci/pdftitle "pdftitle"), and by the file name. For each possible title a google search 
+the libraries [pdftitle](https://github.com/metebalci/pdftitle) and [PyMuPDF](https://github.com/pymupdf/PyMuPDF), and by the file name. For each possible title a google search 
 is performed and the plain text of the first results is scanned for valid identifiers.
 
 5. As a last desperate attempt, the first N=1000 characters of the pdf text are used as a query for

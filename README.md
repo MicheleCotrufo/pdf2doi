@@ -9,7 +9,9 @@ automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotruf
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)
+[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)
+[![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 ## Latest stable version
 The latest stable version of ```pdf2doi``` is the **1.5**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.

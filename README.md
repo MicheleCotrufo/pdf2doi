@@ -14,9 +14,9 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.5**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.5.1**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.5] - 2022-12-31
+### [v1.5.1] - 2022-12-31
 
 #### Main changes
 - The library ```textract``` has been removed from the required dependencies because it often creates problems during installation (due to conflicts between library versions),
@@ -41,7 +41,7 @@ and because it generally requires installing many other dependencies which are n
 Use the package manager pip to install pdf2doi.
 
 ```bash
-pip install pdf2doi==1.5
+pip install pdf2doi==1.5.1
 ```
 
 The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 

@@ -258,7 +258,8 @@ options:
                         Add a shortcut to pdf2doi in the right-click context menu of Windows. You can copy the identifier and/or bibtex entry of a pdf file (or all pdf files in a folder) into the clipboard by
                         just right clicking on it! NOTE: this feature is only available on Windows.
   -uninstall--right--click
-                        Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.```
+                        Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.
+```
 
 #### Manually associate the correct identifier to a file from command line
 Sometimes it is not possible to retrieve a DOI/identifier automatically, or maybe the one that is retrieved is not the correct one. In these (hopefully rare) occasions

@@ -257,7 +257,7 @@ This creates a new metadata in the pdf file with label '/pdf2doi_identifier' and
 
 ### Usage inside a python script
 ```pdf2doi``` can also be used as a library within a python script. The function ```pdf2doi.pdf2doi``` is the main point of entry. The function looks for the identifier of a pdf file by applying all the available methods. 
-The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. 
+The first input argument must be a valid path (either absolute or relative) to a pdf file or to a folder containing pdf files. The path can be passed either as a string, or as a Pathlib object 
 The same optional arguments available in the command line operation are now available via the methods ```set``` and ```get``` of the object ```pdf2doi.config```
 For example, we can scan the folder [examples](/examples) while soppressing output verbosity by, 
 

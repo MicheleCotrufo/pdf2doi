@@ -26,7 +26,7 @@ def pdf2doi(target):
 
     Parameters
     ----------
-    target : string
+    target : string or a a Pathlib object
         Relative or absolute path of a .pdf file or a directory containing pdf files
 
     Returns

@@ -9,39 +9,24 @@ automatically renaming pdf files ([pdf-renamer](https://github.com/MicheleCotruf
 
 pdf2doi can be used either from [command line](#command-line-usage), or inside your [python script](#usage-inside-a-python-script) or, only for Windows, directly from the [right-click context menu](#installing-the-shortcuts-in-the-right-click-context-menu-of-windows) of a pdf file or a folder.
 
-[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)
-[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.0&versions=1.0.1&versions=1.1&versions=1.2&versions=1.3&versions=1.4.post1&versions=1.5)
+[![Downloads](https://pepy.tech/badge/pdf2doi)](https://pepy.tech/project/pdf2doi?versions=1.4&versions=1.5.post1&versions=1.6)
+[![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.4&versions=1.5.post1&versions=1.6)
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.5.1**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.6**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.5.1] - 2022-12-31
-
-#### Main changes
-- The library ```textract``` has been removed from the required dependencies because it often creates problems during installation (due to conflicts between library versions),
-and because it generally requires installing many other dependencies which are not needed by ```pdf2doi```. The user can still decide to install  ```textract==1.6.4``` if desired.
-```pdf2doi``` will use ```textract``` only if it is installed.
-- ```pdf2doi``` now stores any found identifier into a tag called ```/pdf2doi_identifier``` (previously was ```/identifier```).
-
-#### Added
-- The library ```pdfminer``` is now directly used by ```pdf2doi``` to extract the text from a pdf file (instead of doing it indirectly via ```textract```)
-- An additional method to find the title of a pdf file, based on the library ```pymupdf```, has been added .
-- [Issue https://github.com/MicheleCotrufo/pdf2doi/issues/21]: When an arXiv ID is found, a corresponding DOI is also returned when available. This could be either the standard arXiv DOI (see also [here](https://blog.arxiv.org/2022/02/17/new-arxiv-articles-are-now-automatically-assigned-dois/)),
- or the DOI of the corresponding journal publication. This behavior can be disabled by adding the optional command ```-no_arxiv2doi``` to the ```pdf2doi``` invocation.
-- [Issue https://github.com/MicheleCotrufo/pdf2doi/issues/22]: The function ```get_pdf_text``` (finders.py) has been modified to allow the library ```PyPDF2``` to extract also the text of any annotation/comment present in the pdf file.
+### [v1.6] - 2024-06-16
 
 #### Fixed
-- Potential titles of the papers were often not correctly found, because the function ```find_possible_titles()``` (finders.py) would mistakenly disregard all the results if one of the three methods (pdftitle, PyPDF2, filename) generated an error.
-- Fixed bug in the function ```add_metadata()``` (finders.py). In previous versions, some of the pre-existing metadata were not preserved when a new one was added  ([Commit](https://github.com/MicheleCotrufo/pdf2doi/commit/0804439f2d31191e476ea56369d1257d293d92dd)). 
-
+- Fixed a bug related to the storing of the DOI into the metadata of the pdf files. Due to some quirks of the library ```PyPdf2```, the size of the pdf file would double after adding the metadata. In this new version, adding metadata to a pdf file is now performed via the library ```pypdf``` (Thanks Ole Steuernagel for pointing out this issue).
 
 ## Installation
 
 Use the package manager pip to install pdf2doi.
 
 ```bash
-pip install pdf2doi==1.5.1
+pip install pdf2doi==1.6
 ```
 
 The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 

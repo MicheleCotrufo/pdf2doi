@@ -593,7 +593,7 @@ def add_found_identifier_to_metadata(target,identifier):
 
     Parameters
     ----------
-    target : string
+    target : string or a a Pathlib object
         a valid path to a pdf file or a folder
     identifier : string
         a valid identifier, which will be stored in the pdf metadata with name '/pdf2doi_identifier'

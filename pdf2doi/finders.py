@@ -601,6 +601,10 @@ def add_found_identifier_to_metadata(target,identifier):
     -------
     True if the the metadata was added succesfully, false otherwise
     """
+    
+    # Make sure the path is a string in case a Pathlib object is provided
+    target = str(target)
+    
     add_metadata(target,key='/pdf2doi_identifier',value=identifier)
 
 

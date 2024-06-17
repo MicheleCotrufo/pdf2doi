@@ -46,6 +46,9 @@ def pdf2doi(target):
 
     logger = logging.getLogger("pdf2doi")
 
+    # Make sure the path is a string in case a Pathlib object is provided
+    target = str(target)
+    
     # Check if path is valid
     if not (path.exists(target)):
         logger.error(f"{target} is not a valid path to a file or a directory.")

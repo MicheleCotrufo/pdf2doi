@@ -7,6 +7,7 @@ this module.
 """
 from urllib.parse import unquote
 from itertools import accumulate
+from pypdf import PdfWriter
 from PyPDF2 import PdfFileReader, PdfFileWriter
 from pdfminer.high_level import extract_text
 
@@ -562,30 +563,21 @@ def add_metadata(target,key,value):
             logger.error(msg)
             return False, msg
         try:
-            writer = PdfFileWriter()
-            writer.appendPagesFromReader(pdf)
-            metadata = pdf.getDocumentInfo() #Extract all the current info
-            metadata_dict = dict(metadata)   #Convert them to a regular python dictionary
-            metadata_dict[key] = value       #Add the new info
-            try:                             #Add all infos to a "new" file
-                for k, v in metadata_dict.items():
-                    try:
-                        writer.add_metadata({
-                            k: v
-                        })
-                    except Exception as e: 
-                        #logger.error("Error from PyPDF2 when parsing pre-existing metadata: " + str(e))
-                        pass    
-            except Exception as e:                
-                #logger.error("Error when parsing pre-existing metadata: " + str(e))  
-                pass
+            writer = PdfWriter(clone_from=f)
 
-            #Overwrite the file
-            fout = open(f, 'ab') 
-            writer.write(fout)
-            file.close()
-            fout.close()
+            try:
+                writer.add_metadata({
+                    key: value
+                })
+            except Exception as e: 
+                logger.error("Error from pypdf when adding metadata: " + str(e))
+                pass    
+
+            with open(f, "wb") as fp:
+                writer.write(fp)
+            
             logger.info(f"The tag \'{key}\'-> \'{value}\' was added succesfully to the metadata of the file \'{f}\'...")
+            
         except Exception as e:
             logger.error("Error from PyPDF2: " + str(e))
             msg = f"An error occured while trying to write the tag \'{key}\'-> \'{value}\'  into the metadata of the file \'{f}\'. Maybe the file is open elsewhere?"

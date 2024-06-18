@@ -13,6 +13,14 @@ pdf2doi can be used either from [command line](#command-line-usage), or inside y
 [![Downloads](https://pepy.tech/badge/pdf2doi/month)](https://pepy.tech/project/pdf2doi?versions=1.4&versions=1.5.post1&versions=1.6)
 [![Pip Package](https://img.shields.io/pypi/v/pdf2doi?logo=PyPI)](https://pypi.org/project/pdf2doi)
 
+### Warning
+
+Version of ```pdf2doi``` prior to the **1.6** are affected by a very annoying bug. By default, after finding the DOI of a pdf paper, ```pdf2doi``` will store the DOI into the metadata of the pdf file. Due a bug, the size of the pdf file would double everytime that a metadata was added. This bug has been fixed in all versions > 1.6. 
+
+If you have pdf files that have been affected by this bug, you can use ```pdf2doi``` to fix it. After updating to a version > 1.6, run ```pdf2doi path/to/folder/containing/pdf/files -id ''```. This will restore the pdf files to their original size.
+
+Thanks Ole Steuernagel for pointing out this issue.
+
 ## Latest stable version
 The latest stable version of ```pdf2doi``` is the **1.6**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 

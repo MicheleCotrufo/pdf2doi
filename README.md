@@ -23,7 +23,13 @@ Thanks Ole Steuernagel for pointing out this issue.
 ## Latest stable version
 The latest stable version of ```pdf2doi``` is the **1.6**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.6] - 2024-06-16
+### [v1.6] - 2024-06-18
+
+#### Main changes
+- The library ```pypdf``` is now used (instead of ```PyPdf2```) to add new metadata to the pdf files (see also fix below). Since ```PyPdf2``` is now deprecated, in the next version of ```pdf2doi``` we will progressively replace all tasks performed by ```PyPdf2``` by ```pypdf``` 
+
+#### Added
+- Make sure that the input variable target is converted to a string before processing https://github.com/MicheleCotrufo/pdf2doi/pull/27
 
 #### Fixed
 - Fixed a bug related to the storing of the DOI into the metadata of the pdf files. Due to some quirks of the library ```PyPdf2```, the size of the pdf file would double after adding the metadata. In this new version, adding metadata to a pdf file is now performed via the library ```pypdf``` (Thanks Ole Steuernagel for pointing out this issue).

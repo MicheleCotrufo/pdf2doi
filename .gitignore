@@ -2,7 +2,6 @@
 /.venv/
 /.vs/
 /build/
-/tests/
 /_examples*
 /examples_*
 /.eggs

@@ -8,3 +8,4 @@ easygui
 pdfminer.six==20221105
 pymupdf==1.21.0
 pypdf
+pytest-mock

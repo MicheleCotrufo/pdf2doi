@@ -21,6 +21,7 @@ from pdf2doi import reader_libraries
 from pdf2doi.find_title_via_pymupdf import find_title_via_pymupdf
 import os
 import feedparser
+from typing import Optional
 
 from pdf2doi.patterns import (
     arxiv2007_pattern,
@@ -73,6 +74,8 @@ def validate_doi_web(doi,method=None):
         logger.error(r"Some error occured within the function validate_doi_web")
         logger.error(e)
         return -1
+    
+    return None
 
 def validate_arxivID_web(arxivID):
     """It queries export.arxiv.org for a certain arxiv ID, to check that it exists.
@@ -160,29 +163,7 @@ def validate(identifier,what='doi'):
                 logger.info(f"NOTE: Web validation is deactivated. Set webvalidation = True (or remove the '-nwv' argument if working from command line) in order to validate a potential arxiv ID on export.arxiv.org.")
                 return True
         else: return False
-
-    #elif what=='isbn':
-    #    # code taken from https://www.oreilly.com/library/view/regular-expressions-cookbook/9781449327453/ch04s13.html
-    #    # Remove non ISBN digits, then split into a list
-    #    chars = list(re.sub("[- ]|^ISBN(?:-1[03])?:?", "", identifier))
-    #    # Remove the final ISBN digit from `chars`, and assign it to `last`
-    #    last = chars.pop()
-    #    if len(chars) == 9:
-    #        # Compute the ISBN-10 check digit
-    #        val = sum((x + 2) * int(y) for x,y in enumerate(reversed(chars)))
-    #        check = 11 - (val % 11)
-    #        if check == 10:
-    #            check = "X"
-    #        elif check == 11:
-    #            check = "0"
-    #    else:
-    #        # Compute the ISBN-13 check digit
-    #        val = sum((x % 2 * 2 + 1) * int(y) for x,y in enumerate(chars))
-    #        check = 10 - (val % 10)
-    #        if check == 10:
-    #            check = "0"
-    #    if (str(check) == last):
-    #        return True
+        
     return False
 
 
@@ -237,31 +218,6 @@ def extract_doi_from_text(text,version=0):
         pass
     return []
 
-#def extract_isbn_from_text(text,version=0):
-#    """
-#    It looks for a ISBN in the input argument 'text', by using the regexp specified by isbn_regexp[version],
-#    where isbn_regexp is a list of strings defined in patterns.py and 'version' is an integer value.
-
-#    Parameters
-#    ----------
-#    text : string
-#        Text to analyse
-#    version : integer, optional
-#        Numerical value defined between 0 and len(doi_regexp)-1. It specifies which element of the list
-#        isbn_regexp is used for the regular expression
-
-#    Returns
-#    -------
-#    isbn_list : list
-#        It returns a list of all ISBNs found (or empty list if no one was found)
-
-#    """    
-#    try:
-#        isbns = re.findall(isbn_regexp[version],text,re.I)
-#        return isbns
-#    except:
-#        pass
-#    return []
 
 def find_identifier_in_google_search(query,func_validate,numb_results):
     headers = {"User-Agent":"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36"}
@@ -691,7 +647,7 @@ def find_identifier(file, method, func_validate=validate,**kwargs):
 
     return result
 
-def find_identifier_in_pdf_info(file,func_validate,keysToCheckFirst=[]):
+def find_identifier_in_pdf_info(file,func_validate,keysToCheckFirst=[]) -> tuple[Optional[str], Optional[str], Optional[str]]: 
     """ 
     Try to find a valid DOI in the values of the 'document information' dictionary. If a list of string is specified via the optional
     input parameter 'keysToCheckFirst', then the corresponding elements of the dictionary (assuming that the key exists) are given
@@ -705,7 +661,8 @@ def find_identifier_in_pdf_info(file,func_validate,keysToCheckFirst=[]):
        they exist) are given priority in the DOI search (following the order they appear in this list)
     Returns
     -------
-    result : dictionary with identifier and other info (see above) 
+    tuple[Optional[str], Optional[str], Optional[str]]: 
+        identifier, type of identifier, additional information
     """
 
 

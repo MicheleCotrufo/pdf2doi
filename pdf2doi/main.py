@@ -10,13 +10,16 @@ import io
 # import pyperclip
 
 def pdf2doi(target):
-    ''' This is the main routine of the library. When the library is used as a command-line tool (via the entry-point "pdf2doi") the input arguments
+    r''' This is the main routine of the library. When the library is used as a command-line tool (via the entry-point "pdf2doi") the input arguments
     are collected, validated and sent to this function (see the function main() below).
     The function tries to extract the DOI (or other identifiers) of the publication in the pdf files whose path is specified in the input variable target.
     If target contains the valid path of a folder, the function tries to extract the DOI/identifer of all pdf files in the folder.
     It returns a dictionary (or a list of dictionaries) containing info(s) about the file(s) examined, or None if an error occurred.
 
     Example:
+
+    .. code-block:: python
+
         import pdf2doi
         path = r"Path\to\folder"
         result = pdf2doi.pdf2doi(path)
@@ -35,12 +38,12 @@ def pdf2doi(target):
         The output is a single dictionary if target is a file, or a list of dictionaries if target is a directory,
         each element of the list describing one file. Each dictionary has the following keys
 
-        result['identifier'] = DOI or other identifier (or None if nothing is found)
-        result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-        result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info']
-                                    will typically contain raw bibtex data for this paper. Otherwise it will just contain True
-        result['path'] = path of the pdf file
-        result['method'] = method used to find the identifier
+        - result['identifier'] = DOI or other identifier (or None if nothing is found)
+        - result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
+        - result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info']
+          will typically contain raw bibtex data for this paper. Otherwise it will just contain True
+        - result['path'] = path of the pdf file
+        - result['method'] = method used to find the identifier
 
     '''
 
@@ -119,12 +122,12 @@ def pdf2doi_singlefile(file):
     result, dictionary
         The output is a single dictionary with the following keys
 
-        result['identifier'] = DOI or other identifier (or None if nothing is found)
-        result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
-        result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info']
-                                    will typically contain raw bibtex data for this paper. Otherwise it will just contain True
-        result['path'] = path of the pdf file
-        result['method'] = method used to find the identifier
+        - result['identifier'] = DOI or other identifier (or None if nothing is found)
+        - result['identifier_type'] = string specifying the type of identifier (e.g. 'doi' or 'arxiv')
+        - result['validation_info'] = Additional info on the paper. If config.get('webvalidation') = True, then result['validation_info'] 
+        will typically contain raw bibtex data for this paper. Otherwise it will just contain True
+        - result['path'] = path of the pdf file
+        - result['method'] = method used to find the identifier
 
     """
 
@@ -193,8 +196,9 @@ def __find_doi(file: io.IOBase) -> dict:
 
 
 def save_identifiers(filename_identifiers, results, clipboard=False):
-    ''' Write all identifiers contained in the input list 'results' into a text file with a path specified by filename_identifiers (if filename_identifiers is a
-        valid string) and/or into the clipboard (if clipboard = True).
+    ''' 
+    Write all identifiers contained in the input list 'results' into a text file with a path specified by filename_identifiers (if filename_identifiers is a
+    valid string) and/or into the clipboard (if clipboard = True).
 
     Parameters
     ----------

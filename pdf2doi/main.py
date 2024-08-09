@@ -304,6 +304,14 @@ def main():
                         dest="uninstall_right_click",
                         action="store_true",
                         help="Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.")
+    parser.add_argument("-cfg",
+                        "--use_config_file",
+                        help="Load settings from a config file at a default location. If --config_file_path isn't given, an INI file named 'settings.ini' will be created or read from the same directory as pdf2doi. The config file settings supersede CLI settings where they conflict. This argument isn't necessary if --config_file_path is given.",
+                        action="store_true")
+    parser.add_argument("-cfg--path",
+                        "--config_file_path",
+                        help="Load settings from a config file at the given relative or absolute path. If a relative path is given, the path is relative to the pdf2doi script or executable. The config file settings supersede CLI settings where they conflict.",
+                        action="store")
 
     args = parser.parse_args()
 
@@ -362,6 +370,13 @@ def main():
 
     if args.google_results:
         config.set('numb_results_google_search', args.google_results)
+
+    config_path = "settings.ini"
+    if args.config_file_path:
+        config_path = args.config_file_path
+    if args.use_config_file or args.config_file_path:
+        config.ReadParamsINIfile(config_path)
+
     results = pdf2doi(target=target)
 
     if not results:

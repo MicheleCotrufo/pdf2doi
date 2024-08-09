@@ -73,15 +73,24 @@ class config():
             logger.setLevel(level=loglevel)
 
     @staticmethod
-    def ReadParamsINIfile():
+    def ReadParamsINIfile(path):
         '''
-        Reads the parameters stored in the file settings.ini, and stores them in the dict self.params
+        Reads the parameters stored in the .ini file given by path, and stores them in the dict self.params
         If the .ini file does not exist, it creates it with the default values.
         '''
-        path_current_directory = os.path.dirname(__file__)
-        path_config_file = os.path.join(path_current_directory, 'settings.ini')
-        if not(os.path.exists(path_config_file)):
-            config.WriteParamsINIfile()
+        if os.path.isabs(path):
+            path_config_file = path
+        else:
+            path_current_directory = os.path.dirname(__file__)
+            path_config_file = os.path.join(path_current_directory, path)
+
+        logger = logging.getLogger("pdf2doi")
+        if os.path.isdir(path_config_file):
+            logger.error(f"{path_config_file} is a path to a dir, not to a file.")
+            return None
+
+        if not os.path.exists(path_config_file):
+            config.WriteParamsINIfile(path_config_file)
         else:
             config_object = configparser.ConfigParser()
             config_object.optionxform = str
@@ -113,16 +122,14 @@ class config():
             print(key + " : " + str(val) + ' ('+type(val).__name__+')')
 
     @staticmethod
-    def WriteParamsINIfile():
+    def WriteParamsINIfile(path):
         '''
-        Writes the parameters currently stored in in the dict self.params into the file settings.ini
+        Writes the parameters currently stored in in the dict self.params into the file at path
         '''
-        path_current_directory = os.path.dirname(__file__)
-        path_config_file = os.path.join(path_current_directory, 'settings.ini')
         config_object = configparser.ConfigParser()
         config_object.optionxform = str
         config_object['DEFAULT'] = config.__params
-        with open(path_config_file, 'w') as configfile: #Write them on file
+        with open(path, 'w') as configfile: #Write them on file
             config_object.write(configfile)
 
 

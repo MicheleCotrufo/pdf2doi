@@ -267,7 +267,7 @@ def main():
                         action="store_true")
     parser.add_argument("-nostore",
                         "--no_store_identifier_metadata",
-                        help="By default, anytime an identifier is found it is added to the metadata of the pdf file (if not present yet). By using this additional option, the identifier is not stored in the file metadata.",
+                        help="By default, anytime an identifier is found, it is added to the metadata of the pdf file (if not present yet). By using this additional option, the identifier is not stored in the file metadata.",
                         action="store_true")
     parser.add_argument("-no_arxiv2doi",
                         help="If a valid arXiv ID is found for a given .pdf file, by default pdf2doi will try to also look for a DOI (either because the paper has been published in a journal or because arXiv has assigned to it a DOI of the form \"10.48550/arXivID\")." +
@@ -343,7 +343,7 @@ def main():
     if args.id_input_box:
         import easygui
         identifier = easygui.enterbox(
-            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file:\n '{target}' \n\n(this will be stored in the file metadata labelled '\identifier')")
+            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file:\n '{target}' \n\n(this will be stored in the file metadata labelled '\\pdf2doi_identifier')")
         args.identifier = identifier
     # If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
     # Nothing else will be done

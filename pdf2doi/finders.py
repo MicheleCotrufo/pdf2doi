@@ -45,7 +45,7 @@ def validate_doi_web(doi,method=None):
         method = config.get('method_dxdoiorg')
     try:
         # TODO(DJRHails): This should really use the handle API (https://www.doi.org/factsheets/DOIProxy.html)
-        url = "http://dx.doi.org/" + doi
+        url = "https://dx.doi.org/" + doi
         headers = {"accept": method}
         NumberAttempts = 10
         while NumberAttempts:

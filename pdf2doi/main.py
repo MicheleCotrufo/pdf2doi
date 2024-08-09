@@ -343,7 +343,7 @@ def main():
     if args.id_input_box:
         import easygui
         identifier = easygui.enterbox(
-            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file:\n '{target}' \n\n(this will be stored in the file metadata labelled '\identifier')")
+            f"Please specify the identifier (i.e. DOI or arxiv ID) of the file:\n '{target}' \n\n(this will be stored in the file metadata labelled '\\identifier')")
         args.identifier = identifier
     # If the command -id was specified, and if the user provided a valid string, we call the sub-routine to store the string passed by the user into the metadata of the file indicated by the user
     # Nothing else will be done

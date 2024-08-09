@@ -46,45 +46,45 @@ def install_right_click():
         return
     python_folder = path.dirname(python_path)
     if python_folder[-7:].lower() == 'scripts': #This typically happens when python is installed in a virtual environment
-        path_pdf2doi = python_folder + "\pdf2doi.exe"
+        path_pdf2doi = python_folder + r"\pdf2doi.exe"
     else:
-        path_pdf2doi = python_folder + "\scripts\pdf2doi.exe"
+        path_pdf2doi = python_folder + r"\scripts\pdf2doi.exe"
     logger.info(f'Adding pdf2doi to the right-click context menu by adding keys to the system register...')
     try:
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'Directory\shell\pdf2doi')
         reg.SetValueEx(key, 'MUIVerb', 0, reg.REG_SZ, 'pdf2doi')
         reg.SetValueEx(key, 'subcommands', 0, reg.REG_SZ, '')
         reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'Directory\shell\pdf2doi\shell')
         reg.CloseKey(key)
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_doi')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'Directory\shell\pdf2doi\shell\pdf2doi_doi')
         reg.SetValue(key, '', reg.REG_SZ, 'Retrieve and copy DOIs/identifiers of all pdf files in this folder...')
         reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'Directory\shell\pdf2doi\shell\pdf2doi_doi\command')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'Directory\shell\pdf2doi\shell\pdf2doi_doi\command')
         reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -clip -v")
         reg.CloseKey(key)
 
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi')
         reg.SetValueEx(key, 'MUIVerb', 0, reg.REG_SZ, 'pdf2doi')
         reg.SetValueEx(key, 'subcommands', 0, reg.REG_SZ, '')
         reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi\shell')
         reg.CloseKey(key)
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi')
         reg.SetValue(key, '', reg.REG_SZ, 'Copy DOI/identifier of this file to clipboard...')
         reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi\command')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_doi\command')
         reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -clip -v")
         reg.CloseKey(key)
 
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi')
         reg.SetValue(key, '', reg.REG_SZ, 'Set DOI/identifier of this file...')
         reg.CloseKey(key)
-        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, 'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi\command')
+        key = reg.CreateKey(reg.HKEY_CLASSES_ROOT, r'SystemFileAssociations\.pdf\shell\pdf2doi\shell\pdf2doi_setdoi\command')
         reg.SetValue(key, '', reg.REG_SZ, path_pdf2doi + " \"%1\" -id_input_box -v")
         reg.CloseKey(key)
 
@@ -99,8 +99,8 @@ def uninstall_right_click():
         return
     logger.info(f'Removing all keys associated to pdf2doi from the system register...')
     try:
-        delete_sub_key(reg.HKEY_CLASSES_ROOT, "SystemFileAssociations\.pdf\shell\pdf2doi")
-        delete_sub_key(reg.HKEY_CLASSES_ROOT, "Directory\shell\pdf2doi")
+        delete_sub_key(reg.HKEY_CLASSES_ROOT, r"SystemFileAssociations\.pdf\shell\pdf2doi")
+        delete_sub_key(reg.HKEY_CLASSES_ROOT, r"Directory\shell\pdf2doi")
         logger.info(f'All keys were removed.')
     except Exception as e:
         logger.error(e)

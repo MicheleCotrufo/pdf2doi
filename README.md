@@ -38,9 +38,9 @@ Use the package manager pip to install pdf2doi.
 pip install pdf2doi==1.7
 ```
 
-Many users have reported that occasionally the installation fails because of some issue related to the installation of the library ```pymupdf```. We are still not sure what the issue is. A possible fix seems to be installing ```pymupdf``` separately (before installing ```pdf2doi```), via ```pip install pymupdf>=1.21.0```.
+- Many users have reported (https://github.com/MicheleCotrufo/pdf2doi/issues/32 https://github.com/MicheleCotrufo/pdf2doi/issues/28 https://github.com/MicheleCotrufo/pdf2doi/issues/37) that the installation fails because of some issue related to the installation of the library ```pymupdf```. We are still not sure what the issue is. A possible fix seems to be installing ```pymupdf``` separately (before installing ```pdf2doi```), via ```pip install pymupdf>=1.21.0```.
 
-The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 
+- The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 
 The user can decide whether to install it or not. ```pdf2doi``` will only try to use this library if it detects that it is installed.
 To install it,
 ```bash

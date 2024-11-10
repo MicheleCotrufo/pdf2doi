@@ -21,26 +21,24 @@ If you have pdf files that have been affected by this bug, you can use ```pdf2do
 Thanks Ole Steuernagel for pointing out this issue.
 
 ## Latest stable version
-The latest stable version of ```pdf2doi``` is the **1.6**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
+The latest stable version of ```pdf2doi``` is the **1.7**. See [here](https://github.com/MicheleCotrufo/pdf2doi/releases) for the full change log.
 
-### [v1.6] - 2024-06-18
+### [v1.7] - 2024-11-10
 
 #### Main changes
-- The library ```pypdf``` is now used (instead of ```PyPdf2```) to add new metadata to the pdf files (see also fix below). Since ```PyPdf2``` is now deprecated, in the next version of ```pdf2doi``` we will progressively replace all tasks performed by ```PyPdf2``` by ```pypdf``` 
-
-#### Added
-- Make sure that the input variable target is converted to a string before processing https://github.com/MicheleCotrufo/pdf2doi/pull/27
-
-#### Fixed
-- Fixed a bug related to the storing of the DOI into the metadata of the pdf files. Due to some quirks of the library ```PyPdf2```, the size of the pdf file would double after adding the metadata. In this new version, adding metadata to a pdf file is now performed via the library ```pypdf``` (Thanks Ole Steuernagel for pointing out this issue).
+- Changed url for dx.doi.org validation (https://github.com/MicheleCotrufo/pdf2doi/issues/35)
+- Added 'r' in front of strings to suppress warnings in recent Python versions (https://github.com/MicheleCotrufo/pdf2doi/pull/36)
+- Changed ```pymupdf``` dependency to ```pymupdf>=1.21.0``` (https://github.com/MicheleCotrufo/pdf2doi/issues/32 https://github.com/MicheleCotrufo/pdf2doi/issues/28 https://github.com/MicheleCotrufo/pdf2doi/issues/37)
 
 ## Installation
 
 Use the package manager pip to install pdf2doi.
 
 ```bash
-pip install pdf2doi==1.6
+pip install pdf2doi==1.7
 ```
+
+Many users have reported that occasionally the installation fails because of some issue related to the installation of the library ```pymupdf```. We are still not sure what the issue is. A possible fix seems to be installing ```pymupdf``` separately (before installing ```pdf2doi```), via ```pip install pymupdf>=1.21.0```.
 
 The library ```textract``` provides additional ways to analyze pdf files, and it is sometimes more powerful than ```PyPDF2```, but it comes with a large overhead of additional required dependencies, and sometimes it generates version conflicts. 
 The user can decide whether to install it or not. ```pdf2doi``` will only try to use this library if it detects that it is installed.

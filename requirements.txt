@@ -5,6 +5,6 @@ pdftitle>=0.3
 feedparser>=6.0.2
 pyperclip
 easygui
-pdfminer.six==20221105
+pdfminer.six>=20221105
 pymupdf>=1.21.0
 pypdf

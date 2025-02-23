@@ -67,14 +67,11 @@ def pdf2doi(target):
             return None
 
         logger.info(f"Found {numb_files} pdf files.")
-        if not (
-        target.endswith(config.get('separator'))):  # Make sure the path ends with "\" or "/" (according to the OS)
-            target = target + config.get('separator')
 
         identifiers_found = []  # For each pdf file in the target folder we will store a dictionary inside this list
         for f in pdf_files:
             logger.info("................")
-            file = target + f
+            file = path.join(target, f)
             # For each file we call again this function, but now the input argument target is set to the path of the file
             result = pdf2doi(target=file)
             logger.info(result['identifier'])

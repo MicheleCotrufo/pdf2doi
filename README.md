@@ -255,6 +255,10 @@ options:
                         just right clicking on it! NOTE: this feature is only available on Windows.
   -uninstall--right--click
                         Uninstall the right-click context menu functionalities. NOTE: this feature is only available on Windows.
+  -cfg, --use_config_file
+                        Load settings from a config file at a default location. If --config_file_path isn't given, an INI file named 'settings.ini' will be created or read from the same directory as pdf2doi. The config file settings supersede CLI settings where they conflict. This argument isn't necessary if --config_file_path is given.
+  -cfg--path CONFIG_FILE_PATH, --config_file_path CONFIG_FILE_PATH
+                        Load settings from a config file at the given relative or absolute path. If a relative path is given, the path is relative to the pdf2doi script or executable. The config file settings supersede CLI settings where they conflict.
 ```
 
 #### Manually associate the correct identifier to a file from command line

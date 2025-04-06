@@ -34,6 +34,7 @@ def fonts(doc, granularity=False):
     
 def font_tags(font_counts, styles):
     """Returns dictionary with font sizes as keys and tags as value.
+
     :param font_counts: (font_size, count) for all fonts occuring in document
     :type font_counts: list
     :param styles: all styles found in the document
@@ -67,6 +68,7 @@ def font_tags(font_counts, styles):
     
 def headers_para(doc, size_tag):
     """Scrapes headers & paragraphs from PDF and return texts with element tags.
+    
     :param doc: PDF document to iterate through
     :type doc: <class 'fitz.fitz.Document'>
     :param size_tag: textual element tags for each size

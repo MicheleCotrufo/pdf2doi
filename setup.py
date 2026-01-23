@@ -21,5 +21,6 @@ setuptools.setup(name='pdf2doi',
         'console_scripts': ["pdf2doi = pdf2doi.main:main"],
       },
       packages=['pdf2doi'],
+      include_package_data=True,  # Needed if using MANIFEST.in
       install_requires = required_packages,
       zip_safe = False)
